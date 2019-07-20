@@ -1,6 +1,14 @@
 #!/usr/bin/env python3
 
-from convtime import convtime
+"""
+Python 3 module for handling GNSS-derived position 
+time series.
+
+Module can read in, perform coordinate transformations,
+and fit model parameters to time series from file types:
+ - UNR-style .txyz2 and .env
+ - PBO-style .pos 
+"""
 
 import numpy as np
 
