@@ -17,6 +17,8 @@ import numpy as np
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
+import transform
+
 
 ########################################################################
 class timeSeries:
@@ -31,10 +33,10 @@ class timeSeries:
         self.time = [] 
         self.pos = []
         self.sig = []
-        self.covar = []
+        self.corr = []
         self.frame = 'NO FRAME SET'
         self.coordType = 'NO TYPE SET'
-        self.refPos = [0,0,0]
+        self.refPos = [0.0,0.0,0.0]
 
     ####################################################################
     def readUnrTxyz2(self, fileName):
@@ -99,7 +101,9 @@ class timeSeries:
         self.time = np.asarray(decYear)
         self.pos = np.stack([x, y, z])
         self.sig = np.stack([sigX, sigY, sigZ])
-        self.covar = np.stack([Cxy, Cyz, Cxz])
+        self.corr = np.stack([Cxy, Cyz, Cxz])
+
+        self.refPos = np.asarray(self.refPos)
 
     ####################################################################
     def setRefPosToAvg(self):
@@ -145,6 +149,140 @@ class timeSeries:
             print(cte)
 
     ####################################################################
+    def dxdydz2enu(self):
+
+        """
+        Transform coordinates from dXdYdZ to local East, North, Up 
+        coordinate system. Automatically changes timeSeries.coordType
+        to 'ENU' and timeSeries.refPos to units of Lon., Lat., and Ht.
+        """
+
+        # this routine should only be used when the coordinates have
+        # been reference to a local point, like what is done using
+        # timeSeries.setRefPosToAvg(). coordType should be 'dXdYdZ'
+        try:
+            if self.coordType == 'dXdYdZ':
+                
+                # set new coorType to 'ENU'
+                self.coordType = 'ENU'
+                
+                ### 
+                # transform refPos from XYZ -> Lon, Lat, Ht
+                ###
+                refPosX = self.refPos[0]
+                refPosY = self.refPos[1]
+                refPosZ = self.refPos[2]
+
+                # transform.xyz_to_llh returns: lat, lon, ht
+                # so switch first two returns to make refPos
+                # lon, lat, ht
+                refPosLLH = np.asarray([0.,0.,0.])
+                refPosLLH[1], refPosLLH[0], refPosLLH[2] = transform.xyz_to_llh(
+                                           refPosX, refPosY, refPosZ)
+
+                self.refPos = refPosLLH
+    
+                ###
+                # convert coordinates to ENU using transform.xyz_to_enu()
+                ###
+                inPos = self.pos
+
+                # loop over the columns of inPos
+                for i in range(0, np.shape(inPos)[1]):
+
+                    dX = inPos[0][i]
+                    dY = inPos[1][i]
+                    dZ = inPos[2][i]
+                    
+                    # again transform.xyz_to_enu wants lat first 
+                    # then lon so switch the order of refPos[0]
+                    # and refPos[1]
+                    E, N, U = transform.xyz_to_enu( self.refPos[1],
+                                self.refPos[0], dX, dY, dZ)
+
+                    self.pos[0][i] = E
+                    self.pos[1][i] = N
+                    self.pos[2][i] = U
+
+                ###
+                # convert var/covar mtx to ENU using 
+                # transform.xyz_to_enu_cov()
+                ###
+                inSig = self.sig
+                inCorr = self.corr
+
+                # loop over the columns of inSig and inCovar 
+                # (should be same size)
+                for i in range(0, np.shape(inSig)[1]):
+
+                    sigX = inSig[0][i]
+                    sigY = inSig[1][i]
+                    sigZ = inSig[2][i]
+
+                    Rxy = inCorr[0][i]
+                    Ryz = inCorr[1][i]
+                    Rxz = inCorr[2][i]
+
+                    varX = sigX*sigX
+                    varY = sigY*sigY
+                    varZ = sigZ*sigZ
+
+                    covarXY = Rxy*varX*varY
+                    covarYZ = Ryz*varY*varZ
+                    covarXZ = Rxz*varX*varZ
+
+                    varCovar1 = np.asarray([varX, covarXY, covarXZ])
+                    varCovar2 = np.asarray([covarXY, varY, covarYZ])
+                    varCovar3 = np.asarray([covarXZ, covarYZ, varZ])
+
+                    varCovarXYZ =  np.stack([varCovar1, varCovar2, varCovar3])
+
+                    # again transform.xyz_to_enu_cov() takes
+                    # lat first then lon so switch order of
+                    # refPos[0] and refPos[1]
+                    varCovarENU = transform.xyz_to_enu_cov(
+                                    self.refPos[1], self.refPos[2], 
+                                    varCovarXYZ)
+
+                    varE = varCovarENU[0][0]
+                    varN = varCovarENU[1][1]
+                    varU = varCovarENU[2][2]
+
+                    covarEN = varCovarENU[0][1]
+                    covarNU = varCovarENU[1][2]
+                    covarEU = varCovarENU[0][2]
+
+                    sigE = np.sqrt(varE)
+                    sigN = np.sqrt(varN)
+                    sigU = np.sqrt(varU)
+
+                    Ren = covarEN/varE/varN
+                    Rnu = covarNU/varN/varU
+                    Reu = covarEU/varE/varU
+
+                    self.sig[0][i] = sigE
+                    self.sig[1][i] = sigN
+                    self.sig[2][i] = sigU
+
+                    self.corr[0][i] = Ren
+                    self.corr[1][i] = Rnu
+                    self.corr[2][i] = Reu
+
+            else:
+
+                # raise coordTransformError
+                msg = ("ERROR: timeSeries.coordType must equal 'dXdYdZ'" + 
+                       " to perform timeSeries.dxdydz2enu()")
+                raise CoordTransformError(msg)
+
+        except CoordTransformError as cte:
+
+            print(cte)
+        
+
+        
+    
+    ####################################################################
     def plotHtml(self, htmlDir):
 
         """
@@ -158,7 +296,7 @@ class timeSeries:
             trace3 = 'Z'
             yaxis1 = 'X (m)'
             yaxis2 = 'Y (m)'
-            yaxis2 = 'Z (m)'
+            yaxis3 = 'Z (m)'
             plot1 = self.pos[0]
             plot2 = self.pos[1]
             plot3 = self.pos[2]
@@ -184,7 +322,7 @@ class timeSeries:
             spTitle1 = f'X pos. w.r.t. X: {self.refPos[0]} m'
             spTitle2 = f'Y pos. w.r.t. Y: {self.refPos[1]} m'
             spTitle3 = f'Z pos. w.r.t. Z: {self.refPos[2]} m'
-        elif self.coordType == 'dEdNdU':
+        elif self.coordType == 'ENU':
             trace1 = 'dE'
             trace2 = 'dN'
             trace3 = 'dU'
