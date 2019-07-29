@@ -126,7 +126,7 @@ class timeSeries:
                 avgY = np.mean(self.pos[1])
                 avgZ = np.mean(self.pos[2])
 
-                # referenc coodinates to average position
+                # reference coodinates to average position
                 self.pos[0] = self.pos[0] - avgX
                 self.pos[1] = self.pos[1] - avgY
                 self.pos[2] = self.pos[2] - avgZ
