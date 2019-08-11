@@ -4,4 +4,4 @@ services:
     build: 
       context: .
       dockerfile: docker/test/Dockerfile
-    command: which conda
+    command: "./Test/test.sh"

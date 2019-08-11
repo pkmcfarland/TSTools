@@ -1,6 +1,10 @@
 FROM continuumio/anaconda3
 
-SHELL ["/bin/bash"]
+RUN mkdir -p /tstools
+COPY ./Lib /tstools/Lib
+COPY ./Test /tstools/Test
 
+WORKDIR /tstools
+RUN chmod +x Test/test.sh
 
-CMD ["/bin/bash"]
+ENTRYPOINT [ "/bin/bash"]
