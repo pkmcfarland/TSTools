@@ -6,16 +6,19 @@ FROM continuumio/anaconda3
 RUN mkdir -p /tstools
 
 # Copy in the Library code
-COPY ./Lib /tstools/Lib
+COPY ./python/src /tstools/src
 
 # Copy in the test code
-COPY ./Test /tstools/Test
+COPY ./python/tests /tstools/tests
 
 # Tell Docker that we want to do the rest of our work from this directory
 WORKDIR /tstools
 
-# Make our test runner executable
-RUN chmod +x Test/test.sh
+# Move our test harness to the top-level directory to make Python pathing more happy
+RUN mv tests/test.sh ./
+
+# Make our test runner executable in the Docker container (not the local one)
+RUN chmod +x ./test.sh
 
 # Set Bash as our entry
 ENTRYPOINT [ "/bin/bash" ]

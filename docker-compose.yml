@@ -16,4 +16,4 @@ services:
     # we unfortunately can't invode "pytest" directly due to some weirdness with
     # how Ananaconda sets up environments, so we use a wrapper script. This is
     # run inside the docker container when it boots up
-    command: "./Test/test.sh"
+    command: "./test.sh"

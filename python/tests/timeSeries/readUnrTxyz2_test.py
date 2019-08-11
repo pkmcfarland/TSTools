@@ -1,5 +1,5 @@
 import sys
-sys.path.append("../../Lib")
+sys.path.append("./src")
 
 import timeSeries as ts
 
