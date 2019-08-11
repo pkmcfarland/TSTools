@@ -1,2 +1,5 @@
-. /opt/conda/bin/activate && \
-python -m pytest
+# initialize Anaconda
+. /opt/conda/bin/activate
+
+# Run our test suite
+pytest
