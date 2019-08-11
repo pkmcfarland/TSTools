@@ -1,0 +1,7 @@
+version: '3'
+services:
+  test:
+    build: 
+      context: .
+      dockerfile: docker/test/Dockerfile
+    command: which conda
