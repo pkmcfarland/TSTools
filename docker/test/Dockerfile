@@ -14,8 +14,8 @@ COPY ./python/tests /tstools/tests
 # Tell Docker that we want to do the rest of our work from this directory
 WORKDIR /tstools
 
-# Move our test harness to the top-level directory to make Python pathing more happy
-RUN mv tests/test.sh ./
+# Copy in our test harness
+COPY ./shell/python-tests.sh ./test.sh
 
 # Make our test runner executable in the Docker container (not the local one)
 RUN chmod +x ./test.sh
