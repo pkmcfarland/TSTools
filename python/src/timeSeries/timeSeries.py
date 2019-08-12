@@ -12,7 +12,7 @@ fit model parameters, and plot time series from file types:
 
 import numpy as np
 
-class timeSeries:
+class TimeSeries:
 
     """
     GPS position time series class. 
