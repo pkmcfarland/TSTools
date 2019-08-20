@@ -1,0 +1,19 @@
+# The full docker-compose spec is available here: https://docs.docker.com/compose/compose-file/#reference-and-guidelines
+version: '3'
+
+# docker-compose allows you to bundle a bunch of docker concepts together into
+# a unit that all needs to be run at this same time. This could be many containers,
+# volumes, or the networking between them all. 
+services:
+
+  # our test service is the image built specifically to run our test environment,
+  # and if we ever get CI/CD setup it will be what we run
+  test:
+    build: 
+      context: .
+      dockerfile: docker/test/Dockerfile
+    
+    # we unfortunately can't invode "pytest" directly due to some weirdness with
+    # how Ananaconda sets up environments, so we use a wrapper script. This is
+    # run inside the docker container when it boots up
+    command: "./test.sh"
