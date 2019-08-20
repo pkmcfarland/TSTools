@@ -21,6 +21,12 @@ import transform
 
 
 ########################################################################
+# set constants
+XYZ = 'XYZ'
+DXDYDZ = 'dXdYdZ'
+ENU = 'ENU'
+
+########################################################################
 class timeSeries:
 
     """
@@ -43,7 +49,15 @@ class timeSeries:
 
         """
         Read in UNR-style .txyz2 file and assign values to timeSeries 
-        class object
+        class object. 
+        
+        NOTE: UNR .txyz2 file naming convention enforced. Files must
+        be named as:
+        SSSS.IGSYY.txyz2
+
+        where:
+        SSSS = 4-char. station ID
+        YY   = 2-digit year of IGS reference frame for file
 
         Ex:
         >>> areq_ts = timeSeries()
@@ -54,7 +68,7 @@ class timeSeries:
         self.frame = fileName.split('.')[-2]
 
         # set coordinate type: automatically XYZ for .txyz2
-        self.coordType = 'XYZ'
+        self.coordType = XYZ
         
         decYear = []
         x = []
@@ -71,20 +85,22 @@ class timeSeries:
 
             for i, line in enumerate(rf):
 
+                splitLine = line.split()
+                
                 if i == 1:
 
-                    self.name = line.split()[0]
+                    self.name = splitLine[0]
 
-                decYear.append(float(line.split()[2]))
-                x.append(float(line.split()[3]))
-                y.append(float(line.split()[4]))
-                z.append(float(line.split()[5]))
-                sigX.append(float(line.split()[6]))
-                sigY.append(float(line.split()[7]))
-                sigZ.append(float(line.split()[8]))
-                Cxy.append(float(line.split()[9]))
-                Cyz.append(float(line.split()[10]))
-                Cxz.append(float(line.split()[11]))
+                decYear.append(float(splitLine[2]))
+                x.append(float(splitLine[3]))
+                y.append(float(splitLine[4]))
+                z.append(float(splitLine[5]))
+                sigX.append(float(splitLine[6]))
+                sigY.append(float(splitLine[7]))
+                sigZ.append(float(splitLine[8]))
+                Cxy.append(float(splitLine[9]))
+                Cyz.append(float(splitLine[10]))
+                Cxz.append(float(splitLine[11]))
 
         x = np.asarray(x)
         y = np.asarray(y)
@@ -118,7 +134,7 @@ class timeSeries:
         # this routine should only be used when the coordinates are 
         # referenced to the frame origin, check that this is the case
         try:
-            if self.coordType == 'XYZ':
+            if self.coordType == XYZ:
     
                 # compute average position
 
@@ -135,7 +151,7 @@ class timeSeries:
                 self.refPos = np.asarray([avgX, avgY, avgZ])
 
                 # set coordinate type to differential coordinates
-                self.coordType = 'dXdYdZ'
+                self.coordType = DXDYDZ 
 
             else:
 
@@ -161,10 +177,10 @@ class timeSeries:
         # been reference to a local point, like what is done using
         # timeSeries.setRefPosToAvg(). coordType should be 'dXdYdZ'
         try:
-            if self.coordType == 'dXdYdZ':
+            if self.coordType == DXDYDZ:
                 
                 # set new coorType to 'ENU'
-                self.coordType = 'ENU'
+                self.coordType = ENU 
                 
                 ### 
                 # transform refPos from XYZ -> Lon, Lat, Ht
@@ -279,8 +295,6 @@ class timeSeries:
 
             print(cte)
         
-
-        
     
     ####################################################################
     def plotHtml(self, htmlDir):
@@ -290,7 +304,7 @@ class timeSeries:
         in a web browser.
         """
         # set plotting vars depending on coordType
-        if self.coordType == 'XYZ':
+        if self.coordType == XYZ:
             trace1 = 'X'
             trace2 = 'Y'
             trace3 = 'Z'
@@ -306,7 +320,7 @@ class timeSeries:
             spTitle1 = f'X pos. w.r.t. X: {self.refPos[0]} m'
             spTitle2 = f'Y pos. w.r.t. Y: {self.refPos[1]} m'
             spTitle3 = f'Z pos. w.r.t. Z: {self.refPos[2]} m'
-        elif self.coordType == 'dXdYdZ':
+        elif self.coordType == DXDYDZ:
             trace1 = 'dX'
             trace2 = 'dY'
             trace3 = 'dZ'
@@ -322,7 +336,7 @@ class timeSeries:
             spTitle1 = f'X pos. w.r.t. X: {self.refPos[0]} m'
             spTitle2 = f'Y pos. w.r.t. Y: {self.refPos[1]} m'
             spTitle3 = f'Z pos. w.r.t. Z: {self.refPos[2]} m'
-        elif self.coordType == 'ENU':
+        elif self.coordType == ENU:
             trace1 = 'dE'
             trace2 = 'dN'
             trace3 = 'dU'
