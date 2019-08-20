@@ -24,7 +24,7 @@ def makeMyClass():
     myClassObj.doStuff()
 
 ########################################################################
-class myClass:
+class MyClass:
 
     """
     Class description goes here
