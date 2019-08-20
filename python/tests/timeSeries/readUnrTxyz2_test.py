@@ -1,7 +1,7 @@
 import sys
 sys.path.append("./src")
 
-from timeSeries import timeSeries as ts
+from timeSeries import TimeSeries
 
 def test_readUnrTxyz2():
     series = ts.TimeSeries()
