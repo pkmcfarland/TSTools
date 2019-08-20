@@ -4,17 +4,16 @@
 Docstring goes here.
 """
 
-# python 3 standard library imports
-from os import chdir, path
+from os import chdir, path # import standard libs first
 
-# 3rd party library imports
-import numpy as np
+import numpy as np         # then 3rd party libs
 
-# local library imports
-import timeSeries as ts
+import timeSeries as ts    # then local libs
 
 
-# define functions first then classes
+########################################################################
+# put a line of # immediately above class and function defs
+# line length should be no more than 72 chars long
 def makeMyClass():
 
     """
@@ -24,21 +23,26 @@ def makeMyClass():
     myClassObj = myClass()
     myClassObj.doStuff()
 
+########################################################################
 class myClass:
 
     """
     Class description goes here
     """
 
-    # define built-in functions
+    ####################################################################
+    # leave indent with # line so function below is identified as built
+    # in
     def __init__(self):
 
         self.x = 'python'
 
+    ####################################################################
     def doStuff(self):
 
         """
         Description of built-in function
         """
+        
         x = self.x
         print(f'wow, indents matter in {x}!')
