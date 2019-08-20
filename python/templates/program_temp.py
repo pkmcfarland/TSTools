@@ -4,28 +4,29 @@
 Docstring goes here
 """
 
-# python 3 standard library imports
-from os import path, chdir
+from os import path, chdir      # import stanadard libs first
 
-# 3rd party library imports
-import numpy as np
+import numpy as np              # then 3rd party libs
 
-# local library imports
-import timeSeries as ts
+import timeSeries as ts         # then local libs
 
-
-# define small functions
+########################################################################
+# define functions first if necessary, functions here should be small
+# if they are big consider putting them in a separate file and
+# importing
 def printName(name):
 
     """
-    What does this function do?
+    Put function description here
     """
 
     print(f"This is a function to print: {name}")
 
 
-# only run code below this if statement if
-# this file is executed directly
+########################################################################
+# put if __name__ == "__main__": at top of main part of program so 
+# python compiler knows everything below is to be executed only if this
+# is the main program
 if __name__ == "__main__":
 
     # main code of this file goes below
