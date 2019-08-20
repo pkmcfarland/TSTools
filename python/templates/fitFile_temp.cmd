@@ -15,9 +15,10 @@
 IM: basin           # (I)nversion (M)ethod: linear = weighted least squares
                     #                       basin = basinhopping (must also include LM flat)
 
-LM: nelder          # (L)ocal-(M)inimum finder: nelder = Nelder-Mead
+LM: nelder          # (L)ocal-(M)inimum finder, only necessary if IM set to 'basin': 
+                    #                       nelder = Nelder-Mead
 
-# Flags for parameters to estimate for components:
+# Flags for parameters to estimate for each component:
 # Note - if coord.s in dEdNdU x1 = E, x2 = N, x3 = U
 #        if coord.s in dXdYdZ x1 = X, x2 = Y, x3 = Z
 
