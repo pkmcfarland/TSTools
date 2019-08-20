@@ -27,7 +27,7 @@ DXDYDZ = 'dXdYdZ'
 ENU = 'ENU'
 
 ########################################################################
-class timeSeries:
+class TimeSeries:
 
     """
     GPS position time series class. 
