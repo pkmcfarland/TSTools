@@ -6,7 +6,7 @@ Module with common geodetic transformations.
 Product of: 
 U.S. Nat.'l Geodetic Survey / Nat.'l Oceanic Atmospheric Admin.
 1315 East-West Hwy.
-Sivler Spring, MD, 20910
+Silver Spring, MD, 20910
 
 Authors:
 Sungpil Yoon
@@ -202,6 +202,8 @@ def xyz_to_llh(x, y, z):
     # (i.e. g_prime) is still in radians at this point. And 1e-12 
     # radians of latitude is about 1e-9 meters)
     
+    # add counter variable
+    counter = 0
     while np.absolute(f_prime) > 1e-9 or np.absolute(g_prime) > 1e-12:
         
         # compute the next guess for h and lat
@@ -239,6 +241,13 @@ def xyz_to_llh(x, y, z):
 
         h_prime = v_new[0]
         lat_prime = v_new[1]
+
+        counter = counter + 1
+
+        if counter > 2000
+            break
+            print(f'ERROR: loop hit {counter} iterations before meeting convergence criteria')
+            return -1
     
     # h is last guess h_prime
     # radLat is last guess lat_prime in radians
