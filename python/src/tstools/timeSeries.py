@@ -20,9 +20,8 @@ import numpy as np
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
-
 import transform
-
+from convtime import convtime
 
 ########################################################################
 # set constants
@@ -138,6 +137,8 @@ class TimeSeries:
         The kinematics of the station, with the exception of breaks, 
         are defined in mdlFile. All breaks are defined in brkFile.
         """
+
+        
     ####################################################################
     def setRefPosToAvg(self):
 
