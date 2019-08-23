@@ -7,8 +7,15 @@
 # 5.) white space separates flag from args, can have as much white
 #     space as you like
 
-# Rules for parameter est flags:
-# 6.) use 1 (on) and 0 (off) to toggle functionality
+# Rules for parameter estimation flags:
+# 6.) use 999 to include as a paramter to be estimated or 0 to not include the
+#     parameter at all. Any other value will fix the parameter in the inversion
+#     to the value provided.
+
+#     E.g.: the line below will tell TSTools to set the east velocity to 
+#           2.3 mm/yr, the north velocity to 1.2 mm/yr and to estimate the up 
+#           velocity.
+#           VE: 0.0023 0.0012 999
 
 # Flags for type of inversion to perform:
 
@@ -23,8 +30,8 @@ LM: nelder          # (L)ocal-(M)inimum finder, only necessary if IM set to 'bas
 #        if coord.s in dXdYdZ x1 = X, x2 = Y, x3 = Z
 
 #   x1  x2  x3
-DC:  1   1   1      # (DC)-offset term (i.e. pos at t=0)
-VE:  1   1   1      # linear (VE)locity
-AN:  1   1   1      # seasonal signal with (AN)nual period
-SA:  1   1   1      # seasonal signal with (S)emi-(A)nnual period
-PO:  0   0   0      # 4th order (PO)lynomial **NOT YET FUNCTIONAL**
+DC: 999 999 999  # (DC)-offset term (i.e. pos at t=0) (m)
+VE: 999 999 999  # linear (VE)locity (m/yr)
+AN: 999 999 999  # magnitude of seasonal signal with (AN)nual period (m)
+SA: 999 999 999  # magnitude of seasonal signal with (S)emi-(A)nnual period (m)
+PO:   0   0   0  # magnitude of terms in 4th order (PO)lynomial (m) **NOT YET FUNCTIONAL**
