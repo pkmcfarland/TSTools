@@ -38,8 +38,8 @@ class FitFile::
         NOTE: read instructions for constructing fit file
         
         Ex:
-        >>> areq_param = Parameter()
-        >>> areq_param.readFitfile('./AREQ_fitFile.cmd')
+        >>> areq_fitFile = FitFile()
+        >>> areq_fitFile.readFitfile('./AREQ_fitFile.cmd')
         """
 
         self.name = fileName
@@ -122,7 +122,7 @@ class FitFile::
     def writeFitFile(self, fileName):
 
         """
-        Write fit file based on values in parameter object.
+        Write fit file based on values in FitFile object.
         """
 
         wf = open(fileName, "w")
@@ -168,7 +168,12 @@ class Tsbreak:
 class BreakFile:
 
     """
-    Holds all the information from a single break file.
+    Holds all the information from a single break file. Individual breaks
+    in break file are stored as Tsbreak objects.
+
+    Ex:
+    >>> AREQ_breakFile = BreakFile()
+    >>> AREQ_breakFile.readBreakFile('./AREQ_brkFile.cmd')
     """
 
     ####################################################################
