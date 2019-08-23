@@ -36,6 +36,7 @@ class TimeSeries:
     GPS position time series class. 
     """
 
+    ####################################################################
     def __init__(self):
 
         self.name = 'NULL'
@@ -63,7 +64,7 @@ class TimeSeries:
         YY   = 2-digit year of IGS reference frame for file
 
         Ex:
-        >>> areq_ts = timeSeries()
+        >>> areq_ts = TimeSeries()
         >>> areq_ts.readUnrTxyz2('./AREQ.IGS08.txyz2')
         """
 

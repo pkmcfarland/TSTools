@@ -1,17 +1,21 @@
 
-# General rules for constructing file:
+# Rules for constructing file:
 # 1.) all blank lines and all lines starting with # will be skipped
 # 2.) columns are white-space separated, amount of white space does not matter
 # 3.) events do not need to be in chronological order
-# 4.) start new break record with +, end break record with -
-# 5.) record values other than those associated with time of break can have 
+# 4.) a break is a point in the time series where there is an instantaneous change,
+#     the break can be due to an earthquake, an equipment change, or similar event.
+#     In this document, a 'break record' is all of the information required to 
+#     describe to TSTools how to handle the break. See below for more information.
+# 5.) start new break record with +, end break record with -
+# 6.) break record values other than those associated with time of break can have 
 #     either:
 #     999 => include as a parameter to be estimated
 #       0 => do not include this parameter at all
 #     any other value assigns that value to the parameter and fixes it in the
 #     inversion
-# 5.) break record can have either 2 or 9 lines
-# 6.) if break record has only two lines the columns for the line are:
+# 7.) a break record can have either 2 or 9 lines. No other options are possible.
+# 8.) if a break record has only two lines the columns for the lines are:
 #     
 #     line #1:
 #     01 +        start new record
@@ -28,10 +32,10 @@
 #     line #2:
 #     01 -        end of record
 #
-# 7.) if break record has 9 lines the format for the record is:
+# 9.) if a break record has 9 lines the format for the record is:
 #
 #     line #1:
-#     same as first line in two line record
+#     same as first line in 2-line record
 #
 #     line #2:
 #     01          change in x1 component of velocity (m/yr)
@@ -47,10 +51,10 @@
 #     06          relaxation time of third exp x1 term (yrs)
 #
 #     line #4:
-#     same as line #2 but for x2
+#     same as line #3 but for x2
 #
 #     line #5:
-#     same as line #2 but for x3
+#     same as line #3 but for x3
 #
 #     line #6:
 #     01          magnitude of ln x1 term (m)
@@ -71,7 +75,7 @@
 + 2001 11 14 15 40 53.00   999  999  999                     # Mw 7.7 Tocopilla EQ; estimate offsets
 #                          ___deltaV____                     # and three exponential terms
 #                          v1_  v2_  v3_                     # no logarithmic terms and no change in
-#                            0    0    0                     # velocity after event
+                             0    0    0                     # velocity after event
 #                          __________ExpTerms___________   
 #                          mag1 mag2 mag3 tau1 tau2 tau3   
 #                          _____________x1______________
@@ -91,7 +95,7 @@
 - any text can follow end-record symbol
 
 + 2003  3  1 12  0  0.00  999  999  999                      # Antenna change topcon -> trimble zephyr II
-- end-record symbol can be below or on last line of record   # estimate offsets only
+- end-record symbol must be below last line of record        # estimate offsets only
 
 + 2010  2 27  6 34 23.00 0.14 0.12 0.07                      # Mw 8.8 Maule EQ, initial offsets known to be
                             0    0    0                      # 14 cm east, 12 cm north, and 7 cm up. Estimate
