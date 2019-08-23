@@ -11,6 +11,9 @@ fit model parameters, and plot time series from file types:
 Planned updates include adding:
  - UNR-style .env
  - PBO-style .pos
+
+Module can also generate synthetic time series and perform all
+of the operations listed above on them.
 """
 
 import numpy as np
@@ -18,7 +21,7 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
 import transform
-
+from convtime import convtime
 
 ########################################################################
 # set constants
@@ -121,6 +124,21 @@ class TimeSeries:
 
         self.refPos = np.asarray(self.refPos)
 
+    ####################################################################
+    def genSynthetic(self, startList, endList, posSdList, uncSdList,
+                     mdlFile, brkFile):
+
+        """
+        Generate synthetic time series from time defined by startList to 
+        time defined by endList. Synthetic time series will have Gaussian
+        noise in position with standard deviation for each component
+        defined in posSdList and Gaussian noise in position uncertainties
+        with standard deviation for each component defined in uncSdList.
+        The kinematics of the station, with the exception of breaks, 
+        are defined in mdlFile. All breaks are defined in brkFile.
+        """
+
+        
     ####################################################################
     def setRefPosToAvg(self):
 
