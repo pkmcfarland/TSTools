@@ -7,7 +7,7 @@ Module to read/write TSTools .cmd files
 from convtime import convtime
 
 ########################################################################
-class FitFile::
+class FitFile:
 
     """
     Holds information about parameters to be estimated, or fixed during 
@@ -139,6 +139,8 @@ class FitFile::
         wf.write(f"O2: {self.o2[0]} {self.o2[1]} {self.o2[2]}\n")
         wf.write(f"O3: {self.o3[0]} {self.o3[1]} {self.o3[2]}\n")
         wf.write(f"O4: {self.o4[0]} {self.o4[1]} {self.o4[2]}\n")
+
+        wf.close()
         
 ########################################################################
 class Tsbreak:
@@ -265,3 +267,80 @@ class BreakFile:
 
                         newBreak.lnMag[2] = splitLine[0]
                         newBreak.lnTau[2] = splitLine[1]
+
+    ####################################################################
+    def writeBreakFile(self, fileName):
+
+        """
+        Write break file object contents to formatted text .cmd file
+        """
+
+        bf = open(fileName,'w')
+
+        for brkRec in self.breaks:
+
+            year = brkRec.cal[0]
+            month = brkRec.cal[1]
+            day = brkRec.cal[2]
+            hour = brkRec.cal[3]
+            minute = brkRec.cal[4]
+            second = brkRec.cal[5]
+
+            x1offset = brkRec.offset[0]
+            x2offset = brkRec.offset[1]
+            x3offset = brkRec.offset[2]
+
+            deltaV1 = brkRec.deltaV[0]
+            deltaV2 = brkRec.deltaV[1]
+            deltaV3 = brkRec.deltaV[2]
+
+            x1expMag1 = brkRec.expMagX1[0]
+            x1expMag2 = brkRec.expMagX1[1]
+            x1expMag3 = brkRec.expMagX1[2]
+
+            x2expMag1 = brkRec.expMagX2[0]
+            x2expMag2 = brkRec.expMagX2[1]
+            x2expMag3 = brkRec.expMagX2[2]
+
+            x3expMag1 = brkRec.expMagX3[0]
+            x3expMag2 = brkRec.expMagX3[1]
+            x3expMag3 = brkRec.expMagX3[2]
+
+            x1expTau1 = brkRec.expTauX1[0]
+            x1expTau2 = brkRec.expTauX1[1]
+            x1expTau3 = brkRec.expTauX1[2]
+
+            x2expTau1 = brkRec.expTauX2[0]
+            x2expTau2 = brkRec.expTauX2[1]
+            x2expTau3 = brkRec.expTauX2[2]
+
+            x3expTau1 = brkRec.expTauX3[0]
+            x3expTau2 = brkRec.expTauX3[1]
+            x3expTau3 = brkRec.expTauX3[2]
+
+            x1lnMag = brkRec.lnMag[0]
+            x2lnMag = brkRec.lnMag[1]
+            x3lnMag = brkRec.lnMag[2]
+
+            x1lnTau = brkRec.lnTau[0]
+            x2lnTau = brkRec.lnTau[1]
+            x3lnTau = brkRec.lnTau[2]
+            
+            bf.write("\n")
+            bf.write(f"+ {year:4d} {month:2d} {day:2d} {hour:2d}"
+                    +f" {minute:2d} {second:5.2f} {x1offset}"
+                    +f" {x2offset} {x3offset}\n")
+            bf.write(f"                           "
+                    +f" {deltaV1} {deltaV2} {deltaV3}\n")
+            bf.write(f"                           "
+                    +f" {x1expMag1} {x1expMag2} {x1expMag3} {x1expTau1} {x1expTau2} {x1expTau3}\n")
+            bf.write(f"                           "
+                    +f" {x2expMag1} {x2expMag2} {x2expMag3} {x2expTau1} {x2expTau2} {x2expTau3}\n")
+            bf.write(f"                           "
+                    +f" {x3expMag1} {x3expMag2} {x3expMag3} {x3expTau1} {x3expTau2} {x3expTau3}\n")
+            bf.write(f"                            {x1lnMag} {x1lnTau}\n")
+            bf.write(f"                            {x2lnMag} {x2lnTau}\n")
+            bf.write(f"                            {x3lnMag} {x3lnTau}\n")
+            bf.write("-\n")
+
+        bf.close()
