@@ -126,7 +126,7 @@ class TimeSeries:
         self.refPos = np.asarray(self.refPos)
 
     ####################################################################
-    def genSynthetic(self, startList, endList, posSdList, uncSdList,
+    def genSynthetic(self, startCal, endCal, posSdList, uncSdList,
                      mdlFile, brkFile):
 
         """
@@ -147,7 +147,8 @@ class TimeSeries:
         Reference the time series coordinates to the average position of 
         the time series. Set the reference position (refPos) to reflect 
         this translation of coordinates. Does not affect the reference 
-        frame, only shifts the origin for the time series.
+        frame, only shifts the origin for the time series. Automatically
+        changes coordType to 'dXdYdZ'.
         """
 
         # this routine should only be used when the coordinates are 
@@ -187,7 +188,7 @@ class TimeSeries:
     def dxdydz2enu(self):
 
         """
-        Transform coordinates from dXdYdZ to local East, North, Up 
+        Transform coordinates from dXdYdZ to local horizon (dE, dN, dU) 
         coordinate system. Automatically changes timeSeries.coordType
         to 'ENU' and timeSeries.refPos to units of Lon., Lat., and Ht.
         """

@@ -69,6 +69,8 @@
 #     line #9:
 #     01 -        end record
        
+# 10.) If coord.s in dEdNdU x1 = E, x2 = N, x3 = U
+#                    dXdYdZ x1 = X, x2 = Y, x3 = Z
 
 #                          ___Offset____                     # Description of event
 # YYYY MM DD HH MN SS.SS   x1_  x2_  x3_                    
