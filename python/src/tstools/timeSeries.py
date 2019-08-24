@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#/usr/bin/env python3
 
 """
 Python 3 module for handling GNSS-derived position 
@@ -126,7 +126,7 @@ class TimeSeries:
         self.refPos = np.asarray(self.refPos)
 
     ####################################################################
-    def genSynthetic(self, startCal, endCal, posSdList, uncSdList,
+    def genSynthetic(self, startCal, endCal, posSdList, uncRangeList,
                      mdlFile, brkFile):
 
         """
@@ -137,6 +137,17 @@ class TimeSeries:
         with standard deviation for each component defined in uncSdList.
         The kinematics of the station, with the exception of breaks, 
         are defined in mdlFile. All breaks are defined in brkFile.
+        
+        Ex:
+        >>> from tstools import timeSeries as ts
+        >>> start = [2004, 2, 12, 0, 0, 0]
+        >>> end = [2019, 8, 27, 0, 0, 0]
+        >>> posSigmas = [ 0.005, 0.005, 0.01]
+        >>> uncRanges = [[0.001, 0.005], [0.001, 0.005], [0.0025, 0.01]]
+        >>>
+        >>> synTseries = ts.TimeSeries()
+        >>> synTseries.genSynthetic( start, end, posSigmas, uncRanges,
+                                     './mdlFile.cmd', './brkFile.cmd')
         """
 
         
