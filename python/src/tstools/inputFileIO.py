@@ -106,17 +106,39 @@ class FitFile:
                     self.o4[0] = splitLine[1]
                     self.o4[1] = splitLine[2]
                     self.o4[2] = splitLine[3]
-
-        if self.im != 'linear' and self.im != 'basin':
+        
+        ############
+        # make some checks on the file that was just read in
+        
+        # check that a recognized inversion method was given
+        # additional minimization methods can be added below as they are incorporated
+        # into the other modules
+        if self.im != 'linear' and self.im != 'basin' and  self.im != 'gensyn':
             print(f"ERROR reading in {fileName}, IM flag either not set"
                  +f" or not set to recognized value")
             return -1
         
+        # check that if a non-linear method is chosen that a
+        # local minimum finder is also chosen
         if self.im != 'linear' and self.lm == '':
             print(f"ERROR reading in {fileName}, inversion method set to" 
                  +f" {self.im} but no local minimum finder selected. Use"
                  +f" LM flag to set.")
             return -1
+
+        # check that if gensyn is chosen, no parameters are set to be 
+        # estimated (i.e. are set to 999)
+        if (self.im == 'gensyn' and
+            ('999' in self.dc or '999' in self.ve or '999' in selv.an
+             or '999' in self.sa or '999' in self.o2 
+             or '999' in self.o3 or '999' in self.o4
+            )
+           ):
+            print(f"ERROR reading in {fileName}, IM flag set to gensyn but"
+                 +f" one or more parameters set to '999'. No parameters can"
+                 +f" be estimated in synthetic time series generation.")
+            return -1
+
 
     ####################################################################
     def writeFitFile(self, fileName):
