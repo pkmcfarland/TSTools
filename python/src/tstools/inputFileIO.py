@@ -21,6 +21,7 @@ class FitFile:
         self.name = 'NULL'
         self.im = ''
         self.lm = ''
+        self.re = 0.0
         self.dc = [0,0,0]
         self.ve = [0,0,0]
         self.an = [0,0,0]
@@ -65,6 +66,10 @@ class FitFile:
 
                     self.lm = splitLine[1]
 
+                elif flag == 'RE:':
+
+                    self.re = float(splitLine[1])
+                
                 elif flag == 'DC:':
 
                     self.dc[0] = splitLine[1]
@@ -154,6 +159,7 @@ class FitFile:
         if self.lm != '':
             wf.write(f"LM: {self.lm}\n")
 
+        wf.write(f"RE: {self.re:12.7f}\n")
         wf.write(f"DC: {self.dc[0]} {self.dc[1]} {self.dc[2]}\n")
         wf.write(f"VE: {self.ve[0]} {self.ve[1]} {self.ve[2]}\n")
         wf.write(f"AN: {self.an[0]} {self.an[1]} {self.an[2]}\n")
