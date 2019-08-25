@@ -9,11 +9,12 @@ Generate the matrices needed to either:
 import numpy as np
 
 ########################################################################
-def genEqnMatices(decYearList, fitFileObj, brkFileObj):
+def genMtxFromFiles(decYearList, fitFile, brkFile):
 
     """
-    Generate the matrices needed to create synthetic time series or
-    invert time series for kinematic equation parameters.
+    Generate kinematic equation matrices directly from FitFile and 
+    BreakFile objects. Usually used to generate synthetic time
+    series.
     """
 
-    pass
+    x1FitFileParams = [fitFile.dc
