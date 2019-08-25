@@ -44,8 +44,10 @@ RE: 2010.0          # reference epoch, required so that dc offset terms are
 #   x1  x2  x3
 DC: 999 999 999  # (DC)-offset term (i.e. pos at t=0) (m)
 VE: 999 999 999  # linear (VE)locity (m/yr)
-AN: 999 999 999  # magnitude of seasonal signal with (AN)nual period (m)
-SA: 999 999 999  # magnitude of seasonal signal with (S)emi-(A)nnual period (m)
-O2:   0   0   0  # magnitude of terms of (O)rder (2) in time
-O3:   0   0   0  # magnitude of terms of (O)rder (3) in time
-O4:   0   0   0  # magnitude of terms of (O)rder (4) in time
+SA: 999 999 999  # magnitude of seasonal (S)ine function with (A)nual period (m)
+CA: 999 999 999  # magnitude ofseasonal (C)osine function with (A)nual period (m)
+SS: 999 999 999  # magnitude of seasonal (S)ine function with (S)emi-annual period (m)
+CS: 999 999 999  # magnitude of seasonal (C)osine function with (S)emi-annual period (m)
+O2:   0   0   0  # magnitude of terms of (O)rder (2) in time *** not yet functional ***
+O3:   0   0   0  # magnitude of terms of (O)rder (3) in time *** not yet functional ***
+O4:   0   0   0  # magnitude of terms of (O)rder (4) in time *** not yet functional ***
