@@ -20,6 +20,7 @@ import numpy as np
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
+from tstools import inputFileIO as ifio
 import transform
 from convtime import convtime
 
@@ -150,7 +151,14 @@ class TimeSeries:
                                      './mdlFile.cmd', './brkFile.cmd')
         """
 
-        
+        # read mdlFile into FitFile object
+        mdlFile = ifio.FitFile()
+        mdlFile.readFitFile(mdlFile)
+
+        # read brkFile into BreakFile object
+        brkFile = ifio.BreakFile()
+        brkFile.readBreakFile(brkFile)
+
     ####################################################################
     def setRefPosToAvg(self):
 
