@@ -128,11 +128,12 @@ class TimeSeries:
 
     ####################################################################
     def genSynthetic(self, startCal, endCal, posSdList, uncRangeList,
-                     mdlFile, brkFile):
+                     mdlFilePath, brkFilePath):
 
         """
         Generate synthetic time series from time defined by startList to 
-        time defined by endList. Synthetic time series will have Gaussian
+        time defined by endList. Daily positions are referenced to noon
+        of each day in time series. Synthetic time series will have Gaussian
         noise in position with standard deviation for each component
         defined in posSdList and Gaussian noise in position uncertainties
         with standard deviation for each component defined in uncSdList.
@@ -142,7 +143,7 @@ class TimeSeries:
         Ex:
         >>> from tstools import timeSeries as ts
         >>> start = [2004, 2, 12, 0, 0, 0]
-        >>> end = [2019, 8, 27, 0, 0, 0]
+        >>> end = [2019, 8, 27, 12, 0, 0]
         >>> posSigmas = [ 0.005, 0.005, 0.01]
         >>> uncRanges = [[0.001, 0.005], [0.001, 0.005], [0.0025, 0.01]]
         >>>
@@ -151,13 +152,135 @@ class TimeSeries:
                                      './mdlFile.cmd', './brkFile.cmd')
         """
 
+        # set some internal values
+        self.name = 'SYNTHETIC'
+        self.coordType = DXDYDZ
+        self.frame = 'SYNTHETIC'
+
         # read mdlFile into FitFile object
         mdlFile = ifio.FitFile()
-        mdlFile.readFitFile(mdlFile)
+        mdlFile.readFitFile(mdlFilePath)
+
+        # check that IM flag set to 'gensyn' in input fit file
+        if mdlFile.im != 'gensyn':
+
+            print(f"ERROR: IM flag in {mdlFilePath} not set to 'gensyn'"
+                 +f" modify file and try again")
+            return -1
 
         # read brkFile into BreakFile object
         brkFile = ifio.BreakFile()
-        brkFile.readBreakFile(brkFile)
+        brkFile.readBreakFile(brkFilePath)
+
+        # check that none of the breakFile parameters set to '999'
+        for tsBreak in brkFile.breaks:
+
+            if ('999' in tsBreak.offset or '999' in tsBreak.deltaV
+                or '999' in tsBreak.expMagX1 or '999' in tsBreak.expTauX1
+                or '999' in tsBreak.expMagX2 or '999' in tsBreak.expTauX2
+                or '999' in tsBreak.expMagX3 or '999' in tsBreak.expTauX3
+                or '999' in tsBreak.lnMag or '999' in tsBreak.lnTau):
+
+                print(f"ERROR: one or more parameters set to '999' in "
+                     +f"{brkFilePath}. Cannot estimate parameters in "
+                     +f" 'gensyn' mode.")
+                return -1
+
+        # pull reference epoch out of mdlFile
+        refYear = float(mdlFile.re)
+
+        # create list of epochs from user input starCal and endCal
+        # assign list of decimal years to self.time
+        startMjd = convtime('cal','mjd2',startCal)
+        endMjd = convtime('cal','mjd2', endCal)
+
+        mjdList = list(range(startMjd[0], endMjd[0]+1))
+        
+        decYearList = [0.0]*len(mjdList)
+        for i, mjd in enumerate(mjdList):
+
+            decYearList[i] = convtime("mjd2","year",[mjd, 0.5])
+        
+        self.time = np.asarray(decYearList)
+
+        ##############
+        # loop over epochs and compute position at each epoch
+        
+        # shift times so ref epoch is zero
+        shiftYear = [0.0]*len(decYearList)
+        for i, decYear in enumerate(self.time):
+
+            shiftYear[i] = decYear - refYear
+
+        # initialize position lists  
+        x1posList = [0.0]*len(self.time)
+        x2posList = [0.0]*len(self.time)
+        x3posList = [0.0]*len(self.time)
+
+        for i, decYear in enumerate(shiftYear):
+            
+            x1pos = (float(mdlFile.dc[0]) + float(mdlFile.ve[0])*decYear  
+                    + float(mdlFile.sa[0])*np.sin(2.0*np.pi*decYear)
+                    + float(mdlFile.ca[0])*np.cos(2.0*np.pi*decYear)
+                    + float(mdlFile.ss[0])*np.sin(4.0*np.pi*decYear)
+                    + float(mdlFile.cs[0])*np.cos(4.0*np.pi*decYear))
+            
+            x2pos = (float(mdlFile.dc[1]) + float(mdlFile.ve[1])*decYear  
+                    + float(mdlFile.sa[1])*np.sin(2.0*np.pi*decYear)
+                    + float(mdlFile.ca[1])*np.cos(2.0*np.pi*decYear)
+                    + float(mdlFile.ss[1])*np.sin(4.0*np.pi*decYear)
+                    + float(mdlFile.cs[1])*np.cos(4.0*np.pi*decYear))
+            
+            x3pos = (float(mdlFile.dc[2]) + float(mdlFile.ve[2])*decYear  
+                    + float(mdlFile.sa[2])*np.sin(2.0*np.pi*decYear)
+                    + float(mdlFile.ca[2])*np.cos(2.0*np.pi*decYear)
+                    + float(mdlFile.ss[2])*np.sin(4.0*np.pi*decYear)
+                    + float(mdlFile.cs[2])*np.cos(4.0*np.pi*decYear))
+
+            for tsBreak in brkFile.breaks:
+                
+                # only apply break parameters if the epoch is greater than 
+                # the epoch of the break (shifted by refYear)
+                breakEpoch = tsBreak.decYear - refYear
+                if decYear > breakEpoch:
+
+                    x1pos = x1pos + (float(tsBreak.offset[0]) 
+                           + float(tsBreak.deltaV[0])*decYear 
+                           + float(tsBreak.expMagX1[0])*(1. - np.exp(-(decYear - breakEpoch)/float(tsBreak.expTauX1[0])))
+                           + float(tsBreak.expMagX1[1])*(1. - np.exp(-(decYear - breakEpoch)/float(tsBreak.expTauX1[1])))
+                           + float(tsBreak.expMagX1[2])*(1. - np.exp(-(decYear - breakEpoch)/float(tsBreak.expTauX1[2])))
+                           + float(tsBreak.lnMag[0])*np.log(1. + (decYear - breakEpoch)/float(tsBreak.lnTau[0])))
+                    
+                    x2pos = x2pos + (float(tsBreak.offset[1]) 
+                           + float(tsBreak.deltaV[1])*decYear 
+                           + float(tsBreak.expMagX2[0])*(1. - np.exp(-(decYear - breakEpoch)/float(tsBreak.expTauX2[0])))
+                           + float(tsBreak.expMagX2[1])*(1. - np.exp(-(decYear - breakEpoch)/float(tsBreak.expTauX2[1])))
+                           + float(tsBreak.expMagX2[2])*(1. - np.exp(-(decYear - breakEpoch)/float(tsBreak.expTauX2[2])))
+                           + float(tsBreak.lnMag[1])*np.log(1. + (decYear - breakEpoch)/float(tsBreak.lnTau[1])))
+                    
+                    x3pos = x3pos + (float(tsBreak.offset[2]) 
+                           + float(tsBreak.deltaV[2])*decYear 
+                           + float(tsBreak.expMagX3[0])*(1. - np.exp(-(decYear - breakEpoch)/float(tsBreak.expTauX3[0])))
+                           + float(tsBreak.expMagX3[1])*(1. - np.exp(-(decYear - breakEpoch)/float(tsBreak.expTauX3[1])))
+                           + float(tsBreak.expMagX3[2])*(1. - np.exp(-(decYear - breakEpoch)/float(tsBreak.expTauX3[2])))
+                           + float(tsBreak.lnMag[2])*np.log(1. + (decYear - breakEpoch)/float(tsBreak.lnTau[2])))
+
+            # add computed positions to position component lists
+            x1posList[i] = x1pos
+            x2posList[i] = x2pos
+            x3posList[i] = x3pos
+
+        # assign computed positions to self.pos
+        x1posArray = np.asarray(x1posList)
+        x2posArray = np.asarray(x2posList)
+        x3posArray = np.asarray(x3posList)
+        self.pos = np.stack([x1posArray,x2posArray,x3posArray])
+
+        x1unc = np.asarray([0.0]*len(self.time))
+        x2unc = np.asarray([0.0]*len(self.time))
+        x3unc = np.asarray([0.0]*len(self.time))
+
+        self.sig = np.stack([x1unc, x2unc,x3unc])
 
     ####################################################################
     def setRefPosToAvg(self):

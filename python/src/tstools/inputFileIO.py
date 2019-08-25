@@ -139,7 +139,7 @@ class FitFile:
         
         # check that if a non-linear method is chosen that a
         # local minimum finder is also chosen
-        if self.im != 'linear' and self.lm == '':
+        if (self.im != 'linear' and self.im != 'gensyn') and self.lm == '':
             print(f"ERROR reading in {fileName}, inversion method set to" 
                  +f" {self.im} but no local minimum finder selected. Use"
                  +f" LM flag to set.")
@@ -148,8 +148,9 @@ class FitFile:
         # check that if gensyn is chosen, no parameters are set to be 
         # estimated (i.e. are set to 999)
         if (self.im == 'gensyn' and
-            ('999' in self.dc or '999' in self.ve or '999' in selv.an
-             or '999' in self.sa or '999' in self.o2 
+            ('999' in self.dc or '999' in self.ve or '999' in self.sa
+             or '999' in self.ca or '999' in self.ss
+             or '999' in self.cs or '999' in self.o2 
              or '999' in self.o3 or '999' in self.o4
             )
            ):
@@ -202,13 +203,13 @@ class Tsbreak:
         self.offset = [0,0,0]
         self.deltaV = [0,0,0]
         self.expMagX1 = [0,0,0]
-        self.expTauX1 = [0,0,0]
+        self.expTauX1 = [1e9,1e9,1e9]
         self.expMagX2 = [0,0,0]
-        self.expTauX2 = [0,0,0]
+        self.expTauX2 = [1e9,1e9,1e9]
         self.expMagX3 = [0,0,0]
-        self.expTauX3 = [0,0,0]
+        self.expTauX3 = [1e9,1e9,1e9]
         self.lnMag = [0,0,0]
-        self.lnTau = [0,0,0]
+        self.lnTau = [1e9,1e9,1e9]
 
 ########################################################################
 class BreakFile:
