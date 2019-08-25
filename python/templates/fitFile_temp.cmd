@@ -18,7 +18,7 @@
 #           velocity.
 #           VE: 0.0023 0.0012 999
 #
-# 7.) not including a parameter estimation flag is equivalent to setting all
+# 8.) not including a parameter estimation flag is equivalent to setting all
 #     of that flag's associated arguments to 0
 
 # Flags for type of inversion to perform:
@@ -31,6 +31,11 @@ IM: basin           # (I)nversion (M)ethod: linear = weighted least squares
 
 LM: nelder          # (L)ocal-(M)inimum finder, only necessary if IM set to 'basin': 
                     #                       nelder = Nelder-Mead
+
+RE: 2010.0          # reference epoch, required so that dc offset terms are 
+                    # of the same order as other terms. If not set, or set to
+                    # zero, offset terms will become very large which can create 
+                    # undesired effects in inversion
 
 # Flags for parameters to estimate for each component:
 # Note - if coord.s in dEdNdU x1 = E, x2 = N, x3 = U
