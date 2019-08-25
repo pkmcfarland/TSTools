@@ -24,8 +24,10 @@ class FitFile:
         self.re = 0.0
         self.dc = [0,0,0]
         self.ve = [0,0,0]
-        self.an = [0,0,0]
         self.sa = [0,0,0]
+        self.ca = [0,0,0]
+        self.ss = [0,0,0]
+        self.cs = [0,0,0]
         self.o2 = [0,0,0]
         self.o3 = [0,0,0]
         self.o4 = [0,0,0]
@@ -82,17 +84,29 @@ class FitFile:
                     self.ve[1] = splitLine[2]
                     self.ve[2] = splitLine[3]
 
-                elif flag == 'AN:':
-
-                    self.an[0] = splitLine[1]
-                    self.an[1] = splitLine[2]
-                    self.an[2] = splitLine[3]
-
                 elif flag == 'SA:':
 
                     self.sa[0] = splitLine[1]
                     self.sa[1] = splitLine[2]
                     self.sa[2] = splitLine[3]
+                
+                elif flag == 'CA:':
+
+                    self.ca[0] = splitLine[1]
+                    self.ca[1] = splitLine[2]
+                    self.ca[2] = splitLine[3]
+
+                elif flag == 'SS:':
+
+                    self.ss[0] = splitLine[1]
+                    self.ss[1] = splitLine[2]
+                    self.ss[2] = splitLine[3]
+                
+                elif flag == 'CS:':
+
+                    self.cs[0] = splitLine[1]
+                    self.cs[1] = splitLine[2]
+                    self.cs[2] = splitLine[3]
 
                 elif flag == 'O2:':
 
@@ -162,8 +176,10 @@ class FitFile:
         wf.write(f"RE: {self.re:12.7f}\n")
         wf.write(f"DC: {self.dc[0]} {self.dc[1]} {self.dc[2]}\n")
         wf.write(f"VE: {self.ve[0]} {self.ve[1]} {self.ve[2]}\n")
-        wf.write(f"AN: {self.an[0]} {self.an[1]} {self.an[2]}\n")
         wf.write(f"SA: {self.sa[0]} {self.sa[1]} {self.sa[2]}\n")
+        wf.write(f"CA: {self.ca[0]} {self.ca[1]} {self.ca[2]}\n")
+        wf.write(f"SS: {self.ss[0]} {self.ss[1]} {self.ss[2]}\n")
+        wf.write(f"CS: {self.cs[0]} {self.cs[1]} {self.cs[2]}\n")
         wf.write(f"O2: {self.o2[0]} {self.o2[1]} {self.o2[2]}\n")
         wf.write(f"O3: {self.o3[0]} {self.o3[1]} {self.o3[2]}\n")
         wf.write(f"O4: {self.o4[0]} {self.o4[1]} {self.o4[2]}\n")
