@@ -1,5 +1,24 @@
 #!/usr/bin/env python3
 
+"""
+Module with common time conversions.
+
+Product of: 
+U.S. Nat.'l Geodetic Survey / Nat.'l Oceanic Atmospheric Admin.
+1315 East-West Hwy.
+Silver Spring, MD, 20910
+
+Author(s):
+Sungpil Yoon
+
+Contact:
+sungpil.yoon@noaa.gov
+
+As required by 17 U.S.C. § 403, third parties producing copyrighted works consisting predominantly 
+of the material appearing in NGS Web pages must provide notice with such work(s) identifying the NGS 
+material incorporated and stating that such material is not subject to copyright protection.
+"""
+
 from numpy.testing import assert_allclose, assert_equal
 
 import math
