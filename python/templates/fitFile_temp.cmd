@@ -25,6 +25,9 @@
 
 IM: basin           # (I)nversion (M)ethod: linear = weighted least squares
                     #                       basin = basinhopping (must also include LM flat)
+                    #                       gensyn = do not perform any inversion, 
+                    #                                use given parameters to create
+                    #                                a synthetic time series
 
 LM: nelder          # (L)ocal-(M)inimum finder, only necessary if IM set to 'basin': 
                     #                       nelder = Nelder-Mead
