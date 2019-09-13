@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 
 """
-Module to read/write TSTools .cmd files
+Module to read/write TSTools .tsfit and .tsbrk files
 """
+
+import numpy as np
 
 from convtime import convtime
 
@@ -21,16 +23,16 @@ class FitFile:
         self.name = 'NULL'
         self.im = ''
         self.lm = ''
-        self.re = 0.0
-        self.dc = [0,0,0]
-        self.ve = [0,0,0]
-        self.sa = [0,0,0]
-        self.ca = [0,0,0]
-        self.ss = [0,0,0]
-        self.cs = [0,0,0]
-        self.o2 = [0,0,0]
-        self.o3 = [0,0,0]
-        self.o4 = [0,0,0]
+        self.re = float(0.0)
+        self.dc = np.array([0.,0.,0.])
+        self.ve = np.array([0.,0.,0.])
+        self.sa = np.array([0.,0.,0.])
+        self.ca = np.array([0.,0.,0.])
+        self.ss = np.array([0.,0.,0.])
+        self.cs = np.array([0.,0.,0.])
+        self.o2 = np.array([0.,0.,0.])
+        self.o3 = np.array([0.,0.,0.])
+        self.o4 = np.array([0.,0.,0.])
 
     ####################################################################
     def readFitFile(self, fileName):
@@ -42,7 +44,7 @@ class FitFile:
         
         Ex:
         >>> areq_fitFile = FitFile()
-        >>> areq_fitFile.readFitfile('./AREQ_fitFile.cmd')
+        >>> areq_fitFile.readFitfile('./AREQ_fitFile.tsfit')
         """
 
         self.name = fileName
@@ -74,57 +76,57 @@ class FitFile:
                 
                 elif flag == 'DC:':
 
-                    self.dc[0] = splitLine[1]
-                    self.dc[1] = splitLine[2]
-                    self.dc[2] = splitLine[3]
+                    self.dc[0] = float(splitLine[1])
+                    self.dc[1] = float(splitLine[2])
+                    self.dc[2] = float(splitLine[3])
 
                 elif flag == 'VE:':
 
-                    self.ve[0] = splitLine[1]
-                    self.ve[1] = splitLine[2]
-                    self.ve[2] = splitLine[3]
+                    self.ve[0] = float(splitLine[1])
+                    self.ve[1] = float(splitLine[2])
+                    self.ve[2] = float(splitLine[3])
 
                 elif flag == 'SA:':
 
-                    self.sa[0] = splitLine[1]
-                    self.sa[1] = splitLine[2]
-                    self.sa[2] = splitLine[3]
+                    self.sa[0] = float(splitLine[1])
+                    self.sa[1] = float(splitLine[2])
+                    self.sa[2] = float(splitLine[3])
                 
                 elif flag == 'CA:':
 
-                    self.ca[0] = splitLine[1]
-                    self.ca[1] = splitLine[2]
-                    self.ca[2] = splitLine[3]
+                    self.ca[0] = float(splitLine[1])
+                    self.ca[1] = float(splitLine[2])
+                    self.ca[2] = float(splitLine[3])
 
                 elif flag == 'SS:':
 
-                    self.ss[0] = splitLine[1]
-                    self.ss[1] = splitLine[2]
-                    self.ss[2] = splitLine[3]
+                    self.ss[0] = float(splitLine[1])
+                    self.ss[1] = float(splitLine[2])
+                    self.ss[2] = float(splitLine[3])
                 
                 elif flag == 'CS:':
 
-                    self.cs[0] = splitLine[1]
-                    self.cs[1] = splitLine[2]
-                    self.cs[2] = splitLine[3]
+                    self.cs[0] = float(splitLine[1])
+                    self.cs[1] = float(splitLine[2])
+                    self.cs[2] = float(splitLine[3])
 
                 elif flag == 'O2:':
 
-                    self.o2[0] = splitLine[1]
-                    self.o2[1] = splitLine[2]
-                    self.o2[2] = splitLine[3]
+                    self.o2[0] = float(splitLine[1])
+                    self.o2[1] = float(splitLine[2])
+                    self.o2[2] = float(splitLine[3])
 
                 elif flag == 'O3:':
 
-                    self.o3[0] = splitLine[1]
-                    self.o3[1] = splitLine[2]
-                    self.o3[2] = splitLine[3]
+                    self.o3[0] = float(splitLine[1])
+                    self.o3[1] = float(splitLine[2])
+                    self.o3[2] = float(splitLine[3])
 
                 elif flag == 'O4:':
 
-                    self.o4[0] = splitLine[1]
-                    self.o4[1] = splitLine[2]
-                    self.o4[2] = splitLine[3]
+                    self.o4[0] = float(splitLine[1])
+                    self.o4[1] = float(splitLine[2])
+                    self.o4[2] = float(splitLine[3])
         
         ############
         # make some checks on the file that was just read in
@@ -139,7 +141,7 @@ class FitFile:
         
         # check that if a non-linear method is chosen that a
         # local minimum finder is also chosen
-        if self.im != 'linear' and self.lm == '':
+        if (self.im != 'linear' and self.im != 'gensyn') and self.lm == '':
             print(f"ERROR reading in {fileName}, inversion method set to" 
                  +f" {self.im} but no local minimum finder selected. Use"
                  +f" LM flag to set.")
@@ -148,9 +150,10 @@ class FitFile:
         # check that if gensyn is chosen, no parameters are set to be 
         # estimated (i.e. are set to 999)
         if (self.im == 'gensyn' and
-            ('999' in self.dc or '999' in self.ve or '999' in selv.an
-             or '999' in self.sa or '999' in self.o2 
-             or '999' in self.o3 or '999' in self.o4
+            (999 in self.dc or 999 in self.ve or 999 in self.sa
+             or 999 in self.ca or 999 in self.ss
+             or 999 in self.cs or 999 in self.o2 
+             or 999 in self.o3 or 999 in self.o4
             )
            ):
             print(f"ERROR reading in {fileName}, IM flag set to gensyn but"
@@ -199,16 +202,16 @@ class Tsbreak:
 
         self.cal = [0,0,0,0,0,0.0]
         self.decYear = 0.0
-        self.offset = [0,0,0]
-        self.deltaV = [0,0,0]
-        self.expMagX1 = [0,0,0]
-        self.expTauX1 = [0,0,0]
-        self.expMagX2 = [0,0,0]
-        self.expTauX2 = [0,0,0]
-        self.expMagX3 = [0,0,0]
-        self.expTauX3 = [0,0,0]
-        self.lnMag = [0,0,0]
-        self.lnTau = [0,0,0]
+        self.offset = np.array([0.,0.,0.])
+        self.deltaV = np.array([0.,0.,0.])
+        self.expMagX1 = np.array([0.,0.,0.])
+        self.expTauX1 = np.array([1e9,1e9,1e9])
+        self.expMagX2 = np.array([0.,0.,0.])
+        self.expTauX2 = np.array([1e9,1e9,1e9])
+        self.expMagX3 = np.array([0.,0.,0.])
+        self.expTauX3 = np.array([1e9,1e9,1e9])
+        self.lnMag = np.array([0.,0.,0.])
+        self.lnTau = np.array([1e9,1e9,1e9])
 
 ########################################################################
 class BreakFile:
@@ -232,7 +235,7 @@ class BreakFile:
     def readBreakFile(self, fileName):
 
         """
-        Read in all break records from fileName and store as Break objects
+        Read in all break records from fileName and store as Tsreak objects
         within BreakFile object.
         """
 
@@ -244,11 +247,13 @@ class BreakFile:
 
                 splitLine = line.split()
 
+                # skip blank lines and comment lines
                 if splitLine == []:
                     continue
                 elif splitLine[0][0] == '#':
                     continue
 
+                # new break record starts with +
                 if splitLine[0] == '+':
 
                     newBreak = Tsbreak()
@@ -261,15 +266,16 @@ class BreakFile:
                     minute = int(splitLine[5])
                     second = float(splitLine[6])
                 
-                    x1offset = splitLine[7]
-                    x2offset = splitLine[8]
-                    x3offset = splitLine[9]
+                    x1offset = float(splitLine[7])
+                    x2offset = float(splitLine[8])
+                    x3offset = float(splitLine[9])
                 
                     newBreak.cal = [year, month, day, hour, minute, second]
                     newBreak.decYear = convtime("cal","year",newBreak.cal)
 
-                    newBreak.offset = [x1offset,x2offset,x3offset]
+                    newBreak.offset = np.array([x1offset,x2offset,x3offset])
 
+                # '-' indicates end of break record
                 elif splitLine[0] == '-':
 
                     self.breaks.append(newBreak)
@@ -280,38 +286,53 @@ class BreakFile:
 
                     if lineCount == 1:
 
-                        newBreak.deltaV = [splitLine[0],splitLine[1],splitLine[2]]
+                        newBreak.deltaV = np.array([float(splitLine[0]),
+                                                    float(splitLine[1]),
+                                                    float(splitLine[2])])
                     
                     elif lineCount == 2:
 
-                        newBreak.expMagX1 = [splitLine[0],splitLine[1],splitLine[2]]
-                        newBreak.expTauX1 = [splitLine[3],splitLine[4],splitLine[5]]
+                        newBreak.expMagX1 = np.array([float(splitLine[0]),
+                                                      float(splitLine[1]),
+                                                      float(splitLine[2])])
+                        newBreak.expTauX1 = np.array([float(splitLine[3]),
+                                                      float(splitLine[4]),
+                                                      float(splitLine[5])])
 
                     elif lineCount == 3:
 
-                        newBreak.expMagX2 = [splitLine[0],splitLine[1],splitLine[2]]
-                        newBreak.expTauX2 = [splitLine[3],splitLine[4],splitLine[5]]
+                        newBreak.expMagX2 = np.array([float(splitLine[0]),
+                                                      float(splitLine[1]),
+                                                      float(splitLine[2])])
+                        newBreak.expTauX2 = np.array([float(splitLine[3]),
+                                                      float(splitLine[4]),
+                                                      float(splitLine[5])])
 
                     elif lineCount == 4:
 
-                        newBreak.expMagX3 = [splitLine[0],splitLine[1],splitLine[2]]
-                        newBreak.expTauX3 = [splitLine[3],splitLine[4],splitLine[5]]
+                        newBreak.expMagX3 = np.array([float(splitLine[0]),
+                                                      float(splitLine[1]),
+                                                      float(splitLine[2])])
+                        newBreak.expTauX3 = np.array([float(splitLine[3]),
+                                                      float(splitLine[4]),
+                                                      float(splitLine[5])])
 
                     elif lineCount == 5:
 
-                        newBreak.lnMag[0] = splitLine[0]
-                        newBreak.lnTau[0] = splitLine[1]
+                        newBreak.lnMag[0] = float(splitLine[0])
+                        newBreak.lnTau[0] = float(splitLine[1])
 
                     elif lineCount == 6:
 
-                        newBreak.lnMag[1] = splitLine[0]
-                        newBreak.lnTau[1] = splitLine[1]
+                        newBreak.lnMag[1] = float(splitLine[0])
+                        newBreak.lnTau[1] = float(splitLine[1])
 
                     elif lineCount == 7:
 
-                        newBreak.lnMag[2] = splitLine[0]
-                        newBreak.lnTau[2] = splitLine[1]
+                        newBreak.lnMag[2] = float(splitLine[0])
+                        newBreak.lnTau[2] = float(splitLine[1])
 
+    
     ####################################################################
     def writeBreakFile(self, fileName):
 

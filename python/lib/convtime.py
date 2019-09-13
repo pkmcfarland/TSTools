@@ -12,7 +12,7 @@ Author(s):
 Sungpil Yoon
 
 Contact:
-sungpil.yoon@noaa.gov
+phillip.mcfarland@noaa.gov
 
 As required by 17 U.S.C. § 403, third parties producing copyrighted works consisting predominantly 
 of the material appearing in NGS Web pages must provide notice with such work(s) identifying the NGS 

@@ -21,6 +21,7 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
 from tstools import inputFileIO as ifio
+from tstools import compPos as cp
 import transform
 from convtime import convtime
 
@@ -128,11 +129,12 @@ class TimeSeries:
 
     ####################################################################
     def genSynthetic(self, startCal, endCal, posSdList, uncRangeList,
-                     mdlFile, brkFile):
+                     mdlFilePath, brkFilePath):
 
         """
         Generate synthetic time series from time defined by startList to 
-        time defined by endList. Synthetic time series will have Gaussian
+        time defined by endList. Daily positions are referenced to noon
+        of each day in time series. Synthetic time series will have Gaussian
         noise in position with standard deviation for each component
         defined in posSdList and Gaussian noise in position uncertainties
         with standard deviation for each component defined in uncSdList.
@@ -142,7 +144,7 @@ class TimeSeries:
         Ex:
         >>> from tstools import timeSeries as ts
         >>> start = [2004, 2, 12, 0, 0, 0]
-        >>> end = [2019, 8, 27, 0, 0, 0]
+        >>> end = [2019, 8, 27, 12, 0, 0]
         >>> posSigmas = [ 0.005, 0.005, 0.01]
         >>> uncRanges = [[0.001, 0.005], [0.001, 0.005], [0.0025, 0.01]]
         >>>
@@ -151,13 +153,138 @@ class TimeSeries:
                                      './mdlFile.cmd', './brkFile.cmd')
         """
 
+        # set some internal values
+        self.name = 'SYNTHETIC'
+        self.coordType = DXDYDZ
+        self.frame = 'SYNTHETIC'
+
         # read mdlFile into FitFile object
         mdlFile = ifio.FitFile()
-        mdlFile.readFitFile(mdlFile)
+        mdlFile.readFitFile(mdlFilePath)
+
+        # check that IM flag set to 'gensyn' in input fit file
+        if mdlFile.im != 'gensyn':
+
+            print(f"ERROR: IM flag in {mdlFilePath} not set to 'gensyn'"
+                 +f" modify file and try again")
+            return -1
 
         # read brkFile into BreakFile object
         brkFile = ifio.BreakFile()
-        brkFile.readBreakFile(brkFile)
+        brkFile.readBreakFile(brkFilePath)
+
+        # check that none of the breakFile parameters set to '999'
+        for tsBreak in brkFile.breaks:
+
+            if (999 in tsBreak.offset or 999 in tsBreak.deltaV
+                or 999 in tsBreak.expMagX1 or 999 in tsBreak.expTauX1
+                or 999 in tsBreak.expMagX2 or 999 in tsBreak.expTauX2
+                or 999 in tsBreak.expMagX3 or 999 in tsBreak.expTauX3
+                or 999 in tsBreak.lnMag or 999 in tsBreak.lnTau):
+
+                print(f"ERROR: one or more parameters set to '999' in "
+                     +f"{brkFilePath}. Cannot estimate parameters in "
+                     +f" 'gensyn' mode.")
+                return -1
+
+        # pull reference epoch out of mdlFile
+        refYear = mdlFile.re
+
+        # create list of epochs from user input starCal and endCal
+        # assign list of decimal years to self.time
+        startMjd = convtime('cal','mjd2',startCal)
+        endMjd = convtime('cal','mjd2', endCal)
+
+        mjdList = list(range(startMjd[0], endMjd[0]+1))
+        
+        decYearList = [0.0]*len(mjdList)
+        for i, mjd in enumerate(mjdList):
+
+            decYearList[i] = convtime("mjd2","year",[mjd, 0.5])
+        
+        self.time = np.asarray(decYearList)
+
+        # get non-break parameters from mdlFile to pass to compPosAtEpoch()
+        dc = mdlFile.dc 
+        vel = mdlFile.ve        
+        sa = mdlFile.sa        
+        ca = mdlFile.ca        
+        ss = mdlFile.ss        
+        cs = mdlFile.cs
+
+        ##############
+        # loop over epochs and compute position at each epoch
+        
+        # shift times so ref epoch is zero
+        shiftYear = np.array([0.0]*len(decYearList))
+        for i, decYear in enumerate(self.time):
+
+            shiftYear[i] = decYear - refYear
+
+        # initialize position arrays  
+        x1posArray = np.array([0.0]*len(self.time))
+        x2posArray = np.array([0.0]*len(self.time))
+        x3posArray = np.array([0.0]*len(self.time))
+        
+        # loop over shifted years and compute position at each
+        for i, decYear in enumerate(shiftYear):
+            
+            # get parameters necessary for breaks that occur prior to
+            # current epoch
+            [brkEpochs, 
+             offsetX1, 
+             offsetX2, 
+             offsetX3, 
+             dVx1, 
+             dVx2, 
+             dVx3,
+             expMagX1, 
+             expMagX2, 
+             expMagX3, 
+             expTauX1, 
+             expTauX2, 
+             expTauX3,
+             lnMagX1, 
+             lnMagX2, 
+             lnMagX3, 
+             lnTauX1, 
+             lnTauX2, 
+             lnTauX3] = cp.getBrkParams( decYear, refYear, brkFile)
+                
+                
+            # compute positions
+            x1pos, x2pos, x3pos = cp.compPosAtEpoch( decYear, dc, vel, sa, ca, ss, cs,
+                                      brkEpochs, offsetX1, offsetX2, offsetX3,
+                                      dVx1, dVx2, dVx3, expMagX1, expMagX2,
+                                      expMagX3, expTauX1, expTauX2, expTauX3,
+                                      lnMagX1, lnMagX2, lnMagX3, lnTauX1, lnTauX2, lnTauX3)
+            
+            # add computed positions to position component lists with random Gaussian
+            # noise
+            x1posArray[i] = x1pos + np.random.normal( 0., posSdList[0]) 
+            x2posArray[i] = x2pos + np.random.normal( 0., posSdList[1])
+            x3posArray[i] = x3pos + np.random.normal( 0., posSdList[2])
+
+        # assign computed positions to self.pos
+        self.pos = np.stack([x1posArray,x2posArray,x3posArray])
+
+        # compute synthetic uncertainties for time series
+        # within uniform distribution provided by uncRangeList
+        x1unc = np.array([0.0]*len(self.time))
+        x2unc = np.array([0.0]*len(self.time))
+        x3unc = np.array([0.0]*len(self.time))
+
+        for i, epoch in enumerate(self.time):
+
+            x1unc[i] = np.random.uniform( uncRangeList[0][0],
+                                          uncRangeList[0][1])
+            x2unc[i] = np.random.uniform( uncRangeList[1][0],
+                                          uncRangeList[1][1])
+            x3unc[i] = np.random.uniform( uncRangeList[2][0],
+                                          uncRangeList[2][1])
+
+        
+        self.sig = np.stack([x1unc, x2unc,x3unc])
 
     ####################################################################
     def setRefPosToAvg(self):
