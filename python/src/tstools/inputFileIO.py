@@ -9,7 +9,7 @@ import numpy as np
 from convtime import convtime
 
 ########################################################################
-class FitFile:
+class MdlFile:
 
     """
     Holds information about parameters to be estimated, or fixed during 
@@ -35,16 +35,16 @@ class FitFile:
         self.o4 = np.array([0.,0.,0.])
 
     ####################################################################
-    def readFitFile(self, fileName):
+    def readMdlFile(self, fileName):
 
         """
-        Read in fit file and assign values to parameter object.
+        Read in mdl file and assign values to parameter object.
 
-        NOTE: read instructions for constructing fit file
+        NOTE: read instructions for constructing mdl file
         
         Ex:
         >>> areq_fitFile = FitFile()
-        >>> areq_fitFile.readFitfile('./AREQ_fitFile.tsfit')
+        >>> areq_fitFile.readFitfile('./AREQ_mdlFile.tsmdl')
         """
 
         self.name = fileName

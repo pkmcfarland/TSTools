@@ -24,11 +24,11 @@
 # Flags for type of inversion to perform:
 
 IM: basin           # (I)nversion (M)ethod: linear = weighted least squares
-                    #                       basin = basinhopping (must also include 
-                    #                               LM flag)
-                    #                       gensyn = do not perform any inversion, 
-                    #                                use given parameters to create
-                    #                                a synthetic time series
+                    #                       basin = basinhopping (must also 
+                    #                               include LM flag)
+                    #                       gensyn = do not perform any inversion,
+                    #                                use given parameters to 
+                    #                                create synthetic time series
 
 RE: 2000.0          # reference epoch given in decimal year, required so that dc 
                     # offset terms are of the same order as other terms. If not 
@@ -42,10 +42,17 @@ RE: 2000.0          # reference epoch given in decimal year, required so that dc
 #   x1  x2  x3
 DC: 999 999 999  # (DC)-offset term (i.e. pos at t=0) (m)
 VE: 999 999 999  # linear (VE)locity (m/yr)
-SA: 999 999 999  # magnitude of seasonal (S)ine function with (A)nual period (m)
-CA: 999 999 999  # magnitude ofseasonal (C)osine function with (A)nual period (m)
-SS: 999 999 999  # magnitude of seasonal (S)ine function with (S)emi-annual period (m)
-CS: 999 999 999  # magnitude of seasonal (C)osine function with (S)emi-annual period (m)
-O2:   0   0   0  # magnitude of terms of (O)rder (2) in time *** not yet functional ***
-O3:   0   0   0  # magnitude of terms of (O)rder (3) in time *** not yet functional ***
-O4:   0   0   0  # magnitude of terms of (O)rder (4) in time *** not yet functional ***
+SA: 999 999 999  # magnitude of seasonal (S)ine function with (A)nual 
+                 # period (m)
+CA: 999 999 999  # magnitude ofseasonal (C)osine function with (A)nual 
+                 # period (m)
+SS: 999 999 999  # magnitude of seasonal (S)ine function with (S)emi-
+                 # annual period (m)
+CS: 999 999 999  # magnitude of seasonal (C)osine function with (S)emi-
+                 # annual period (m)
+O2:   0   0   0  # magnitude of terms of (O)rder (2) in time *** not yet 
+                 # functional ***
+O3:   0   0   0  # magnitude of terms of (O)rder (3) in time *** not yet 
+                 # functional ***
+O4:   0   0   0  # magnitude of terms of (O)rder (4) in time *** not yet 
+                 #functional ***
