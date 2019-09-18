@@ -257,7 +257,8 @@ class TimeSeries:
                                       brkEpochs, offsetX1, offsetX2, offsetX3,
                                       dVx1, dVx2, dVx3, expMagX1, expMagX2,
                                       expMagX3, expTauX1, expTauX2, expTauX3,
-                                      lnMagX1, lnMagX2, lnMagX3, lnTauX1, lnTauX2, lnTauX3)
+                                      lnMagX1, lnMagX2, lnMagX3, lnTauX1, lnTauX2, 
+                                      lnTauX3)
             
             # add computed positions to position component lists with random Gaussian
             # noise
@@ -526,7 +527,7 @@ class TimeSeries:
                            )
 
         # add the traces
-        fig.add_trace(go.Scatter(x=self.time, y=plot1,
+        fig.add_trace(go.Scattergl(x=self.time, y=plot1,
                                  mode='markers',
                                  name=trace1,
                                  marker_color='rgba(15,159,212,.8)',
@@ -534,10 +535,10 @@ class TimeSeries:
                                      type='data',
                                       array=sig1,
                                              )
-                                ),
+                                  ),
                       row=1, col=1
                       )
-        fig.add_trace(go.Scatter(x=self.time, y=plot2,
+        fig.add_trace(go.Scattergl(x=self.time, y=plot2,
                                  mode='markers',
                                  name=trace2,
                                  marker_color='rgba(15,159,212,.8)',
@@ -545,10 +546,10 @@ class TimeSeries:
                                      type='data',
                                       array=sig2,
                                              )
-                                ),
+                                  ),
                       row=2, col=1
                       )
-        fig.add_trace(go.Scatter(x=self.time, y=plot3,
+        fig.add_trace(go.Scattergl(x=self.time, y=plot3,
                                  mode='markers',
                                  name=trace3,
                                  marker_color='rgba(15,159,212,.8)',
@@ -556,7 +557,7 @@ class TimeSeries:
                                      type='data',
                                       array=sig3,
                                              )
-                                ),
+                                  ),
                       row=3, col=1
                       )
 
