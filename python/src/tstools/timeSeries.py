@@ -177,9 +177,9 @@ class TimeSeries:
         for tsBreak in brkFile.breaks:
 
             if (999 in tsBreak.offset or 999 in tsBreak.deltaV
-                or 999 in tsBreak.expMagX1 or 999 in tsBreak.expTauX1
-                or 999 in tsBreak.expMagX2 or 999 in tsBreak.expTauX2
-                or 999 in tsBreak.expMagX3 or 999 in tsBreak.expTauX3
+                or 999 in tsBreak.expMag1 or 999 in tsBreak.expTau1
+                or 999 in tsBreak.expMag2 or 999 in tsBreak.expTau2
+                or 999 in tsBreak.expMag3 or 999 in tsBreak.expTau3
                 or 999 in tsBreak.lnMag or 999 in tsBreak.lnTau):
 
                 print(f"ERROR: one or more parameters set to '999' in "
@@ -253,15 +253,16 @@ class TimeSeries:
                 
                 
             # compute positions
-            x1pos, x2pos, x3pos = cp.compPosAtEpoch( decYear, dc, vel, sa, ca, ss, cs,
-                                      brkEpochs, offsetX1, offsetX2, offsetX3,
-                                      dVx1, dVx2, dVx3, expMagX1, expMagX2,
-                                      expMagX3, expTauX1, expTauX2, expTauX3,
-                                      lnMagX1, lnMagX2, lnMagX3, lnTauX1, lnTauX2, 
-                                      lnTauX3)
+            x1pos, x2pos, x3pos = cp.compPosAtEpoch( decYear, dc, vel, sa, 
+                                      ca, ss, cs, brkEpochs, offsetX1, 
+                                      offsetX2, offsetX3, dVx1, dVx2, dVx3,
+                                      expMagX1, expMagX2, expMagX3, 
+                                      expTauX1, expTauX2, expTauX3,
+                                      lnMagX1, lnMagX2, lnMagX3, lnTauX1, 
+                                      lnTauX2, lnTauX3)
             
-            # add computed positions to position component lists with random Gaussian
-            # noise
+            # add computed positions to position component lists with 
+            # random Gaussian noise
             x1posArray[i] = x1pos + np.random.normal( 0., posSdList[0]) 
             x2posArray[i] = x2pos + np.random.normal( 0., posSdList[1])
             x3posArray[i] = x3pos + np.random.normal( 0., posSdList[2])

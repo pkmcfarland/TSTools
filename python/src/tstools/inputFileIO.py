@@ -132,9 +132,10 @@ class MdlFile:
         # make some checks on the file that was just read in
         
         # check that a recognized inversion method was given
-        # additional minimization methods can be added below as they are incorporated
-        # into the other modules
-        if self.im != 'linear' and self.im != 'basin' and  self.im != 'gensyn':
+        # additional minimization methods can be added below 
+        # as they are incorporated into the other modules
+        if (self.im != 'linear' and self.im != 'basin' and  
+            self.im != 'gensyn'):
             print(f"ERROR reading in {fileName}, IM flag either not set"
                  +f" or not set to recognized value")
             return -1
@@ -159,6 +160,21 @@ class MdlFile:
             print(f"ERROR reading in {fileName}, IM flag set to gensyn but"
                  +f" one or more parameters set to '999'. No parameters can"
                  +f" be estimated in synthetic time series generation.")
+            return -1
+
+        # check that the O2, O3, and O4 terms are set to 0. for all 
+        # components
+
+        # **NOTE** this check must be deleted once 02, 03, 04 
+        #          functionality is added
+
+        if ((self.o2 != [0.,0.,0.]).all() and
+            (self.o3 != [0.,0.,0.]).all() and
+            (self.o4 != [0.,0.,0.]).all()):
+            print(f"ERROR reading in {fileName}, O2, O3, and O4 flags "
+                 +f"must either be ommitted or all values must be "
+                 +f"set to 0.0. Functionality for these terms is not "
+                 +f"yet supported.")
             return -1
 
 
@@ -204,12 +220,12 @@ class Tsbreak:
         self.decYear = 0.0
         self.offset = np.array([0.,0.,0.])
         self.deltaV = np.array([0.,0.,0.])
-        self.expMagX1 = np.array([0.,0.,0.])
-        self.expTauX1 = np.array([1e9,1e9,1e9])
-        self.expMagX2 = np.array([0.,0.,0.])
-        self.expTauX2 = np.array([1e9,1e9,1e9])
-        self.expMagX3 = np.array([0.,0.,0.])
-        self.expTauX3 = np.array([1e9,1e9,1e9])
+        self.expMag1 = np.array([0.,0.,0.])
+        self.expTau1 = np.array([1e9,1e9,1e9])
+        self.expMag2 = np.array([0.,0.,0.])
+        self.expTau2 = np.array([1e9,1e9,1e9])
+        self.expMag3 = np.array([0.,0.,0.])
+        self.expTau3 = np.array([1e9,1e9,1e9])
         self.lnMag = np.array([0.,0.,0.])
         self.lnTau = np.array([1e9,1e9,1e9])
 
@@ -292,30 +308,30 @@ class BreakFile:
                     
                     elif lineCount == 2:
 
-                        newBreak.expMagX1 = np.array([float(splitLine[0]),
-                                                      float(splitLine[1]),
-                                                      float(splitLine[2])])
-                        newBreak.expTauX1 = np.array([float(splitLine[3]),
-                                                      float(splitLine[4]),
-                                                      float(splitLine[5])])
-
+                        newBreak.expMag1[0] = float(splitLine[0])
+                        newBreak.expMag2[0] = float(splitLine[1])
+                        newBreak.expMag3[0] = float(splitLine[2])
+                        newBreak.expTau1[0] = float(splitLine[3])
+                        newBreak.expTau2[0] = float(splitLine[4])
+                        newBreak.expTau3[0] = float(splitLine[5])
+                        
                     elif lineCount == 3:
 
-                        newBreak.expMagX2 = np.array([float(splitLine[0]),
-                                                      float(splitLine[1]),
-                                                      float(splitLine[2])])
-                        newBreak.expTauX2 = np.array([float(splitLine[3]),
-                                                      float(splitLine[4]),
-                                                      float(splitLine[5])])
+                        newBreak.expMag1[1] = float(splitLine[0])
+                        newBreak.expMag2[1] = float(splitLine[1])
+                        newBreak.expMag3[1] = float(splitLine[2])
+                        newBreak.expTau1[1] = float(splitLine[3])
+                        newBreak.expTau2[1] = float(splitLine[4])
+                        newBreak.expTau3[1] = float(splitLine[5])
 
                     elif lineCount == 4:
 
-                        newBreak.expMagX3 = np.array([float(splitLine[0]),
-                                                      float(splitLine[1]),
-                                                      float(splitLine[2])])
-                        newBreak.expTauX3 = np.array([float(splitLine[3]),
-                                                      float(splitLine[4]),
-                                                      float(splitLine[5])])
+                        newBreak.expMag1[2] = float(splitLine[0])
+                        newBreak.expMag2[2] = float(splitLine[1])
+                        newBreak.expMag3[2] = float(splitLine[2])
+                        newBreak.expTau1[2] = float(splitLine[3])
+                        newBreak.expTau2[2] = float(splitLine[4])
+                        newBreak.expTau3[2] = float(splitLine[5])
 
                     elif lineCount == 5:
 
@@ -359,29 +375,29 @@ class BreakFile:
             deltaV2 = brkRec.deltaV[1]
             deltaV3 = brkRec.deltaV[2]
 
-            x1expMag1 = brkRec.expMagX1[0]
-            x1expMag2 = brkRec.expMagX1[1]
-            x1expMag3 = brkRec.expMagX1[2]
+            x1expMag1 = brkRec.expMag1[0]
+            x1expMag2 = brkRec.expMag2[0]
+            x1expMag3 = brkRec.expMag3[0]
 
-            x2expMag1 = brkRec.expMagX2[0]
-            x2expMag2 = brkRec.expMagX2[1]
-            x2expMag3 = brkRec.expMagX2[2]
+            x2expMag1 = brkRec.expMag1[1]
+            x2expMag2 = brkRec.expMag2[1]
+            x2expMag3 = brkRec.expMag3[1]
 
-            x3expMag1 = brkRec.expMagX3[0]
-            x3expMag2 = brkRec.expMagX3[1]
-            x3expMag3 = brkRec.expMagX3[2]
+            x3expMag1 = brkRec.expMag1[2]
+            x3expMag2 = brkRec.expMag2[2]
+            x3expMag3 = brkRec.expMag3[2]
 
-            x1expTau1 = brkRec.expTauX1[0]
-            x1expTau2 = brkRec.expTauX1[1]
-            x1expTau3 = brkRec.expTauX1[2]
+            x1expTau1 = brkRec.expTau1[0]
+            x1expTau2 = brkRec.expTau2[0]
+            x1expTau3 = brkRec.expTau3[0]
 
-            x2expTau1 = brkRec.expTauX2[0]
-            x2expTau2 = brkRec.expTauX2[1]
-            x2expTau3 = brkRec.expTauX2[2]
+            x2expTau1 = brkRec.expTau1[1]
+            x2expTau2 = brkRec.expTau2[1]
+            x2expTau3 = brkRec.expTau3[1]
 
-            x3expTau1 = brkRec.expTauX3[0]
-            x3expTau2 = brkRec.expTauX3[1]
-            x3expTau3 = brkRec.expTauX3[2]
+            x3expTau1 = brkRec.expTau1[2]
+            x3expTau2 = brkRec.expTau2[2]
+            x3expTau3 = brkRec.expTau3[2]
 
             x1lnMag = brkRec.lnMag[0]
             x2lnMag = brkRec.lnMag[1]
@@ -398,11 +414,14 @@ class BreakFile:
             bf.write(f"                           "
                     +f" {deltaV1} {deltaV2} {deltaV3}\n")
             bf.write(f"                           "
-                    +f" {x1expMag1} {x1expMag2} {x1expMag3} {x1expTau1} {x1expTau2} {x1expTau3}\n")
+                    +f" {x1expMag1} {x1expMag2} {x1expMag3} {x1expTau1}"
+                    +f" {x1expTau2} {x1expTau3}\n")
             bf.write(f"                           "
-                    +f" {x2expMag1} {x2expMag2} {x2expMag3} {x2expTau1} {x2expTau2} {x2expTau3}\n")
+                    +f" {x2expMag1} {x2expMag2} {x2expMag3} {x2expTau1}" 
+                    +f" {x2expTau2} {x2expTau3}\n")
             bf.write(f"                           "
-                    +f" {x3expMag1} {x3expMag2} {x3expMag3} {x3expTau1} {x3expTau2} {x3expTau3}\n")
+                    +f" {x3expMag1} {x3expMag2} {x3expMag3} {x3expTau1}"
+                    +f" {x3expTau2} {x3expTau3}\n")
             bf.write(f"                            {x1lnMag} {x1lnTau}\n")
             bf.write(f"                            {x2lnMag} {x2lnTau}\n")
             bf.write(f"                            {x3lnMag} {x3lnTau}\n")
