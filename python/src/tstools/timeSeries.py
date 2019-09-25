@@ -159,8 +159,8 @@ class TimeSeries:
         self.frame = 'SYNTHETIC'
 
         # read mdlFile into FitFile object
-        mdlFile = ifio.FitFile()
-        mdlFile.readFitFile(mdlFilePath)
+        mdlFile = ifio.MdlFile()
+        mdlFile.readMdlFile(mdlFilePath)
 
         # check that IM flag set to 'gensyn' in input fit file
         if mdlFile.im != 'gensyn':
@@ -180,7 +180,7 @@ class TimeSeries:
                 or 999 in tsBreak.expMag1 or 999 in tsBreak.expTau1
                 or 999 in tsBreak.expMag2 or 999 in tsBreak.expTau2
                 or 999 in tsBreak.expMag3 or 999 in tsBreak.expTau3
-                or 999 in tsBreak.lnMag or 999 in tsBreak.lnTau):
+                or 999 in tsBreak.logMag or 999 in tsBreak.logTau):
 
                 print(f"ERROR: one or more parameters set to '999' in "
                      +f"{brkFilePath}. Cannot estimate parameters in "
@@ -244,12 +244,12 @@ class TimeSeries:
              expTauX1, 
              expTauX2, 
              expTauX3,
-             lnMagX1, 
-             lnMagX2, 
-             lnMagX3, 
-             lnTauX1, 
-             lnTauX2, 
-             lnTauX3] = cp.getBrkParams( decYear, refYear, brkFile)
+             logMagX1, 
+             logMagX2, 
+             logMagX3, 
+             logTauX1, 
+             logTauX2, 
+             logTauX3] = cp.getBrkParams( decYear, brkFile, mdlFile)
                 
                 
             # compute positions
@@ -258,8 +258,8 @@ class TimeSeries:
                                       offsetX2, offsetX3, dVx1, dVx2, dVx3,
                                       expMagX1, expMagX2, expMagX3, 
                                       expTauX1, expTauX2, expTauX3,
-                                      lnMagX1, lnMagX2, lnMagX3, lnTauX1, 
-                                      lnTauX2, lnTauX3)
+                                      logMagX1, logMagX2, logMagX3, logTauX1, 
+                                      logTauX2, lnTauX3)
             
             # add computed positions to position component lists with 
             # random Gaussian noise

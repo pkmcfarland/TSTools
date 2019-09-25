@@ -1,0 +1,24 @@
+# YYYY MM DD HH MN SS.SS   x1_  x2_  x3_                    
++ 2001 11 14 15 40 53.00   999  999  999          # Mw 7.7 Tocopilla EQ; 
+#                                                 # estimate offsets
+#                          ___deltaV____          # and three exponential 
+#                                                 # terms, no logarithmic
+#                          v1_  v2_  v3_          # terms and no change in
+                           0.   0.   0.           # velocity after event
+#                          __________ExpTerms___________   
+#                          mag1   mag2  mag3 tau1 tau2 tau3   
+#                          _____________x1______________
+                           999    999   0.0  999  999  1e9 
+#                          _____________x2______________
+                           999    999   0.0  999  999  1e9  
+#                          _____________x3______________
+                           999    999   0.0  999  999  1e9
+#                          _________LnTerms_____________
+#                           mag  tau
+#                          ____x1___
+                            0.    1e9
+#                          ____x2___
+                            0.    1e9
+#                          ____x3___ 
+                            0.    1e9
+- any text can follow end-record symbol

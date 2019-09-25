@@ -226,8 +226,8 @@ class Tsbreak:
         self.expTau2 = np.array([1e9,1e9,1e9])
         self.expMag3 = np.array([0.,0.,0.])
         self.expTau3 = np.array([1e9,1e9,1e9])
-        self.lnMag = np.array([0.,0.,0.])
-        self.lnTau = np.array([1e9,1e9,1e9])
+        self.logMag = np.array([0.,0.,0.])
+        self.logTau = np.array([1e9,1e9,1e9])
 
 ########################################################################
 class BreakFile:
@@ -335,18 +335,18 @@ class BreakFile:
 
                     elif lineCount == 5:
 
-                        newBreak.lnMag[0] = float(splitLine[0])
-                        newBreak.lnTau[0] = float(splitLine[1])
+                        newBreak.logMag[0] = float(splitLine[0])
+                        newBreak.logTau[0] = float(splitLine[1])
 
                     elif lineCount == 6:
 
-                        newBreak.lnMag[1] = float(splitLine[0])
-                        newBreak.lnTau[1] = float(splitLine[1])
+                        newBreak.logMag[1] = float(splitLine[0])
+                        newBreak.logTau[1] = float(splitLine[1])
 
                     elif lineCount == 7:
 
-                        newBreak.lnMag[2] = float(splitLine[0])
-                        newBreak.lnTau[2] = float(splitLine[1])
+                        newBreak.logMag[2] = float(splitLine[0])
+                        newBreak.logTau[2] = float(splitLine[1])
 
     
     ####################################################################
@@ -399,13 +399,13 @@ class BreakFile:
             x3expTau2 = brkRec.expTau2[2]
             x3expTau3 = brkRec.expTau3[2]
 
-            x1lnMag = brkRec.lnMag[0]
-            x2lnMag = brkRec.lnMag[1]
-            x3lnMag = brkRec.lnMag[2]
+            x1logMag = brkRec.logMag[0]
+            x2logMag = brkRec.logMag[1]
+            x3logMag = brkRec.logMag[2]
 
-            x1lnTau = brkRec.lnTau[0]
-            x2lnTau = brkRec.lnTau[1]
-            x3lnTau = brkRec.lnTau[2]
+            x1logTau = brkRec.logTau[0]
+            x2logTau = brkRec.logTau[1]
+            x3logTau = brkRec.logTau[2]
             
             bf.write("\n")
             bf.write(f"+ {year:4d} {month:2d} {day:2d} {hour:2d}"
@@ -422,9 +422,9 @@ class BreakFile:
             bf.write(f"                           "
                     +f" {x3expMag1} {x3expMag2} {x3expMag3} {x3expTau1}"
                     +f" {x3expTau2} {x3expTau3}\n")
-            bf.write(f"                            {x1lnMag} {x1lnTau}\n")
-            bf.write(f"                            {x2lnMag} {x2lnTau}\n")
-            bf.write(f"                            {x3lnMag} {x3lnTau}\n")
+            bf.write(f"                            {x1logMag} {x1logTau}\n")
+            bf.write(f"                            {x2logMag} {x2logTau}\n")
+            bf.write(f"                            {x3logMag} {x3logTau}\n")
             bf.write("-\n")
 
         bf.close()

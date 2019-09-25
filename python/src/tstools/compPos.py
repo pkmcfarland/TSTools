@@ -41,13 +41,13 @@ def getBrkParams( decYear, brkFile, mdlFile):
     expTauX1  - same as expMagX1 but for decay times for x1
     expTauX2  - same as expTauX1 but for x2
     expTauX3  - same as expTauX1 but for x3
-    lnMagX1   - numpy array of logarithm magnitudes for all breaks 
-                that occur after decYear
-    lnMagX2   - same as lnMagX1 but for x2
-    lnMagX3   - same as lnMagX1 but for x3
-    lnTauX1   - same as lnMagX1 but for logarithm decay times
-    lnTauX2   - same as lnTauX1 but for x2
-    lnTauX3   - same as lnTauX1 but for x3
+    logMagX1   - numpy array of logarithm magnitudes for all breaks 
+                 that occur after decYear
+    logMagX2   - same as logMagX1 but for x2
+    logMagX3   - same as logMagX1 but for x3
+    logTauX1   - same as logMagX1 but for logarithm decay times
+    logTauX2   - same as logTauX1 but for x2
+    logTauX3   - same as logTauX1 but for x3
     """
 
     # get reference year
@@ -76,12 +76,12 @@ def getBrkParams( decYear, brkFile, mdlFile):
     expTauX1 = []
     expTauX2 = []
     expTauX3 = []
-    lnMagX1 = np.asarray([0.]*brkCnt)
-    lnMagX2 = np.asarray([0.]*brkCnt)
-    lnMagX3 = np.asarray([0.]*brkCnt)
-    lnTauX1 = np.asarray([0.]*brkCnt)
-    lnTauX2 = np.asarray([0.]*brkCnt)
-    lnTauX3 = np.asarray([0.]*brkCnt)
+    logMagX1 = np.asarray([0.]*brkCnt)
+    logMagX2 = np.asarray([0.]*brkCnt)
+    logMagX3 = np.asarray([0.]*brkCnt)
+    logTauX1 = np.asarray([0.]*brkCnt)
+    logTauX2 = np.asarray([0.]*brkCnt)
+    logTauX3 = np.asarray([0.]*brkCnt)
 
     brkCnt = 0
     for tsBreak in brkFile.breaks:
@@ -122,24 +122,24 @@ def getBrkParams( decYear, brkFile, mdlFile):
                                       tsBreak.expTau2[2],
                                       tsBreak.expTau3[2]]))
                     
-            lnMagX1[brkCnt] = tsBreak.lnMag[0]
-            lnMagX2[brkCnt] = tsBreak.lnMag[1]
-            lnMagX3[brkCnt] = tsBreak.lnMag[2]
+            logMagX1[brkCnt] = tsBreak.logMag[0]
+            logMagX2[brkCnt] = tsBreak.logMag[1]
+            logMagX3[brkCnt] = tsBreak.logMag[2]
                     
-            lnTauX1[brkCnt] = tsBreak.lnTau[0]
-            lnTauX2[brkCnt] = tsBreak.lnTau[1]
-            lnTauX3[brkCnt] = tsBreak.lnTau[2]
+            logTauX1[brkCnt] = tsBreak.logTau[0]
+            logTauX2[brkCnt] = tsBreak.logTau[1]
+            logTauX3[brkCnt] = tsBreak.logTau[2]
 
     return [ brkEpochs, offsetX1, offsetX2, offsetX3, dVx1, dVx2, dVx3,
              expMagX1, expMagX2, expMagX3, expTauX1, expTauX2, expTauX3,
-             lnMagX1, lnMagX2, lnMagX3, lnTauX1, lnTauX2, lnTauX3]
+             logMagX1, logMagX2, logMagX3, logTauX1, logTauX2, lnTauX3]
 
 ########################################################################
 def compPosAtEpoch( decYear, dc, vel, sa, ca, ss, cs, brkEpochs, 
                     offsetX1, offsetX2, offsetX3, dVx1, dVx2, dVx3,
                     expMagX1, expMagX2, expMagX3, expTauX1, expTauX2,
-                    expTauX3, lnMagX1, lnMagX2, lnMagX3, lnTauX1,
-                    lnTauX2, lnTauX3):
+                    expTauX3, logMagX1, logMagX2, logMagX3, logTauX1,
+                    logTauX2, logTauX3):
 
     """
     Compute position in 3D at given epoch. 
@@ -191,14 +191,14 @@ def compPosAtEpoch( decYear, dc, vel, sa, ca, ss, cs, brkEpochs,
                   magnitudes
     expTauX2    - same as expTauX1 but for X2
     expTauX2    - same as expTauX1 but for X3
-    lnMagX1     - 1xN numpy array with magnitudes for lnarithmic terms for 
-                  X1 for each break with epoch in breakEpochs, with 0 for 
-                  any jump not associated with logarithmic motion
-    lnMagX2    - same as lnMagX1 but for X2
-    lnMagX3    - same as lnMagX1 but for X3
-    lnTauX1    - same as lnMagX1 but with decay times instead of magnitudes
-    lnTauX2    - same as lnTauX1 but for X2
-    lnTauX3    - same as lnTauX1 but for X3
+    logMagX1     - 1xN numpy array with magnitudes for lnarithmic terms for 
+                   X1 for each break with epoch in breakEpochs, with 0 for 
+                   any jump not associated with logarithmic motion
+    logMagX2    - same as logMagX1 but for X2
+    logMagX3    - same as logMagX1 but for X3
+    logTauX1    - same as logMagX1 but with decay times instead of magnitudes
+    logTauX2    - same as logTauX1 but for X2
+    logTauX3    - same as logTauX1 but for X3
     """
     
     # compute position not accounting for breaks
@@ -225,21 +225,21 @@ def compPosAtEpoch( decYear, dc, vel, sa, ca, ss, cs, brkEpochs,
                         + expMagX1[i][0]*(1. - np.exp(-(decYear - epoch)/expTauX1[i][0]))
                         + expMagX1[i][1]*(1. - np.exp(-(decYear - epoch)/expTauX1[i][1]))
                         + expMagX1[i][2]*(1. - np.exp(-(decYear - epoch)/expTauX1[i][2]))
-                        + lnMagX1[i]*np.log(1. + (decYear - epoch)/lnTauX1[i]) 
+                        + logMagX1[i]*np.log(1. + (decYear - epoch)/logTauX1[i]) 
                         )
         
         x2pos = x2pos + ( offsetX2[i] + dVx2[i]*decYear 
                         + expMagX2[i][0]*(1. - np.exp(-(decYear - epoch)/expTauX2[i][0]))
                         + expMagX2[i][1]*(1. - np.exp(-(decYear - epoch)/expTauX2[i][1]))
                         + expMagX2[i][2]*(1. - np.exp(-(decYear - epoch)/expTauX2[i][2]))
-                        + lnMagX2[i]*np.log(1. + (decYear - epoch)/lnTauX2[i]) 
+                        + logMagX2[i]*np.log(1. + (decYear - epoch)/logTauX2[i]) 
                         )
                                                                                                                                                        
         x3pos = x3pos + ( offsetX3[i] + dVx3[i]*decYear 
                         + expMagX3[i][0]*(1. - np.exp(-(decYear - epoch)/expTauX3[i][0]))
                         + expMagX3[i][1]*(1. - np.exp(-(decYear - epoch)/expTauX3[i][1]))
                         + expMagX3[i][2]*(1. - np.exp(-(decYear - epoch)/expTauX3[i][2]))
-                        + lnMagX3[i]*np.log(1. + (decYear - epoch)/lnTauX3[i]) 
+                        + logMagX3[i]*np.log(1. + (decYear - epoch)/logTauX3[i]) 
                         )
 
     return [x1pos, x2pos, x3pos]

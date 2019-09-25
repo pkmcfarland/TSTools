@@ -1,0 +1,18 @@
+
+IM: basin                # flag for what type of inversion to perform
+                         # 'basin' -> basinhopping
+                         # 'linear' -> least squares
+                         # 'gensyn' -> no inversion, generate synthetic
+                         #             data
+LM: Nelder-Meade         # (L)ocal (M)inimum finder
+RE: 2000.0               # (R)eference (E)poch
+DC: 999  999 999         # (DC)-offset term (i.e. pos at t=0) (m)
+VE: 999  999 999         # linear (VE)locity (m/yr)
+SA: 999  999 999         # magnitude of seasonal (S)ine function with 
+                         # (A)nual period (m)
+CA: 999  999 999         # magnitude ofseasonal (C)osine function with 
+                         # (A)nual period (m)
+SS: 999  999 999         # magnitude of seasonal (S)ine function with 
+                         # (S)emi-annual period (m)
+CS: 999  999 999         # magnitude of seasonal (C)osine function with 
+                         # (S)emi-annual period (m)
