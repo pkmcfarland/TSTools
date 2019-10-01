@@ -578,8 +578,35 @@ class TimeSeries:
         fig.update_layout(title=plotTitle, showlegend=False)
         
         # save as html file
-        fileName = f"{htmlDir}/{self.name}.{self.frame}.{self.coordType}.html"
+        fileName = (f"{htmlDir}/{self.name}.{self.frame}."
+                   +f"{self.coordType}.html")
         fig.write_html(fileName, auto_open=False)
+
+########################################################################
+def getStartCal( self):
+
+    """
+    Return start date of time series in convtime calendar format.
+    """
+
+    startDecYear = self.time[0]
+
+    startCal = convtime('year','cal', startDecYear)
+
+    return startCal
+
+########################################################################
+def getEndCal( self):
+
+    """
+    Return end date of time series in convtime calendar format.
+    """
+
+    endDecYear = self.time[-1]
+
+    endCal = convtime('year','cal', endDecYear)
+
+    return endCal
 
 ########################################################################
 # Define exceptions

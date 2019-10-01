@@ -1,406 +1,114 @@
-#/usr/bin/env python3
+#!/usr/bin/env python3
 
 """
-Module for performing model fit to time series data contained in TSTools
+Module for performing model fit to time series data contained in TSTools 
 TimeSeries object.
 """
 
 import scipy.optimize as opt
+import numpy as np
 
+from tstools import parameterMap as pm
 from tstools import timeSeries as ts
-from tstools import inputFileIO as ifio
-
-#######################################################################
-# define constants
-
-BASIN_HOP = 'basin'
-LINEAR_FIT = 'linear'
-
-EST = 999 
-
-DC_X1, DC_X2, DC_X3 = [ 0, 1, 2]
-VE_X1, VE_X2, VE_X3 = [ 3, 4, 5]
-SA_X1, SA_X2, SA_X3 = [ 6, 7, 8]
-CA_X1, CA_X2, CA_X3 = [ 9, 10, 11]
-SS_X1, SS_X2, SS_X3 = [ 12, 13, 14]
-CS_X1, CS_X2, CS_X3 = [ 15, 16, 17]
-O2_X1, O2_X2, O2_X3 = [ 18, 19, 20]
-O3_X1, O3_X2, O3_X3 = [ 21, 22, 23]
-O4_X1, O4_X2, O4_X3 = [ 24, 25, 26]
-
-OFF_X1, OFF_X2, OFF_X3 = [ 0, 1, 2]
-DV_X1, DV_X2, DV_X3 = [ 3, 4, 5]
-EXP_MAG1_X1, EXP_MAG1_X2, EXP_MAG1_X3 = [ 6, 7, 8]
-EXP_MAG2_X1, EXP_MAG2_X2, EXP_MAG2_X3 = [ 9, 10, 11]
-EXP_MAG3_X1, EXP_MAG3_X2, EXP_MAG3_X3 = [ 12, 13, 14]
-EXP_TAU1_X1, EXP_TAU1_X2, EXP_TAU1_X3 = [ 15, 16, 17]
-EXP_TAU2_X1, EXP_TAU2_X2, EXP_TAU2_X3 = [ 18, 19, 20]
-EXP_TAU3_X1, EXP_TAU3_X2, EXP_TAU3_X3 = [ 21, 22, 23]
-LOG_MAG_X1, LOG_MAG_X2, LOG_MAG_X3 = [ 24, 25, 26]
-LOG_TAU_X1, LOG_TAU_X2, LOG_TAU_X3 = [ 27, 28, 29]
-
 ########################################################################
-def genParamMap( mdlFileIn, brkFileIn):
+def chiSqr( obsTs, mdlTs, horizOnly=False):
 
     """
-    Map parameters to their associated index in the parameter estimation 
-    vector.
+    Compute the chi-squared statistic of the observed minus model-
+    predicted time series.
+
+    chi^2 = sum(((obs - pred )/sigma)**2)
+    
+    Input(s):
+    obsTs    - TimeSeries object containing observations and associated
+               uncertainties
+    mdlTs    - TimeSeries object containing model-predicted positions
+    horiz    - True: only compute and return chi^2 for horizontal values
+                     this assumes input positions are in local horizon 
+                     frame and thus only returns chi2_x1 and chi2_2,
+                     this also means comb_chi2 only includes 
+                     contributions from x1 and x2 misfit
+
+    Output(s):
+    comb_chiSqr - combined chi^2 statistic computed by combining all 
+                three (x1 and x2 only if horizOnly=True) component 
+                positions into a single vector and computing chi^2 with 
+                all misfits combined
+    chiSqr_x1   - chi^2 of x1 component
+    chiSqr_x2   - chi^2 of x2 
+    chiSqr_x3   - chi^2 of x3 (excluded if horizOnly=True)
     """
 
-    # initialize the parameter vector and parameter vector map
-    paramMap = [[],[]]
-    paramVec = []
+    chiSqr_x1 = np.sum(((obsTs.pos[0] - mdlTs.pos[0])/obsTs.sig[0])**2)
+    chiSqr_x2 = np.sum(((obsTs.pos[1] - mdlTs.pos[1])/obsTs.sig[1])**2)
+    chiSqr_x3 = np.sum(((obsTs.pos[2] - mdlTs.pos[2])/obsTs.sig[2])**2)
+
+    if horizOnly:
+
+        # concatenate x1 and x2 and compute single combined chi^2
+
+        catObsPos = np.concatenate([obsTs.pos[0],obsTs.pos[1]])
+        catMdlPos = np.concatenate([mdlTs.pos[0],mdlTs.pos[1]])
     
-    # assign indices to paramMap using constants defined above. First,
-    # for non-break parameters then for break related parameters
+        catObsSig = np.concatenate([obsTs.sig[0],obsTs.sig[1]])
 
-    if mdlFileIn.dc[0] == EST:
+        chiSqrComb = np.sum(((catObsPos - catMdlPos)/catObsSig)**2)
 
-        paramMap[0].append(int(0))
-        paramMap[1].append(DC_X1)
-        paramVec.append(float(0.))
+        return chiSqrComb, chiSqr_x1, chiSqr_x2
 
-    if mdlFileIn.dc[1] == EST:
-
-        paramMap[0].append(int(0))
-        paramMap[1].append(DC_X2)
-        paramVec.append(float(0.))
-
-    if mdlFileIn.dc[2] == EST:
-
-        paramMap[0].append(int(0))
-        paramMap[1].append(DC_X3)
-        paramVec.append(float(0.))
-
-    if mdlFileIn.ve[0] == EST:
-
-        paramMap[0].append(int(0))
-        paramMap[1].append(VE_X1)
-        paramVec.append(float(0.))
-
-    if mdlFileIn.ve[1] == EST:
-
-        paramMap[0].append(int(0))
-        paramMap[1].append(VE_X2)
-        paramVec.append(float(0.))
-
-    if mdlFileIn.ve[2] == EST:
-
-        paramMap[0].append(int(0))
-        paramMap[1].append(VE_X3)
-        paramVec.append(float(0.))
-
-    if mdlFileIn.sa[0] == EST:
-
-        paramMap[0].append(int(0))
-        paramMap[1].append(SA_X1)
-        paramVec.append(float(0.))
+    else:
     
-    if mdlFileIn.sa[1] == EST:
+        # concatenate all three components and compute single combined
+        # chi^2
 
-        paramMap[0].append(int(0))
-        paramMap[1].append(SA_X2)
-        paramVec.append(float(0.))
+        catObsPos = np.concatenate([obsTs.pos[0],obsTs.pos[1],obsTs.pos[2]])
+        catMdlPos = np.concatenate([mdlTs.pos[0],mdlTs.pos[1],mdlTs.pos[2]])
     
-    if mdlFileIn.sa[2] == EST:
+        catObsSig = np.concatenate([obsTs.sig[0],obsTs.sig[1],obsTs.sig[2]])
 
-        paramMap[0].append(int(0))
-        paramMap[1].append(SA_X3)
-        paramVec.append(float(0.))
-    
-    if mdlFileIn.ca[0] == EST:
+        chiSqrComb = np.sum(((catObsPos - catMdlPos)/catObsSig)**2)
 
-        paramMap[0].append(int(0))
-        paramMap[1].append(CA_X1)
-        paramVec.append(float(0.))
-    
-    if mdlFileIn.ca[1] == EST:
-
-        paramMap[0].append(int(0))
-        paramMap[1].append(CA_X2)
-        paramVec.append(float(0.))
-    
-    if mdlFileIn.ca[2] == EST:
-
-        paramMap[0].append(int(0))
-        paramMap[1].append(CA_X3)
-        paramVec.append(float(0.))
-    
-    if mdlFileIn.ss[0] == EST:
-
-        paramMap[0].append(int(0))
-        paramMap[1].append(SS_X1)
-        paramVec.append(float(0.))
-    
-    if mdlFileIn.ss[1] == EST:
-
-        paramMap[0].append(int(0))
-        paramMap[1].append(SS_X2)
-        paramVec.append(float(0.))
-    
-    if mdlFileIn.ss[2] == EST:
-
-        paramMap[0].append(int(0))
-        paramMap[1].append(SS_X3)
-        paramVec.append(float(0.))
-    
-    if mdlFileIn.cs[0] == EST:
-
-        paramMap[0].append(int(0))
-        paramMap[1].append(CS_X1)
-        paramVec.append(float(0.))
-    
-    if mdlFileIn.cs[1] == EST:
-
-        paramMap[0].append(int(0))
-        paramMap[1].append(CS_X2)
-        paramVec.append(float(0.))
-    
-    if mdlFileIn.cs[2] == EST:
-
-        paramMap[0].append(int(0))
-        paramMap[1].append(CS_X3)
-        paramVec.append(float(0.))
-
-    if mdlFileIn.o2[0] == EST:
-
-        paramMap[0].append(int(0))
-        paramMap[1].append(O2_X1)
-        paramVec.append(float(0.))
-    
-    if mdlFileIn.o2[1] == EST:
-
-        paramMap[0].append(int(0))
-        paramMap[1].append(O2_X2)
-        paramVec.append(float(0.))
-    
-    if mdlFileIn.o2[2] == EST:
-
-        paramMap[0].append(int(0))
-        paramMap[1].append(O2_X3)
-        paramVec.append(float(0.))
-    
-    if mdlFileIn.o3[0] == EST:
-
-        paramMap[0].append(int(0))
-        paramMap[1].append(O3_X1)
-        paramVec.append(float(0.))
-    
-    if mdlFileIn.o3[1] == EST:
-
-        paramMap[0].append(int(0))
-        paramMap[1].append(O3_X2)
-        paramVec.append(float(0.))
-    
-    if mdlFileIn.o3[2] == EST:
-
-        paramMap[0].append(int(0))
-        paramMap[1].append(O3_X3)
-        paramVec.append(float(0.))
-    
-    if mdlFileIn.o4[0] == EST:
-
-        paramMap[0].append(int(0))
-        paramMap[1].append(O4_X1)
-        paramVec.append(float(0.))
-    
-    if mdlFileIn.o4[1] == EST:
-
-        paramMap[0].append(int(0))
-        paramMap[1].append(O4_X2)
-        paramVec.append(float(0.))
-    
-    if mdlFileIn.o4[2] == EST:
-
-        paramMap[0].append(int(0))
-        paramMap[1].append(O4_X3)
-        paramVec.append(float(0.))
-
-    for i, tsbreak in enumerate(brkFileIn.breaks):
-
-        if brkFileIn.breaks[i].offset[0] == EST:
-
-            paramMap[0].append(i)
-            paramMap[1].append(OFF_X1)
-            paramVec.append(float(0.))
-            
-        if brkFileIn.breaks[i].offset[1] == EST:
-        
-            paramMap[0].append(i)
-            paramMap[1].append(OFF_X2)
-            paramVec.append(float(0.))
-        
-        if brkFileIn.breaks[i].offset[2] == EST:
-        
-            paramMap[0].append(i)
-            paramMap[1].append(OFF_X3)
-            paramVec.append(float(0.))
-        
-        if brkFileIn.breaks[i].deltaV[0] == EST:
-
-            paramMap[0].append(i)
-            paramMap[1].append(DV_X1)
-            paramVec.append(float(0.))
-            
-        if brkFileIn.breaks[i].deltaV[1] == EST:
-        
-            paramMap[0].append(i)
-            paramMap[1].append(DV_X2)
-            paramVec.append(float(0.))
-        
-        if brkFileIn.breaks[i].deltaV[2] == EST:
-        
-            paramMap[0].append(i)
-            paramMap[1].append(DV_X3)
-            paramVec.append(float(0.))
-        
-        if brkFileIn.breaks[i].expMag1[0] == EST:
-
-            paramMap[0].append(i)
-            paramMap[1].append(EXP_MAG1_X1)
-            paramVec.append(float(0.))
-            
-        if brkFileIn.breaks[i].expMag1[1] == EST:
-        
-            paramMap[0].append(i)
-            paramMap[1].append(EXP_MAG1_X2)
-            paramVec.append(float(0.))
-        
-        if brkFileIn.breaks[i].expMag1[2] == EST:
-        
-            paramMap[0].append(i)
-            paramMap[1].append(EXP_MAG1_X3)
-            paramVec.append(float(0.))
-        
-        if brkFileIn.breaks[i].expMag2[0] == EST:
-
-            paramMap[0].append(i)
-            paramMap[1].append(EXP_MAG2_X1)
-            paramVec.append(float(0.))
-            
-        if brkFileIn.breaks[i].expMag2[1] == EST:
-        
-            paramMap[0].append(i)
-            paramMap[1].append(EXP_MAG2_X2)
-            paramVec.append(float(0.))
-        
-        if brkFileIn.breaks[i].expMag2[2] == EST:
-        
-            paramMap[0].append(i)
-            paramMap[1].append(EXP_MAG2_X3)
-            paramVec.append(float(0.))
-        
-        if brkFileIn.breaks[i].expMag3[0] == EST:
-
-            paramMap[0].append(i)
-            paramMap[1].append(EXP_MAG3_X1)
-            paramVec.append(float(0.))
-            
-        if brkFileIn.breaks[i].expMag3[1] == EST:
-        
-            paramMap[0].append(i)
-            paramMap[1].append(EXP_MAG3_X2)
-            paramVec.append(float(0.))
-        
-        if brkFileIn.breaks[i].expMag3[2] == EST:
-        
-            paramMap[0].append(i)
-            paramMap[1].append(EXP_MAG3_X3)
-            paramVec.append(float(0.))
-        
-        if brkFileIn.breaks[i].expTau1[0] == EST:
-
-            paramMap[0].append(i)
-            paramMap[1].append(EXP_TAU1_X1)
-            paramVec.append(float(1e12))
-            
-        if brkFileIn.breaks[i].expTau1[1] == EST:
-        
-            paramMap[0].append(i)
-            paramMap[1].append(EXP_TAU1_X2)
-            paramVec.append(float(1e12))
-        
-        if brkFileIn.breaks[i].expTau1[2] == EST:
-        
-            paramMap[0].append(i)
-            paramMap[1].append(EXP_TAU1_X3)
-            paramVec.append(float(1e12))
-        
-        if brkFileIn.breaks[i].expTau2[0] == EST:
-
-            paramMap[0].append(i)
-            paramMap[1].append(EXP_TAU2_X1)
-            paramVec.append(float(1e12))
-            
-        if brkFileIn.breaks[i].expTau2[1] == EST:
-        
-            paramMap[0].append(i)
-            paramMap[1].append(EXP_TAU2_X2)
-            paramVec.append(float(1e12))
-        
-        if brkFileIn.breaks[i].expTau2[2] == EST:
-        
-            paramMap[0].append(i)
-            paramMap[1].append(EXP_TAU2_X3)
-            paramVec.append(float(1e12))
-        
-        if brkFileIn.breaks[i].expTau3[0] == EST:
-
-            paramMap[0].append(i)
-            paramMap[1].append(EXP_TAU3_X1)
-            paramVec.append(float(1e12))
-            
-        if brkFileIn.breaks[i].expTau3[1] == EST:
-        
-            paramMap[0].append(i)
-            paramMap[1].append(EXP_TAU3_X2)
-            paramVec.append(float(1e12))
-        
-        if brkFileIn.breaks[i].expTau3[2] == EST:
-        
-            paramMap[0].append(i)
-            paramMap[1].append(EXP_TAU3_X3)
-            paramVec.append(float(1e12))
-
-        if brkFileIn.breaks[i].logMag[0] == EST:
-
-            paramMap[0].append(i)
-            paramMap[1].append(LOG_MAG_X1)
-            paramVec.append(float(0.))
-        
-        if brkFileIn.breaks[i].logMag[1] == EST:
-
-            paramMap[0].append(i)
-            paramMap[1].append(LOG_MAG_X2)
-            paramVec.append(float(0.))
-        
-        if brkFileIn.breaks[i].logMag[2] == EST:
-
-            paramMap[0].append(i)
-            paramMap[1].append(LOG_MAG_X3)
-            paramVec.append(float(0.))
-        
-        if brkFileIn.breaks[i].logTau[0] == EST:
-
-            paramMap[0].append(i)
-            paramMap[1].append(LOG_TAU_X1)
-            paramVec.append(float(0.))
-        
-        if brkFileIn.breaks[i].logTau[1] == EST:
-
-            paramMap[0].append(i)
-            paramMap[1].append(LOG_TAU_X2)
-            paramVec.append(float(0.))
-        
-        if brkFileIn.breaks[i].logTau[2] == EST:
-
-            paramMap[0].append(i)
-            paramMap[1].append(LOG_TAU_X3)
-            paramVec.append(float(0.))
-
-    return [paramVec, paramMap]
+        return chiSqrComb, chiSqr_x1, chiSqr_x2, chiSqr_x3
 
 ########################################################################
+def horizChiSqr( paramVec, args):
 
+    """
+    Function that non-linear solver will attempt to minimize. This 
+    function returns the combined horizontal chi^2 statistic for 
+    components x1 and x2.
 
-########################################################################
+    Input(s):
+    paramVec  - vector of parameters being estimated
+    args      - tuple of additional arguments
+      args[0] - paramMap  - vector of same length as paramVec with
+                            mapping from paramVec to which parameters
+                            are being estimated
+      args[1] - obsTs     - TimeSeries object of observations
+      args[2] - mdlFileIn - MdlFile object with input non-break-related 
+                            model information
+      args[3] - brkFileIn - BreakFile object with input break-related 
+                            model information
+    """
+    
+    # extract arguments from args
+    paramMap = args[0]
+    obsTs = args[1]
+    mdlFileIn = args[2]
+    brkFileIn = args[3]
+
+    # vars needed to generate synthetic (predicted) time series
+    startCal = obsTs.getStartCal()
+    endCal = obsTs.getEndCal()
+    posSdList = [0.,0.,0.]
+    uncRangeList = [[0.,0.],[0.,0.],[0.,0.]]
+
+    
+    mdlFileIter, brkFileIter = pm.genMdlFiles( paramVec, paramMap,
+                                               mdlFileIn, brkFileIn)
+
+    mdlTs = ts.TimeSeries()
+    # *** need to modify timeSeries.TimeSeries.genSynthetic() so that 
+    #     it takes MdlFile and BreakFile objects rather than 
+    #     generating them internally ***
+    #mdlTs.genSynthetic( startCal, endCal,  
