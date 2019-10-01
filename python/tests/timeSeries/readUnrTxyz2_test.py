@@ -18,6 +18,5 @@ def test_readUnrTxyz2():
     assert series.sig.size == (7759 * 3)
     assert series.sig.shape == (3, 7759)
 
-
-#    assert series.covar.size == (7759 * 3)
-#    assert series.covar.shape == (3, 7759)
+    assert series.corr.size == (7759 * 3)
+    assert series.corr.shape == (3, 7759)
