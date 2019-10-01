@@ -1,7 +1,8 @@
 import sys
-sys.path.append("./src")
 
+sys.path.append("./src")
 from tstools import timeSeries as ts
+
 
 def test_readUnrTxyz2():
     series = ts.TimeSeries()
@@ -16,6 +17,7 @@ def test_readUnrTxyz2():
 
     assert series.sig.size == (7759 * 3)
     assert series.sig.shape == (3, 7759)
+
 
 #    assert series.covar.size == (7759 * 3)
 #    assert series.covar.shape == (3, 7759)
