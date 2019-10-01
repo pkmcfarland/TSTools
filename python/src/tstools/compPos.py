@@ -132,7 +132,7 @@ def getBrkParams( decYear, brkFile, mdlFile):
 
     return [ brkEpochs, offsetX1, offsetX2, offsetX3, dVx1, dVx2, dVx3,
              expMagX1, expMagX2, expMagX3, expTauX1, expTauX2, expTauX3,
-             logMagX1, logMagX2, logMagX3, logTauX1, logTauX2, lnTauX3]
+             logMagX1, logMagX2, logMagX3, logTauX1, logTauX2, logTauX3]
 
 ########################################################################
 def compPosAtEpoch( decYear, dc, vel, sa, ca, ss, cs, brkEpochs, 
@@ -191,7 +191,7 @@ def compPosAtEpoch( decYear, dc, vel, sa, ca, ss, cs, brkEpochs,
                   magnitudes
     expTauX2    - same as expTauX1 but for X2
     expTauX2    - same as expTauX1 but for X3
-    logMagX1     - 1xN numpy array with magnitudes for lnarithmic terms for 
+    logMagX1     - 1xN numpy array with magnitudes for logrithmic terms for 
                    X1 for each break with epoch in breakEpochs, with 0 for 
                    any jump not associated with logarithmic motion
     logMagX2    - same as logMagX1 but for X2
@@ -234,7 +234,7 @@ def compPosAtEpoch( decYear, dc, vel, sa, ca, ss, cs, brkEpochs,
                         + expMagX2[i][2]*(1. - np.exp(-(decYear - epoch)/expTauX2[i][2]))
                         + logMagX2[i]*np.log(1. + (decYear - epoch)/logTauX2[i]) 
                         )
-                                                                                                                                                       
+        
         x3pos = x3pos + ( offsetX3[i] + dVx3[i]*decYear 
                         + expMagX3[i][0]*(1. - np.exp(-(decYear - epoch)/expTauX3[i][0]))
                         + expMagX3[i][1]*(1. - np.exp(-(decYear - epoch)/expTauX3[i][1]))

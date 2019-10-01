@@ -129,7 +129,7 @@ class TimeSeries:
 
     ####################################################################
     def genSynthetic(self, startCal, endCal, posSdList, uncRangeList,
-                     mdlFilePath, brkFilePath):
+                     mdlFile, brkFile):
 
         """
         Generate synthetic time series from time defined by startList to 
@@ -143,49 +143,24 @@ class TimeSeries:
         
         Ex:
         >>> from tstools import timeSeries as ts
+        >>> from tstools import inputFileIO as ifio
         >>> start = [2004, 2, 12, 0, 0, 0]
         >>> end = [2019, 8, 27, 12, 0, 0]
         >>> posSigmas = [ 0.005, 0.005, 0.01]
         >>> uncRanges = [[0.001, 0.005], [0.001, 0.005], [0.0025, 0.01]]
-        >>>
+        >>> mdlFile = ifio.MdlFile()
+        >>> mdlFile.read('./mdlFile.tsmdl')
+        >>> brkFile = ifio.BreakFile()
+        >>> brkFile.read('./brkFile.tsbrk')
         >>> synTseries = ts.TimeSeries()
         >>> synTseries.genSynthetic( start, end, posSigmas, uncRanges,
-                                     './mdlFile.cmd', './brkFile.cmd')
+                                     mdlFile, brkFile)
         """
 
         # set some internal values
         self.name = 'SYNTHETIC'
-        self.coordType = DXDYDZ
+        self.coordType = DXDYDZ # <- not convinced this should be here
         self.frame = 'SYNTHETIC'
-
-        # read mdlFile into FitFile object
-        mdlFile = ifio.MdlFile()
-        mdlFile.readMdlFile(mdlFilePath)
-
-        # check that IM flag set to 'gensyn' in input fit file
-        if mdlFile.im != 'gensyn':
-
-            print(f"ERROR: IM flag in {mdlFilePath} not set to 'gensyn'"
-                 +f" modify file and try again")
-            return -1
-
-        # read brkFile into BreakFile object
-        brkFile = ifio.BreakFile()
-        brkFile.readBreakFile(brkFilePath)
-
-        # check that none of the breakFile parameters set to '999'
-        for tsBreak in brkFile.breaks:
-
-            if (999 in tsBreak.offset or 999 in tsBreak.deltaV
-                or 999 in tsBreak.expMag1 or 999 in tsBreak.expTau1
-                or 999 in tsBreak.expMag2 or 999 in tsBreak.expTau2
-                or 999 in tsBreak.expMag3 or 999 in tsBreak.expTau3
-                or 999 in tsBreak.logMag or 999 in tsBreak.logTau):
-
-                print(f"ERROR: one or more parameters set to '999' in "
-                     +f"{brkFilePath}. Cannot estimate parameters in "
-                     +f" 'gensyn' mode.")
-                return -1
 
         # pull reference epoch out of mdlFile
         refYear = mdlFile.re
@@ -258,8 +233,8 @@ class TimeSeries:
                                       offsetX2, offsetX3, dVx1, dVx2, dVx3,
                                       expMagX1, expMagX2, expMagX3, 
                                       expTauX1, expTauX2, expTauX3,
-                                      logMagX1, logMagX2, logMagX3, logTauX1, 
-                                      logTauX2, lnTauX3)
+                                      logMagX1, logMagX2, logMagX3, 
+                                      logTauX1, logTauX2, logTauX3)
             
             # add computed positions to position component lists with 
             # random Gaussian noise
