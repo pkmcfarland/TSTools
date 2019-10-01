@@ -1,9 +1,10 @@
 
 import os
 
-from nutils import exe_cmd, watch, msg_exc
+from . import exe_cmd, watch, msg_exc
 
-__all__ = ["close_Z", "len_iter", "list_map", "open_Z", "read_file", "sort_by_list"]
+__all__ = ["close_Z", "len_iter", "list_map",
+           "open_Z", "read_file", "sort_by_list"]
 __all__.extend(["DirectAccessFile", "nFTP", "Struct"])
 __all__.extend(["gen_file_header", "get_url", "wget"])
 
@@ -22,14 +23,14 @@ class DirectAccessFile:
         if key in self.fl:
             return self.fl[key]
         else:
-            msg_exc("Record %d does not exist"%(rec))
+            msg_exc("Record %d does not exist" % (rec))
 
     def write(self, rec, data):
         key = self._get_key(rec)
         self.fl[key] = data
 
     def _get_key(self, rec):
-        return "key%d"%(rec)
+        return "key%d" % (rec)
 
     def delete(self):
         self.fl.close()
@@ -37,6 +38,7 @@ class DirectAccessFile:
 
     def get_file_name(self):
         return self.fn
+
 
 def sort_by_list(inlist, bylist):
     assert len(inlist) == len(bylist)
@@ -46,7 +48,6 @@ def sort_by_list(inlist, bylist):
     ret = [inl for _, inl in tmpl]
 
     return ret
-
 
 
 class nFTP:
@@ -66,37 +67,43 @@ class nFTP:
         return ret
 
     def get(self, filename):
-        self.ftp.retrbinary("RETR %s"%(filename), open(filename, "wb").write)
+        self.ftp.retrbinary("RETR %s" % (filename), open(filename, "wb").write)
 
     def quit(self):
         self.ftp.quit()
 
+
 def list_map(func, inpL):
     return list(map(func, inpL))
 
+
 def len_iter(iiter):
     return sum(1 for _ in iiter)
+
 
 def open_Z(fn):
     from nutils import exe_cmd
 
     tfn = get_temporary_file_name()
-    exe_cmd("gunzip -c %s > %s"%(fn, tfn))
+    exe_cmd("gunzip -c %s > %s" % (fn, tfn))
     return tfn
+
 
 def close_Z(tfn):
     from nutils import exe_cmd
 
-    exe_cmd("rm %s"%(tfn))
+    exe_cmd("rm %s" % (tfn))
     return
+
 
 def gen_file_header(cmt, labels):
     line = cmt
     for ind in range(0, len(labels), 2):
-        fmt = "%%%ss"%(labels[ind+1])
-        line += fmt%(labels[ind])
+        fmt = "%%%ss" % (labels[ind+1])
+        line += fmt % (labels[ind])
 
     return line
+
 
 class Struct:
     def __init__(self):
@@ -115,6 +122,7 @@ class Struct:
     def set_attr(self, var, value):
         assert var in self.attr_list
         self.__setattr__(var, value)
+
 
 def read_file(fn, specL, cmt="#"):
     """read table ascii file
@@ -203,22 +211,24 @@ def get_url(url, ofn=None, check_timestamp=False, timeout=5, tries=1):
 
     if ofn == None:
         ofn = local_fn
-    
+
     succeeded = False
 
-    for n in range(tries):    
+    for n in range(tries):
         try:
             response = urllib.request.urlopen(url, timeout=timeout)
 
             # Check file timestamp
-            
+
             if check_timestamp and os.path.exists(local_fn):
-               
+
                 # Find out remote file time in UTC
-                remote_time = response.headers["last-modified"] # This is already in UTC
-                remote_time = time.strptime(remote_time, "%a, %d %b %Y %H:%M:%S %Z")
+                # This is already in UTC
+                remote_time = response.headers["last-modified"]
+                remote_time = time.strptime(
+                    remote_time, "%a, %d %b %Y %H:%M:%S %Z")
                 watch(remote_time)
-                
+
                 # Find out local file time in UTC
                 local_time = os.stat(local_fn).st_mtime
                 local_time = time.gmtime(local_time)
@@ -239,8 +249,8 @@ def get_url(url, ofn=None, check_timestamp=False, timeout=5, tries=1):
     return succeeded
 
 
-def wget(url, ofn=None, check_timestamp=False, no_check_certificate=False, \
-        timeout=None, tries=None):
+def wget(url, ofn=None, check_timestamp=False, no_check_certificate=False,
+         timeout=None, tries=None):
     """
     Execute wget shell command
 
@@ -251,24 +261,24 @@ def wget(url, ofn=None, check_timestamp=False, no_check_certificate=False, \
     """
 
     cmd = "wget"
-   
+
     if ofn != None:
-        cmd += " --output-document=%s"%(ofn)
+        cmd += " --output-document=%s" % (ofn)
 
     if no_check_certificate:
         cmd += " --no-check-certificate"
-    
+
     if check_timestamp:
         cmd += " --timestamping"
 
     if timeout != None:
-        cmd += " --timeout=%s"%(timeout)
+        cmd += " --timeout=%s" % (timeout)
 
     if tries != None:
-        cmd += " --tries=%s"%(tries)
+        cmd += " --tries=%s" % (tries)
 
-    cmd += " %s"%(url)    
+    cmd += " %s" % (url)
 
     s, o, e = exe_cmd(cmd, num_returns=3)
-    
+
     return s, o, e
