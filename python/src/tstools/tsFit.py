@@ -11,6 +11,14 @@ import numpy as np
 from tstools import parameterMap as pm
 from tstools import timeSeries as ts
 ########################################################################
+# Constants
+
+HORIZ_ONLY = 'horizOnly'
+THREE_D = '3D'
+COMB = 'comb'
+INDIV = 'individual'
+
+########################################################################
 def chiSqr( obsTs, mdlTs, horizOnly=False):
 
     """
@@ -89,6 +97,11 @@ def horizChiSqr( paramVec, args):
                             model information
       args[3] - brkFileIn - BreakFile object with input break-related 
                             model information
+      args[4] - mode      - Can be:
+                            'horizOnly' - only fit horizontal (x1,x2)
+                                          in inversion
+                            '3D'        - minimize misfit to all three
+                                          components jointly
     """
     
     # extract arguments from args
@@ -96,6 +109,7 @@ def horizChiSqr( paramVec, args):
     obsTs = args[1]
     mdlFileIn = args[2]
     brkFileIn = args[3]
+    mode = args[4]
 
     # vars needed to generate synthetic (predicted) time series
     startCal = obsTs.getStartCal()
@@ -108,7 +122,14 @@ def horizChiSqr( paramVec, args):
                                                mdlFileIn, brkFileIn)
 
     mdlTs = ts.TimeSeries()
-    # *** need to modify timeSeries.TimeSeries.genSynthetic() so that 
-    #     it takes MdlFile and BreakFile objects rather than 
-    #     generating them internally ***
-    #mdlTs.genSynthetic( startCal, endCal,  
+    mdlTs.genSynthetic( startCal, endCal, posSdList, uncRangeList,
+                        mdlFile, brkFile)
+    if mode = HORIZ_ONLY:
+        
+        chiSqrList = chiSqr( obsTs, mdlTs, horizOnly=True)
+
+    elif mode = THREE_D:
+
+        chiSqrList = chiSqr( obsTS, mdlTs, horizOnly=False)
+
+    return chiSqrList[0]
