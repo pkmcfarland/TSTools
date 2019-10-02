@@ -244,7 +244,7 @@ def xyz_to_llh(x, y, z):
 
         counter = counter + 1
 
-        if counter > 2000
+        if counter > 2000:
             break
             print(f'ERROR: loop hit {counter} iterations before meeting convergence criteria')
             return -1
