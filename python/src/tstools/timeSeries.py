@@ -22,8 +22,8 @@ from plotly.subplots import make_subplots
 
 from tstools import inputFileIO as ifio
 from tstools import compPos as cp
-import transform
-from convtime import convtime
+from tstools.util import transform
+from tstools.util import convtime
 
 ########################################################################
 # set constants

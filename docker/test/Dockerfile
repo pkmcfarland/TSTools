@@ -2,6 +2,8 @@
 # we will probably want to peg this to a specific version that TSTools supports
 FROM continuumio/anaconda3
 
+RUN /opt/conda/condabin/conda install -y plotly numpy scipy
+
 # Create a directory for our code
 RUN mkdir -p /tstools
 

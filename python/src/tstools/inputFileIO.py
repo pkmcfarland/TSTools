@@ -6,7 +6,7 @@ Module to read/write TSTools .tsfit and .tsbrk files
 
 import numpy as np
 
-from convtime import convtime
+from tstools.util import convtime
 
 ########################################################################
 class MdlFile:

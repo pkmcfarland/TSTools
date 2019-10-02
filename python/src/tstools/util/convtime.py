@@ -24,7 +24,7 @@ from numpy.testing import assert_allclose, assert_equal
 import math
 import sys
 
-from nutils import watch, msg_err
+from tstools.util.nutils import watch, msg_err
 import datetime as dt
 
 __all__ = ["DeltaTime", "PreciseTime", "convtime", "format_time", "last_doy"]
