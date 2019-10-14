@@ -79,7 +79,8 @@ def chiSqr( obsTs, mdlTs, horizOnly=False):
         return chiSqrComb, chiSqr_x1, chiSqr_x2, chiSqr_x3
 
 ########################################################################
-def horizChiSqr( paramVec, args):
+def wrms( paramVec, paramMap, obsTs, mdlFileIn,
+                 brkFileIn, mode):
 
     """
     Function that non-linear solver will attempt to minimize. This 
@@ -105,11 +106,11 @@ def horizChiSqr( paramVec, args):
     """
     
     # extract arguments from args
-    paramMap = args[0]
-    obsTs = args[1]
-    mdlFileIn = args[2]
-    brkFileIn = args[3]
-    mode = args[4]
+    #paramMap = args[0]
+    #obsTs = args[1]
+    #mdlFileIn = args[2]
+    #brkFileIn = args[3]
+    #mode = args[4]
 
     # vars needed to generate synthetic (predicted) time series
     startCal = obsTs.getStartCal()
@@ -123,13 +124,16 @@ def horizChiSqr( paramVec, args):
 
     mdlTs = ts.TimeSeries()
     mdlTs.genSynthetic( startCal, endCal, posSdList, uncRangeList,
-                        mdlFile, brkFile)
-    if mode = HORIZ_ONLY:
+                        mdlFileIter, brkFileIter)
+
+    if mode == HORIZ_ONLY:
         
         chiSqrList = chiSqr( obsTs, mdlTs, horizOnly=True)
 
-    elif mode = THREE_D:
+    elif mode == THREE_D:
 
-        chiSqrList = chiSqr( obsTS, mdlTs, horizOnly=False)
+        chiSqrList = chiSqr( obsTs, mdlTs, horizOnly=False)
 
-    return chiSqrList[0]
+    wrms_x1 = np.sqrt(chiSqrList[1]/len(obsTs.pos[0]))
+    
+    return wrms_x1 

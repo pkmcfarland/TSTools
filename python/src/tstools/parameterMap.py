@@ -315,55 +315,55 @@ def genParamVecAndMap( mdlFileIn, brkFileIn):
 
             paramMap[0].append(i+1)
             paramMap[1].append(EXP_TAU1_X1)
-            paramVec.append(float(1e12))
+            paramVec.append(float(0.25))
             
         if brkFileIn.breaks[i].expTau1[1] == EST:
         
             paramMap[0].append(i+1)
             paramMap[1].append(EXP_TAU1_X2)
-            paramVec.append(float(1e12))
+            paramVec.append(float(0.25))
         
         if brkFileIn.breaks[i].expTau1[2] == EST:
         
             paramMap[0].append(i+1)
             paramMap[1].append(EXP_TAU1_X3)
-            paramVec.append(float(1e12))
+            paramVec.append(float(0.25))
         
         if brkFileIn.breaks[i].expTau2[0] == EST:
 
             paramMap[0].append(i+1)
             paramMap[1].append(EXP_TAU2_X1)
-            paramVec.append(float(1e12))
+            paramVec.append(float(5.))
             
         if brkFileIn.breaks[i].expTau2[1] == EST:
         
             paramMap[0].append(i+1)
             paramMap[1].append(EXP_TAU2_X2)
-            paramVec.append(float(1e12))
+            paramVec.append(float(5.))
         
         if brkFileIn.breaks[i].expTau2[2] == EST:
         
             paramMap[0].append(i+1)
             paramMap[1].append(EXP_TAU2_X3)
-            paramVec.append(float(1e12))
+            paramVec.append(float(5.))
         
         if brkFileIn.breaks[i].expTau3[0] == EST:
 
             paramMap[0].append(i+1)
             paramMap[1].append(EXP_TAU3_X1)
-            paramVec.append(float(1e12))
+            paramVec.append(float(10.))
             
         if brkFileIn.breaks[i].expTau3[1] == EST:
         
             paramMap[0].append(i+1)
             paramMap[1].append(EXP_TAU3_X2)
-            paramVec.append(float(1e12))
+            paramVec.append(float(10.))
         
         if brkFileIn.breaks[i].expTau3[2] == EST:
         
             paramMap[0].append(i+1)
             paramMap[1].append(EXP_TAU3_X3)
-            paramVec.append(float(1e12))
+            paramVec.append(float(10.))
 
         if brkFileIn.breaks[i].logMag[0] == EST:
 
@@ -387,19 +387,19 @@ def genParamVecAndMap( mdlFileIn, brkFileIn):
 
             paramMap[0].append(i+1)
             paramMap[1].append(LOG_TAU_X1)
-            paramVec.append(float(0.))
+            paramVec.append(float(0.1))
         
         if brkFileIn.breaks[i].logTau[1] == EST:
 
             paramMap[0].append(i+1)
             paramMap[1].append(LOG_TAU_X2)
-            paramVec.append(float(0.))
+            paramVec.append(float(0.1))
         
         if brkFileIn.breaks[i].logTau[2] == EST:
 
             paramMap[0].append(i+1)
             paramMap[1].append(LOG_TAU_X3)
-            paramVec.append(float(0.))
+            paramVec.append(float(0.1))
 
     return [paramVec, paramMap]
 

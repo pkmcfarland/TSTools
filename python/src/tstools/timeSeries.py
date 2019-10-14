@@ -23,7 +23,7 @@ from plotly.subplots import make_subplots
 from tstools import inputFileIO as ifio
 from tstools import compPos as cp
 from tstools.util import transform
-from tstools.util import convtime
+from tstools.util.convtime import convtime
 
 ########################################################################
 # set constants
@@ -557,31 +557,31 @@ class TimeSeries:
                    +f"{self.coordType}.html")
         fig.write_html(fileName, auto_open=False)
 
-########################################################################
-def getStartCal( self):
+    ####################################################################
+    def getStartCal( self):
 
-    """
-    Return start date of time series in convtime calendar format.
-    """
+        """
+        Return start date of time series in convtime calendar format.
+        """
 
-    startDecYear = self.time[0]
+        startDecYear = self.time[0]
 
-    startCal = convtime('year','cal', startDecYear)
+        startCal = convtime('year','cal', startDecYear)
 
-    return startCal
+        return startCal
 
-########################################################################
-def getEndCal( self):
+    ####################################################################
+    def getEndCal( self):
 
-    """
-    Return end date of time series in convtime calendar format.
-    """
+        """
+        Return end date of time series in convtime calendar format.
+        """
 
-    endDecYear = self.time[-1]
+        endDecYear = self.time[-1]
 
-    endCal = convtime('year','cal', endDecYear)
+        endCal = convtime('year','cal', endDecYear)
 
-    return endCal
+        return endCal
 
 ########################################################################
 # Define exceptions

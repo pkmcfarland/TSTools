@@ -6,7 +6,7 @@ Module to read/write TSTools .tsfit and .tsbrk files
 
 import numpy as np
 
-from tstools.util import convtime
+from tstools.util.convtime import convtime
 
 ########################################################################
 class MdlFile:
@@ -179,10 +179,10 @@ class MdlFile:
 
 
     ####################################################################
-    def writeFitFile(self, fileName):
+    def writeMdlFile(self, fileName):
 
         """
-        Write fit file based on values in FitFile object.
+        Write mdl file based on values in MdlFile object.
         """
 
         wf = open(fileName, "w")
@@ -220,14 +220,10 @@ class Tsbreak:
         self.decYear = 0.0
         self.offset = np.array([0.,0.,0.])
         self.deltaV = np.array([0.,0.,0.])
-        self.expMag1 = np.array([0.,0.,0.])
-        self.expTau1 = np.array([1e9,1e9,1e9])
-        self.expMag2 = np.array([0.,0.,0.])
-        self.expTau2 = np.array([1e9,1e9,1e9])
-        self.expMag3 = np.array([0.,0.,0.])
-        self.expTau3 = np.array([1e9,1e9,1e9])
-        self.logMag = np.array([0.,0.,0.])
-        self.logTau = np.array([1e9,1e9,1e9])
+        self.exp1 = np.array([1e9,0.,0.,0.])
+        self.exp2 = np.array([1e9,0.,0.,0.])
+        self.exp3 = np.array([1e9,0.,0.,0.])
+        self.log = np.array([1e9,0.,0.,0.])
 
 ########################################################################
 class BreakFile:
@@ -308,47 +304,32 @@ class BreakFile:
                     
                     elif lineCount == 2:
 
-                        newBreak.expMag1[0] = float(splitLine[0])
-                        newBreak.expMag2[0] = float(splitLine[1])
-                        newBreak.expMag3[0] = float(splitLine[2])
-                        newBreak.expTau1[0] = float(splitLine[3])
-                        newBreak.expTau2[0] = float(splitLine[4])
-                        newBreak.expTau3[0] = float(splitLine[5])
+                        newBreak.exp1[0] = float(splitLine[0])
+                        newBreak.exp1[1] = float(splitLine[1])
+                        newBreak.exp1[2] = float(splitLine[2])
+                        newBreak.exp1[3] = float(splitLine[3])
                         
                     elif lineCount == 3:
 
-                        newBreak.expMag1[1] = float(splitLine[0])
-                        newBreak.expMag2[1] = float(splitLine[1])
-                        newBreak.expMag3[1] = float(splitLine[2])
-                        newBreak.expTau1[1] = float(splitLine[3])
-                        newBreak.expTau2[1] = float(splitLine[4])
-                        newBreak.expTau3[1] = float(splitLine[5])
+                        newBreak.exp2[0] = float(splitLine[0])
+                        newBreak.exp2[1] = float(splitLine[1])
+                        newBreak.exp2[2] = float(splitLine[2])
+                        newBreak.exp2[3] = float(splitLine[3])
 
                     elif lineCount == 4:
 
-                        newBreak.expMag1[2] = float(splitLine[0])
-                        newBreak.expMag2[2] = float(splitLine[1])
-                        newBreak.expMag3[2] = float(splitLine[2])
-                        newBreak.expTau1[2] = float(splitLine[3])
-                        newBreak.expTau2[2] = float(splitLine[4])
-                        newBreak.expTau3[2] = float(splitLine[5])
+                        newBreak.exp3[0] = float(splitLine[0])
+                        newBreak.exp3[1] = float(splitLine[1])
+                        newBreak.exp3[2] = float(splitLine[2])
+                        newBreak.exp3[3] = float(splitLine[3])
 
                     elif lineCount == 5:
 
-                        newBreak.logMag[0] = float(splitLine[0])
-                        newBreak.logTau[0] = float(splitLine[1])
+                        newBreak.log[0] = float(splitLine[0])
+                        newBreak.log[1] = float(splitLine[1])
+                        newBreak.log[2] = float(splitLine[2])
+                        newBreak.log[3] = float(splitLine[3])
 
-                    elif lineCount == 6:
-
-                        newBreak.logMag[1] = float(splitLine[0])
-                        newBreak.logTau[1] = float(splitLine[1])
-
-                    elif lineCount == 7:
-
-                        newBreak.logMag[2] = float(splitLine[0])
-                        newBreak.logTau[2] = float(splitLine[1])
-
-    
     ####################################################################
     def writeBreakFile(self, fileName):
 
@@ -367,64 +348,48 @@ class BreakFile:
             minute = brkRec.cal[4]
             second = brkRec.cal[5]
 
-            x1offset = brkRec.offset[0]
-            x2offset = brkRec.offset[1]
-            x3offset = brkRec.offset[2]
+            offsetX1 = brkRec.offset[0]
+            offsetX2 = brkRec.offset[1]
+            offsetX3 = brkRec.offset[2]
 
             deltaV1 = brkRec.deltaV[0]
             deltaV2 = brkRec.deltaV[1]
             deltaV3 = brkRec.deltaV[2]
 
-            x1expMag1 = brkRec.expMag1[0]
-            x1expMag2 = brkRec.expMag2[0]
-            x1expMag3 = brkRec.expMag3[0]
+            exp1_Tau = brkRec.exp1[0]
+            exp1_X1 = brkRec.exp1[1]
+            exp1_X2 = brkRec.exp1[2]
+            exp1_X3 = brkRec.exp1[3]
 
-            x2expMag1 = brkRec.expMag1[1]
-            x2expMag2 = brkRec.expMag2[1]
-            x2expMag3 = brkRec.expMag3[1]
+            exp2_Tau = brkRec.exp2[0]
+            exp2_X1 = brkRec.exp2[1]
+            exp2_X2 = brkRec.exp2[2]
+            exp2_X3 = brkRec.exp2[3]
 
-            x3expMag1 = brkRec.expMag1[2]
-            x3expMag2 = brkRec.expMag2[2]
-            x3expMag3 = brkRec.expMag3[2]
-
-            x1expTau1 = brkRec.expTau1[0]
-            x1expTau2 = brkRec.expTau2[0]
-            x1expTau3 = brkRec.expTau3[0]
-
-            x2expTau1 = brkRec.expTau1[1]
-            x2expTau2 = brkRec.expTau2[1]
-            x2expTau3 = brkRec.expTau3[1]
-
-            x3expTau1 = brkRec.expTau1[2]
-            x3expTau2 = brkRec.expTau2[2]
-            x3expTau3 = brkRec.expTau3[2]
-
-            x1logMag = brkRec.logMag[0]
-            x2logMag = brkRec.logMag[1]
-            x3logMag = brkRec.logMag[2]
-
-            x1logTau = brkRec.logTau[0]
-            x2logTau = brkRec.logTau[1]
-            x3logTau = brkRec.logTau[2]
+            exp3_Tau = brkRec.exp3[0]
+            exp3_X1 = brkRec.exp3[1]
+            exp3_X2 = brkRec.exp3[2]
+            exp3_X3 = brkRec.exp3[3]
             
+            log_Tau = brkRec.log[0]
+            log_X1 = brkRec.log[1]
+            log_X2 = brkRec.log[2]
+            log_X3 = brkRec.log[3]
+
             bf.write("\n")
             bf.write(f"+ {year:4d} {month:2d} {day:2d} {hour:2d}"
-                    +f" {minute:2d} {second:5.2f} {x1offset}"
-                    +f" {x2offset} {x3offset}\n")
+                    +f" {minute:2d} {second:5.2f} {offsetX1}"
+                    +f" {offsetX2} {offsetX3}\n")
             bf.write(f"                           "
                     +f" {deltaV1} {deltaV2} {deltaV3}\n")
             bf.write(f"                           "
-                    +f" {x1expMag1} {x1expMag2} {x1expMag3} {x1expTau1}"
-                    +f" {x1expTau2} {x1expTau3}\n")
+                    +f" {exp1_Tau} {exp1_X1} {exp1_X2} {exp1_X3}\n")
             bf.write(f"                           "
-                    +f" {x2expMag1} {x2expMag2} {x2expMag3} {x2expTau1}" 
-                    +f" {x2expTau2} {x2expTau3}\n")
+                    +f" {exp2_Tau} {exp2_X1} {exp2_X2} {exp2_X3}\n")
             bf.write(f"                           "
-                    +f" {x3expMag1} {x3expMag2} {x3expMag3} {x3expTau1}"
-                    +f" {x3expTau2} {x3expTau3}\n")
-            bf.write(f"                            {x1logMag} {x1logTau}\n")
-            bf.write(f"                            {x2logMag} {x2logTau}\n")
-            bf.write(f"                            {x3logMag} {x3logTau}\n")
+                    +f" {exp3_Tau} {exp3_X1} {exp3_X2} {exp3_X3}\n")
+            bf.write(f"                           "
+                    +f" {log_Tau} {log_X1} {log_X2} {log_X3}\n")
             bf.write("-\n")
 
         bf.close()
