@@ -32,14 +32,10 @@ O4_X1, O4_X2, O4_X3 = [ 24, 25, 26]
 # integers for tracking break-related model params
 OFF_X1, OFF_X2, OFF_X3 = [ 0, 1, 2]
 DV_X1, DV_X2, DV_X3 = [ 3, 4, 5]
-EXP_MAG1_X1, EXP_MAG1_X2, EXP_MAG1_X3 = [ 6, 7, 8]
-EXP_MAG2_X1, EXP_MAG2_X2, EXP_MAG2_X3 = [ 9, 10, 11]
-EXP_MAG3_X1, EXP_MAG3_X2, EXP_MAG3_X3 = [ 12, 13, 14]
-EXP_TAU1_X1, EXP_TAU1_X2, EXP_TAU1_X3 = [ 15, 16, 17]
-EXP_TAU2_X1, EXP_TAU2_X2, EXP_TAU2_X3 = [ 18, 19, 20]
-EXP_TAU3_X1, EXP_TAU3_X2, EXP_TAU3_X3 = [ 21, 22, 23]
-LOG_MAG_X1, LOG_MAG_X2, LOG_MAG_X3 = [ 24, 25, 26]
-LOG_TAU_X1, LOG_TAU_X2, LOG_TAU_X3 = [ 27, 28, 29]
+EXP1_TAU, EXP1_X1, EXP1_X2, EXP1_X3 = [ 6, 7, 8, 9]
+EXP2_TAU, EXP2_X1, EXP2_X2, EXP2_X3 = [ 10, 11, 12, 13]
+EXP3_TAU, EXP3_X1, EXP3_X2, EXP3_X3 = [ 14, 15, 16, 17]
+LOG_TAU, LOG_X1, LOG_X2, LOG_X3 = [ 18, 19, 20, 21]
 
 ########################################################################
 def genParamVecAndMap( mdlFileIn, brkFileIn):
@@ -257,150 +253,102 @@ def genParamVecAndMap( mdlFileIn, brkFileIn):
             paramMap[1].append(DV_X3)
             paramVec.append(float(0.))
         
-        if brkFileIn.breaks[i].expMag1[0] == EST:
+        if brkFileIn.breaks[i].exp1[0] == EST:
 
             paramMap[0].append(i+1)
-            paramMap[1].append(EXP_MAG1_X1)
-            paramVec.append(float(0.))
+            paramMap[1].append(EXP1_TAU)
+            paramVec.append(float(1e9))
             
-        if brkFileIn.breaks[i].expMag1[1] == EST:
+        if brkFileIn.breaks[i].exp1[1] == EST:
         
             paramMap[0].append(i+1)
-            paramMap[1].append(EXP_MAG1_X2)
+            paramMap[1].append(EXP1_X1)
             paramVec.append(float(0.))
         
-        if brkFileIn.breaks[i].expMag1[2] == EST:
+        if brkFileIn.breaks[i].exp1[2] == EST:
         
             paramMap[0].append(i+1)
-            paramMap[1].append(EXP_MAG1_X3)
+            paramMap[1].append(EXP1_X2)
             paramVec.append(float(0.))
         
-        if brkFileIn.breaks[i].expMag2[0] == EST:
+        if brkFileIn.breaks[i].exp1[3] == EST:
+        
+            paramMap[0].append(i+1)
+            paramMap[1].append(EXP1_X3)
+            paramVec.append(float(0.))
+        
+        if brkFileIn.breaks[i].exp2[0] == EST:
 
             paramMap[0].append(i+1)
-            paramMap[1].append(EXP_MAG2_X1)
-            paramVec.append(float(0.))
+            paramMap[1].append(EXP2_TAU)
+            paramVec.append(float(1e9))
             
-        if brkFileIn.breaks[i].expMag2[1] == EST:
+        if brkFileIn.breaks[i].exp2[1] == EST:
         
             paramMap[0].append(i+1)
-            paramMap[1].append(EXP_MAG2_X2)
+            paramMap[1].append(EXP2_X1)
             paramVec.append(float(0.))
         
-        if brkFileIn.breaks[i].expMag2[2] == EST:
+        if brkFileIn.breaks[i].exp2[2] == EST:
         
             paramMap[0].append(i+1)
-            paramMap[1].append(EXP_MAG2_X3)
+            paramMap[1].append(EXP2_X2)
             paramVec.append(float(0.))
         
-        if brkFileIn.breaks[i].expMag3[0] == EST:
+        if brkFileIn.breaks[i].exp2[3] == EST:
+        
+            paramMap[0].append(i+1)
+            paramMap[1].append(EXP2_X3)
+            paramVec.append(float(0.))
+        
+        if brkFileIn.breaks[i].exp3[0] == EST:
 
             paramMap[0].append(i+1)
-            paramMap[1].append(EXP_MAG3_X1)
-            paramVec.append(float(0.))
+            paramMap[1].append(EXP3_TAU)
+            paramVec.append(float(1e9))
             
-        if brkFileIn.breaks[i].expMag3[1] == EST:
+        if brkFileIn.breaks[i].exp3[1] == EST:
         
             paramMap[0].append(i+1)
-            paramMap[1].append(EXP_MAG3_X2)
+            paramMap[1].append(EXP3_X1)
             paramVec.append(float(0.))
         
-        if brkFileIn.breaks[i].expMag3[2] == EST:
+        if brkFileIn.breaks[i].exp3[2] == EST:
         
             paramMap[0].append(i+1)
-            paramMap[1].append(EXP_MAG3_X3)
+            paramMap[1].append(EXP3_X2)
             paramVec.append(float(0.))
         
-        if brkFileIn.breaks[i].expTau1[0] == EST:
+        if brkFileIn.breaks[i].exp3[3] == EST:
+        
+            paramMap[0].append(i+1)
+            paramMap[1].append(EXP3_X3)
+            paramVec.append(float(0.))
+
+        if brkFileIn.breaks[i].log[0] == EST:
 
             paramMap[0].append(i+1)
-            paramMap[1].append(EXP_TAU1_X1)
-            paramVec.append(float(0.25))
-            
-        if brkFileIn.breaks[i].expTau1[1] == EST:
-        
-            paramMap[0].append(i+1)
-            paramMap[1].append(EXP_TAU1_X2)
-            paramVec.append(float(0.25))
-        
-        if brkFileIn.breaks[i].expTau1[2] == EST:
-        
-            paramMap[0].append(i+1)
-            paramMap[1].append(EXP_TAU1_X3)
-            paramVec.append(float(0.25))
-        
-        if brkFileIn.breaks[i].expTau2[0] == EST:
-
-            paramMap[0].append(i+1)
-            paramMap[1].append(EXP_TAU2_X1)
-            paramVec.append(float(5.))
-            
-        if brkFileIn.breaks[i].expTau2[1] == EST:
-        
-            paramMap[0].append(i+1)
-            paramMap[1].append(EXP_TAU2_X2)
-            paramVec.append(float(5.))
-        
-        if brkFileIn.breaks[i].expTau2[2] == EST:
-        
-            paramMap[0].append(i+1)
-            paramMap[1].append(EXP_TAU2_X3)
-            paramVec.append(float(5.))
-        
-        if brkFileIn.breaks[i].expTau3[0] == EST:
-
-            paramMap[0].append(i+1)
-            paramMap[1].append(EXP_TAU3_X1)
-            paramVec.append(float(10.))
-            
-        if brkFileIn.breaks[i].expTau3[1] == EST:
-        
-            paramMap[0].append(i+1)
-            paramMap[1].append(EXP_TAU3_X2)
-            paramVec.append(float(10.))
-        
-        if brkFileIn.breaks[i].expTau3[2] == EST:
-        
-            paramMap[0].append(i+1)
-            paramMap[1].append(EXP_TAU3_X3)
-            paramVec.append(float(10.))
-
-        if brkFileIn.breaks[i].logMag[0] == EST:
-
-            paramMap[0].append(i+1)
-            paramMap[1].append(LOG_MAG_X1)
+            paramMap[1].append(LOG_TAU)
             paramVec.append(float(0.))
         
-        if brkFileIn.breaks[i].logMag[1] == EST:
+        if brkFileIn.breaks[i].log[1] == EST:
 
             paramMap[0].append(i+1)
-            paramMap[1].append(LOG_MAG_X2)
+            paramMap[1].append(LOG_X1)
             paramVec.append(float(0.))
         
-        if brkFileIn.breaks[i].logMag[2] == EST:
+        if brkFileIn.breaks[i].log[2] == EST:
 
             paramMap[0].append(i+1)
-            paramMap[1].append(LOG_MAG_X3)
+            paramMap[1].append(LOG_X2)
             paramVec.append(float(0.))
         
-        if brkFileIn.breaks[i].logTau[0] == EST:
+        if brkFileIn.breaks[i].log[3] == EST:
 
             paramMap[0].append(i+1)
-            paramMap[1].append(LOG_TAU_X1)
+            paramMap[1].append(LOG_X3)
             paramVec.append(float(0.1))
         
-        if brkFileIn.breaks[i].logTau[1] == EST:
-
-            paramMap[0].append(i+1)
-            paramMap[1].append(LOG_TAU_X2)
-            paramVec.append(float(0.1))
-        
-        if brkFileIn.breaks[i].logTau[2] == EST:
-
-            paramMap[0].append(i+1)
-            paramMap[1].append(LOG_TAU_X3)
-            paramVec.append(float(0.1))
-
     return [paramVec, paramMap]
 
 ########################################################################
@@ -433,7 +381,7 @@ def genMdlFiles( paramVec, paramMap, mdlFileIn, brkFileIn):
     mdlFileOut = deepcopy(mdlFileIn)
     brkFileOut = deepcopy(brkFileIn)
     
-    # loop over paramMap[0]
+    # loop over paramMap[1]
     for i, key1 in enumerate(paramMap[1]):
 
         if paramMap[0][i] == 0:
@@ -572,100 +520,68 @@ def genMdlFiles( paramVec, paramMap, mdlFileIn, brkFileIn):
 
                 brkFileOut.breaks[paramMap[0][i]-1].deltaV[2] = paramVec[i]
             
-            elif key1 == EXP_MAG1_X1:
+            elif key1 == EXP1_TAU:
 
-                brkFileOut.breaks[paramMap[0][i]-1].expMag1[0] = paramVec[i]
+                brkFileOut.breaks[paramMap[0][i]-1].exp1[0] = paramVec[i]
 
-            elif key1 == EXP_MAG1_X2:
+            elif key1 == EXP1_X1:
 
-                brkFileOut.breaks[paramMap[0][i]-1].expMag1[1] = paramVec[i]
+                brkFileOut.breaks[paramMap[0][i]-1].exp1[1] = paramVec[i]
 
-            elif key1 == EXP_MAG1_X3:
+            elif key1 == EXP1_X2:
 
-                brkFileOut.breaks[paramMap[0][i]-1].expMag1[2] = paramVec[i]
+                brkFileOut.breaks[paramMap[0][i]-1].exp1[2] = paramVec[i]
+
+            elif key1 == EXP1_X3:
+
+                brkFileOut.breaks[paramMap[0][i]-1].exp1[3] = paramVec[i]
             
-            elif key1 == EXP_MAG2_X1:
+            elif key1 == EXP2_TAU:
 
-                brkFileOut.breaks[paramMap[0][i]-1].expMag2[0] = paramVec[i]
+                brkFileOut.breaks[paramMap[0][i]-1].exp2[0] = paramVec[i]
 
-            elif key1 == EXP_MAG2_X2:
+            elif key1 == EXP2_X1:
 
-                brkFileOut.breaks[paramMap[0][i]-1].expMag2[1] = paramVec[i]
+                brkFileOut.breaks[paramMap[0][i]-1].exp2[1] = paramVec[i]
 
-            elif key1 == EXP_MAG2_X3:
+            elif key1 == EXP2_X2:
 
-                brkFileOut.breaks[paramMap[0][i]-1].expMag2[2] = paramVec[i]
+                brkFileOut.breaks[paramMap[0][i]-1].exp2[2] = paramVec[i]
+
+            elif key1 == EXP2_X3:
+
+                brkFileOut.breaks[paramMap[0][i]-1].exp2[3] = paramVec[i]
             
-            elif key1 == EXP_MAG3_X1:
+            elif key1 == EXP3_TAU:
 
-                brkFileOut.breaks[paramMap[0][i]-1].expMag3[0] = paramVec[i]
+                brkFileOut.breaks[paramMap[0][i]-1].exp3[0] = paramVec[i]
 
-            elif key1 == EXP_MAG3_X2:
+            elif key1 == EXP3_X1:
 
-                brkFileOut.breaks[paramMap[0][i]-1].expMag3[1] = paramVec[i]
+                brkFileOut.breaks[paramMap[0][i]-1].exp3[1] = paramVec[i]
 
-            elif key1 == EXP_MAG3_X3:
+            elif key1 == EXP3_X2:
 
-                brkFileOut.breaks[paramMap[0][i]-1].expMag3[2] = paramVec[i]
+                brkFileOut.breaks[paramMap[0][i]-1].exp3[2] = paramVec[i]
+
+            elif key1 == EXP3_X3:
+
+                brkFileOut.breaks[paramMap[0][i]-1].exp3[3] = paramVec[i]
             
-            elif key1 == EXP_TAU1_X1:
+            elif key1 == LOG_TAU:
 
-                brkFileOut.breaks[paramMap[0][i]-1].expTau1[0] = paramVec[i]
+                brkFileOut.breaks[paramMap[0][i]-1].log[0] = paramVec[i]
 
-            elif key1 == EXP_TAU1_X2:
+            elif key1 == LOG_X1:
 
-                brkFileOut.breaks[paramMap[0][i]-1].expTau1[1] = paramVec[i]
+                brkFileOut.breaks[paramMap[0][i]-1].log[1] = paramVec[i]
 
-            elif key1 == EXP_TAU1_X3:
+            elif key1 == LOG_X2:
 
-                brkFileOut.breaks[paramMap[0][i]-1].expTau1[2] = paramVec[i]
+                brkFileOut.breaks[paramMap[0][i]-1].log[2] = paramVec[i]
+
+            elif key1 == LOG_X3:
+
+                brkFileOut.breaks[paramMap[0][i]-1].logMag[3] = paramVec[i]
             
-            elif key1 == EXP_TAU2_X1:
-
-                brkFileOut.breaks[paramMap[0][i]-1].expTau2[0] = paramVec[i]
-
-            elif key1 == EXP_TAU2_X2:
-
-                brkFileOut.breaks[paramMap[0][i]-1].expTau2[1] = paramVec[i]
-
-            elif key1 == EXP_TAU2_X3:
-
-                brkFileOut.breaks[paramMap[0][i]-1].expTau2[2] = paramVec[i]
-            
-            elif key1 == EXP_TAU3_X1:
-
-                brkFileOut.breaks[paramMap[0][i]-1].expTau3[0] = paramVec[i]
-
-            elif key1 == EXP_TAU3_X2:
-
-                brkFileOut.breaks[paramMap[0][i]-1].expTau3[1] = paramVec[i]
-
-            elif key1 == EXP_TAU3_X3:
-
-                brkFileOut.breaks[paramMap[0][i]-1].expTau3[2] = paramVec[i]
-            
-            elif key1 == LOG_MAG_X1:
-
-                brkFileOut.breaks[paramMap[0][i]-1].logMag[0] = paramVec[i]
-
-            elif key1 == LOG_MAG_X2:
-
-                brkFileOut.breaks[paramMap[0][i]-1].logMag[1] = paramVec[i]
-
-            elif key1 == LOG_MAG_X3:
-
-                brkFileOut.breaks[paramMap[0][i]-1].logMag[2] = paramVec[i]
-            
-            elif key1 == LOG_TAU_X1:
-
-                brkFileOut.breaks[paramMap[0][i]-1].logTau[0] = paramVec[i]
-
-            elif key1 == LOG_TAU_X2:
-
-                brkFileOut.breaks[paramMap[0][i]-1].logTau[1] = paramVec[i]
-
-            elif key1 == LOG_TAU_X3:
-
-                brkFileOut.breaks[paramMap[0][i]-1].logTau[2] = paramVec[i]
-
     return [mdlFileOut, brkFileOut]
