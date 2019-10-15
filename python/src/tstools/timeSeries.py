@@ -206,35 +206,18 @@ class TimeSeries:
             
             # get parameters necessary for breaks that occur prior to
             # current epoch
-            [brkEpochs, 
-             offsetX1, 
-             offsetX2, 
-             offsetX3, 
-             dVx1, 
-             dVx2, 
-             dVx3,
-             expMagX1, 
-             expMagX2, 
-             expMagX3, 
-             expTauX1, 
-             expTauX2, 
-             expTauX3,
-             logMagX1, 
-             logMagX2, 
-             logMagX3, 
-             logTauX1, 
-             logTauX2, 
-             logTauX3] = cp.getBrkParams( decYear, brkFile, mdlFile)
-                
+            [brkEpochs, off_x1, off_x2, off_x3, 
+             dv_x1, dv_x2, dv_x3,
+             exp_tau, exp_x1, exp_x2, exp_x3, 
+             log_tau,log_x1, log_x2, log_x3] = cp.getBrkParams( decYear, 
+                                                           brkFile, mdlFile)
                 
             # compute positions
             x1pos, x2pos, x3pos = cp.compPosAtEpoch( decYear, dc, vel, sa, 
-                                      ca, ss, cs, brkEpochs, offsetX1, 
-                                      offsetX2, offsetX3, dVx1, dVx2, dVx3,
-                                      expMagX1, expMagX2, expMagX3, 
-                                      expTauX1, expTauX2, expTauX3,
-                                      logMagX1, logMagX2, logMagX3, 
-                                      logTauX1, logTauX2, logTauX3)
+                                      ca, ss, cs, brkEpochs, off_x1, 
+                                      off_x2, off_x3, dv_x1, dv_x2, dv_x3,
+                                      exp_tau, exp_x1, exp_x2, exp_x3, 
+                                      log_tau, log_x1, log_x2, log_x3) 
             
             # add computed positions to position component lists with 
             # random Gaussian noise

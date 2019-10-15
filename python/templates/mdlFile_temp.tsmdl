@@ -23,12 +23,16 @@
 
 # Flags for type of inversion to perform:
 
-IM: basin    # (I)nversion (M)ethod: linear = weighted least squares
-             #                       basin  = basinhopping (must also 
-             #                                include LM flag)
-             #                       gensyn = do not perform any inversion,
-             #                                use given parameters to 
-             #                                create synthetic time series
+IM: basin    # (I)nversion (M)ethod: 
+             #      linear   = weighted least squares
+             #      L-BFGS-B = quasi-Newton type non-linear solver; may
+             #                 be sensitive to initial parameter guess
+             #      basin    = use basinhopping algorithm to perform 
+             #                 multiple L-BFGS-B iterations; useful if you
+             #                 suspect your results are sensitive to the
+             #                 initial guess.
+             #      gensyn   = do not perform any inversion, use given 
+             #                 parameters to create synthetic time series
 
 RE: 2000.0   # reference epoch given in decimal year, required so that dc 
              # offset terms are of the same order as other terms. If not 
