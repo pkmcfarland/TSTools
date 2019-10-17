@@ -9,6 +9,8 @@ Module for:
    from BreakFile and MdlFile objects, and
  - using parameter vector and parameter map to create MdlFile
    and BreakFile objects for each iteration of non-linear inversion
+ - generating initial guess vector for non-linear solver
+ - generating lower and upper bound tuples for non-linear solver
 """
 
 #######################################################################
@@ -640,9 +642,38 @@ def getInitialGuess( paramMap, timeSeries, brkFile):
     For most parameters, initialization to 0.0 is fine. However, for the 
     case where multiple taus are being estimated, it is best to form
     initial guess with tau1 < tau2 < tau3 < ...
+
+    Input brkFile must be the brkFile used to generate paramMap.
     """
 
-    # initialize x_o to all zeros
-    x_o = np.array([0.]*len(paramMap))
+    # count the number of exponential terms per break, at the same
+    # time compute length of time in years between each break and the
+    # end of the time series.
 
+    brkTracker = np.zeros([3,len(brkFile.breaks)])
     
+    for i, tsbreak in brkFile.breaks:
+
+        brkTracker[0][i] = i
+
+        timeAfter = timeSeries.time[-1] - tsbreak.decYear
+
+        brkTracker[2][i] = timeAfter
+
+        for j, param in enumerate(paramMap[0]):
+
+            if paramMap[0][j] == i + 1:
+
+                if paramMap[1][j] == EXP1_TAU:
+
+                    brkTracker[1][i] = brkTracker[1][i] + 1
+
+                if paramMap[1][j] == EXP2_TAU:
+
+                    brkTracker[1][i] = brkTracker[1][i] + 1
+                
+                if paramMap[1][j] == EXP3_TAU:
+
+                    brkTracker[1][i] = brkTracker[1][i] + 1
+
+
