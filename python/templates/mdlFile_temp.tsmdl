@@ -1,4 +1,3 @@
-
 # General rules for constructing file:
 # 1.) all blank lines and all lines starting with # will be skipped
 # 2.) line must start with 2-char flag followed by colon
@@ -25,10 +24,10 @@
 
 IM: basin    # (I)nversion (M)ethod: 
              #      linear   = weighted least squares
-             #      L-BFGS-B = quasi-Newton type non-linear solver; may
+             #      l_bfgs_b = quasi-Newton type non-linear solver; may
              #                 be sensitive to initial parameter guess
              #      basin    = use basinhopping algorithm to perform 
-             #                 multiple L-BFGS-B iterations; useful if you
+             #                 multiple l_bfgs_b iterations; useful if you
              #                 suspect your results are sensitive to the
              #                 initial guess.
              #      gensyn   = do not perform any inversion, use given 

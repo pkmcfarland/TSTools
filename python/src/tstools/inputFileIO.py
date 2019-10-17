@@ -9,6 +9,16 @@ import numpy as np
 from tstools.util.convtime import convtime
 
 ########################################################################
+"""
+Define constants.
+"""
+
+BASIN = 'basin'
+L_BFGS_B = 'l_bfgs_b'
+LINEAR = 'linear'
+GENSYN = 'gensyn'
+
+########################################################################
 class MdlFile:
 
     """
@@ -134,23 +144,15 @@ class MdlFile:
         # check that a recognized inversion method was given
         # additional minimization methods can be added below 
         # as they are incorporated into the other modules
-        if (self.im != 'linear' and self.im != 'basin' and  
-            self.im != 'gensyn'):
+        if (self.im != LINEAR and self.im != BASIN and  
+            self.im != GENSYN and self.im != L_BFGS_B):
             print(f"ERROR reading in {fileName}, IM flag either not set"
                  +f" or not set to recognized value")
             return -1
         
-        # check that if a non-linear method is chosen that a
-        # local minimum finder is also chosen
-        if (self.im != 'linear' and self.im != 'gensyn') and self.lm == '':
-            print(f"ERROR reading in {fileName}, inversion method set to" 
-                 +f" {self.im} but no local minimum finder selected. Use"
-                 +f" LM flag to set.")
-            return -1
-
         # check that if gensyn is chosen, no parameters are set to be 
         # estimated (i.e. are set to 999)
-        if (self.im == 'gensyn' and
+        if (self.im == GENSYN and
             (999 in self.dc or 999 in self.ve or 999 in self.sa
              or 999 in self.ca or 999 in self.ss
              or 999 in self.cs or 999 in self.o2 

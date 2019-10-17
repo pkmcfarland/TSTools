@@ -1,5 +1,6 @@
 #/usr/bin/env python3
 
+import numpy as np
 from copy import deepcopy
 
 """
@@ -13,10 +14,8 @@ Module for:
 #######################################################################
 # define constants
 
-BASIN_HOP = 'basin'
-LINEAR_FIT = 'linear'
-
 EST = 999 
+INF = np.inf
 
 # integers for tracking non-break-related model params
 DC_X1, DC_X2, DC_X3 = [ 0, 1, 2]
@@ -585,3 +584,65 @@ def genMdlFiles( paramVec, paramMap, mdlFileIn, brkFileIn):
                 brkFileOut.breaks[paramMap[0][i]-1].logMag[3] = paramVec[i]
             
     return [mdlFileOut, brkFileOut]
+
+########################################################################
+def getBounds( paramMap):
+    
+    """
+    Create lower and upper bound numpy arrays based on the parameters
+    being estimated. Bounds are unnecessary for most pararemters but
+    any decay times being estimated need to have lower bounds > 0.0
+    to avoid singularity.
+    """
+    # initialize list of bounds, will be converted to tuple later 
+    bounds = []
+
+    for i, param in paramMap[1]:
+
+        if paramMap[0][i] == 0:
+
+            bounds.append((None,None))
+
+        else:
+
+            if paramMap[1][i] == EXP1_TAU:
+
+                bounds.append((0.0005,None))
+
+            elif paramMap[1][i] == EXP2_TAU:
+
+                bounds.append((0.0005,None))
+
+            elif paramMap[1][i] == EXP3_TAU:
+
+                bounds.append((0.0005,None))
+
+            elif paramMap[1][i] == LOG_TAU:
+
+                bounds.append((0.0005,None))
+
+            else:
+
+                bounds.append((None,None))
+
+    bounds = tuple(bounds)
+
+    return bounds 
+
+########################################################################
+def getInitialGuess( paramMap, timeSeries, brkFile):
+
+    """
+    Return initial guess array (x_o) for the parameters being estimated
+    using non-linear solver. x_o is constructed using information in 
+    the parameter map (paramMap) and BreakFile object (brkFile).
+    
+    For most parameters, initialization to 0.0 is fine. However, for the 
+    case where multiple taus are being estimated, it is best to form
+    initial guess with tau1 < tau2 < tau3 < ...
+    """
+
+    # initialize x_o to all zeros
+    x_o = np.array([0.]*len(paramMap))
+
+    
