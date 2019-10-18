@@ -54,12 +54,15 @@ class Tsfit:
         """
         Initialize Tsfit object.
         """
-        self.input_ts = tsIn
-        self.input_mdlfile = mdlFileIn
-        self.input_brkfile = brkFileIn
-        self.output_ts = ts.TimeSeries()
-        self.output_mdlFile = ifio.MdlFile()
-        self.output_brkFile = ifio.BreakFile()
+        self.ts_in = tsIn
+        self.mdlFile_in = mdlFileIn
+        self.brkFile_in = brkFileIn
+        self.ts_out = ts.TimeSeries()
+        self.mdlFile_out = ifio.MdlFile()
+        self.brkFile_out = ifio.BreakFile()
+        self.paramVec = []
+        self.paramMap = []
+        self.bounds = ()
 
     ####################################################################
     def performFit(self):
@@ -68,5 +71,20 @@ class Tsfit:
         Fit model parameters in mdlFileIn and brkFileIn to the data in 
         tsIn.
         """
+        
+        # initialize parameter vector and generate parameter map
+        self.paramVec, self.paramMap = params.genParamVecAndMap(
+                                             self.mdlFile_in,
+                                             self.brkFile_in)
 
-        pass
+        # generate initial guess
+        self.paramVec = params.genInitialGuess( self.paramMap, 
+                                                self.ts_in,
+                                                self.brkFile_in)
+
+        # generate boundaries for non-linear solver
+        if mdlFile_in.im == ifio.BASIN or mdlFile_in.im == ifio.L_BFGS_B:
+
+            self.bounds = params.genBounds( self.paramMap)
+
+        

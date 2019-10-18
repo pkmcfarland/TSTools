@@ -599,7 +599,7 @@ def genBounds( paramMap):
     # initialize list of bounds, will be converted to tuple later 
     bounds = []
 
-    for i, param in paramMap[1]:
+    for i, param in enumerate(paramMap[1]):
 
         if paramMap[0][i] == 0:
 
@@ -737,5 +737,3 @@ def genInitialGuess( paramMap, timeSeries, brkFile):
                     x_o[i] = brkTracker[1][paramMap[0][i]-1]/4.
 
     return x_o 
-
-
