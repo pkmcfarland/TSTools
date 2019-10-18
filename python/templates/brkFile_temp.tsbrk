@@ -56,9 +56,16 @@
 #
 #     line #4: parameters for 2nd exponential term
 #     same format as line #3
+#     NOTE: TSTools cannot estimate a 2nd exponential term without
+#           estimating the 1st exponential term, if only one term
+#           is to be estimated then it must be the first.
 #
 #     line #5: parameters for 3rd exponential term
 #     same format as line #3
+#     NOTE: TSTools cannot estimate a 3rd exponential term without
+#           estimating both the 1st and 2nd exponential terms. If only
+#           one or two terms is to be estimated then it must be the 1st
+#           or 1st and 2nd.
 #
 #     line #6: parameters for ln term
 #     01          relaxation time of ln term (yrs) 

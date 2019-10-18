@@ -588,7 +588,7 @@ def genMdlFiles( paramVec, paramMap, mdlFileIn, brkFileIn):
     return [mdlFileOut, brkFileOut]
 
 ########################################################################
-def getBounds( paramMap):
+def genBounds( paramMap):
     
     """
     Create lower and upper bound numpy arrays based on the parameters
@@ -632,7 +632,7 @@ def getBounds( paramMap):
     return bounds 
 
 ########################################################################
-def getInitialGuess( paramMap, timeSeries, brkFile):
+def genInitialGuess( paramMap, timeSeries, brkFile):
 
     """
     Return initial guess array (x_o) for the parameters being estimated
@@ -650,15 +650,13 @@ def getInitialGuess( paramMap, timeSeries, brkFile):
     # time compute length of time in years between each break and the
     # end of the time series.
 
-    brkTracker = np.zeros([3,len(brkFile.breaks)])
+    brkTracker = np.zeros([2,len(brkFile.breaks)])
     
-    for i, tsbreak in brkFile.breaks:
-
-        brkTracker[0][i] = i
+    for i, tsbreak in enumerate(brkFile.breaks):
 
         timeAfter = timeSeries.time[-1] - tsbreak.decYear
 
-        brkTracker[2][i] = timeAfter
+        brkTracker[1][i] = timeAfter
 
         for j, param in enumerate(paramMap[0]):
 
@@ -666,14 +664,78 @@ def getInitialGuess( paramMap, timeSeries, brkFile):
 
                 if paramMap[1][j] == EXP1_TAU:
 
-                    brkTracker[1][i] = brkTracker[1][i] + 1
+                    brkTracker[0][i] = brkTracker[0][i] + 1
 
                 if paramMap[1][j] == EXP2_TAU:
 
-                    brkTracker[1][i] = brkTracker[1][i] + 1
+                    brkTracker[0][i] = brkTracker[0][i] + 1
                 
                 if paramMap[1][j] == EXP3_TAU:
 
-                    brkTracker[1][i] = brkTracker[1][i] + 1
+                    brkTracker[0][i] = brkTracker[0][i] + 1
+
+    # construct the iniitial guess vector
+    # initialize to all zeros
+    x_o = np.array([0.]*len(paramMap[0]))
+
+    for i, param in enumerate(paramMap[0]):
+
+        if paramMap[0][i] != 0:
+
+            if paramMap[1][i] == EXP1_TAU:
+                
+                if brkTracker[0][paramMap[0][i]-1] == 1:
+
+                    x_o[i] = brkTracker[1][paramMap[0][i]-1]/4.
+
+                elif brkTracker[0][paramMap[0][i]-1] == 2:
+
+                    x_o[i] = brkTracker[1][paramMap[0][i]-1]/12.
+
+                elif brkTracker[0][paramMap[0][i]-1] == 3:
+
+                    x_o[i] = brkTracker[1][paramMap[0][i]-1]/36.
+
+            elif paramMap[1][i] == EXP2_TAU:
+                
+                if brkTracker[0][paramMap[0][i]-1] == 1:
+
+                    print(f"ERROR: cannot estimate decay time for 2nd "
+                         +f"exponential term if not estimating decay "
+                         +f"time for 1st exponential term")
+
+                    return -1
+
+                elif brkTracker[0][paramMap[0][i]-1] == 2:
+
+                    x_o[i] = brkTracker[1][paramMap[0][i]-1]/4.
+
+                elif brkTracker[0][paramMap[0][i]-1] == 3:
+
+                    x_o[i] = brkTracker[1][paramMap[0][i]-1]/12.
+            
+            elif paramMap[1][i] == EXP3_TAU:
+                
+                if brkTracker[0][paramMap[0][i]-1] == 1:
+
+                    print(f"ERROR: cannot estimate decay time for 3rd "
+                         +f"exponential term if not estimating decay "
+                         +f"times for 1st and 2nd exponential term")
+
+                    return -1
+
+                elif brkTracker[0][paramMap[0][i]-1] == 2:
+
+                    print(f"ERROR: cannot estimate decay time for 3rd "
+                         +f"exponential term if not estimating decay "
+                         +f"time 2nd exponential term")
+
+                    return -1
+
+                elif brkTracker[0][paramMap[0][i]-1] == 3:
+
+                    x_o[i] = brkTracker[1][paramMap[0][i]-1]/4.
+
+    return x_o 
 
 
