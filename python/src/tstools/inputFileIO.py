@@ -13,10 +13,16 @@ from tstools.util.convtime import convtime
 Define constants.
 """
 
+EST = 999
+
 BASIN = 'basin'
 L_BFGS_B = 'l_bfgs_b'
 LINEAR = 'linear'
 GENSYN = 'gensyn'
+
+ONE_DIM = '1D'
+TWO_DIM = '2D'
+THREE_DIM = '3D'
 
 ########################################################################
 class MdlFile:
@@ -33,6 +39,7 @@ class MdlFile:
         self.name = 'NULL'
         self.im = ''
         self.lm = ''
+        self.di = ''
         self.re = float(0.0)
         self.dc = np.array([0.,0.,0.])
         self.ve = np.array([0.,0.,0.])
@@ -75,6 +82,10 @@ class MdlFile:
                 if flag == 'IM:':
 
                     self.im = splitLine[1]
+
+                elif flag == 'DI:':
+
+                    self.di = splitLine[1].upper()
 
                 elif flag == 'LM:':
 
@@ -150,13 +161,42 @@ class MdlFile:
                  +f" or not set to recognized value")
             return -1
         
+        # check that if the dimension for inversion (DI) is set to 1d
+        # or 2d that no values are set to 999 for components that are
+        # not involved in the inversion.
+        if (self.di == ONE_DIM and 
+           ((self.dc[1] == EST or self.dc[2] == EST) or
+            (self.ve[1] == EST or self.ve[2] == EST) or
+            (self.sa[1] == EST or self.sa[2] == EST) or
+            (self.ca[1] == EST or self.ca[2] == EST) or
+            (self.ss[1] == EST or self.ss[2] == EST) or
+            (self.cs[1] == EST or self.cs[2] == EST) or
+            (self.o2[1] == EST or self.o2[2] == EST) or
+            (self.o3[1] == EST or self.o3[2] == EST) or
+            (self.o4[1] == EST or self.o4[2] == EST) )):
+
+            print(f"ERROR reading in {fileName}, DI flag set to 1d "
+                 +f"but one or more parameters has x2 or x3 "
+                 +f"component set to 999")
+
+        elif (self.di == TWO_DIM and
+            (self.dc[2] == EST or self.ve[2] == EST or
+             self.sa[2] == EST or self.ca[2] == EST or
+             self.ss[2] == EST or self.cs[2] == EST or
+             self.o2[2] == EST or self.o3[2] == EST or
+             self.o4[2] == EST)):
+            
+            print(f"ERROR reading in {fileName}, DI flag set to 2d "
+                 +f"but one or more parameters has x3 component "
+                 +f"set to 999")
+
         # check that if gensyn is chosen, no parameters are set to be 
         # estimated (i.e. are set to 999)
         if (self.im == GENSYN and
-            (999 in self.dc or 999 in self.ve or 999 in self.sa
-             or 999 in self.ca or 999 in self.ss
-             or 999 in self.cs or 999 in self.o2 
-             or 999 in self.o3 or 999 in self.o4
+            (EST in self.dc or EST in self.ve or EST in self.sa
+             or EST in self.ca or EST in self.ss
+             or EST in self.cs or EST in self.o2 
+             or EST in self.o3 or EST in self.o4
             )
            ):
             print(f"ERROR reading in {fileName}, IM flag set to gensyn but"

@@ -83,8 +83,13 @@ class Tsfit:
                                                 self.brkFile_in)
 
         # generate boundaries for non-linear solver
-        if mdlFile_in.im == ifio.BASIN or mdlFile_in.im == ifio.L_BFGS_B:
+        self.bounds = params.genBounds( self.paramMap)
 
-            self.bounds = params.genBounds( self.paramMap)
+        # generate MdlFile and BrkFile based on initial guess
+        self.mdlFile_out, self.brkFile_out = params.genMdlFiles( 
+                                                        self.paramVec,
+                                                        self.paramMap,
+                                                        self.mdlFile_in,
+                                                        self.brkFile_in)
 
-        
+

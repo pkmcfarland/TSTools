@@ -33,8 +33,24 @@ IM: basin    # (I)nversion (M)ethod:
              #      gensyn   = do not perform any inversion, use given 
              #                 parameters to create synthetic time series
 
-RE: 2000.0   # reference epoch given in decimal year, required so that dc 
-             # offset terms are of the same order as other terms. If not 
+DI: 3d       # (D)mension for (I)nversion:
+             #      1d = only perform fit to x1 dimension,
+             #           x2 and x3 are ignored.
+             #      2d = only perform fit to x1 and x2 dimensions,
+             #           x3 is ignored.
+             #      3d = perform inversion for all three dimensions.
+             #      NOTE 1: if 1d or 2d is used, there must not be any 999
+             #              entries in the .tsmdl or .tsbrk files for 
+             #              components for which no inversion is being 
+             #              performed.
+             #      NOTE 2: The program does not care if x1 is east, north,
+             #              up, or any other direction. If 1d is chosen,
+             #              for example, the program will simply perform
+             #              the fit to whatever positions are in the first
+             #              column of the time series object or file.
+
+RE: 2000.0   # (R)eference (E)poch given in decimal year, required so that 
+             # dc offset terms are of the same order as other terms. If not
              # set, or set to zero, offset terms will become very large 
              # which can cause undesired effects in inversion
 
