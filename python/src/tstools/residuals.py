@@ -63,7 +63,7 @@ def chiSquare( tsObs, tsHat, mode):
 ########################################################################
 def gradChiSquare( tsObs, tsHat, mdlFileHat, brkFileHat, paramMap):
 ########################################################################
-def xHatPartialAtEpoch( param, tsObs, component, mdlFile, brkFile):
+def xHatPartial( param, tsObs, component, mdlFile, brkFile):
 
     """
     Compute the partial derivative of x-hat w.r.t. the given parameter 
@@ -588,14 +588,14 @@ def xHatPartialAtEpoch( param, tsObs, component, mdlFile, brkFile):
                             *(1./exp1[0]**2)
                             *timeBool)
                 
-            if component == X2:
+            elif component == X2:
 
                 partial = -(exp1[2]*(time - brkYr)
                             *np.exp(-(time-brkYr)/exp1[0])
                             *(1./exp1[0]**2)
                             *timeBool)
                 
-            if component == X3:
+            elif component == X3:
 
                 partial = -(exp1[3]*(time - brkYr)
                             *np.exp(-(time-brkYr)/exp1[0])
@@ -608,11 +608,11 @@ def xHatPartialAtEpoch( param, tsObs, component, mdlFile, brkFile):
 
                 partial = (1. - np.exp(-(time - brkYr)/exp1[0]))*timeBool
                 
-            if component == X2:
+            elif component == X2:
 
                 partial = 0.*timeBool
 
-            if component == X3:
+            elif component == X3:
 
                 partial = 0.*timeBool
 
@@ -622,11 +622,11 @@ def xHatPartialAtEpoch( param, tsObs, component, mdlFile, brkFile):
 
                 partial = 0.*timeBool
                
-            if component == X2:
+            elif component == X2:
 
                 partial = (1. - np.exp(-(time - brkYr)/exp1[0]))*timeBool
 
-            if component == X3:
+            elif component == X3:
 
                 partial = 0.*timeBool
 
@@ -636,11 +636,11 @@ def xHatPartialAtEpoch( param, tsObs, component, mdlFile, brkFile):
 
                 partial = 0.*timeBool
                
-            if component == X2:
+            elif component == X2:
 
                 partial = 0.*timeBool
 
-            if component == X3:
+            elif component == X3:
 
                 partial = (1. - np.exp(-(time - brkYr)/exp1[0]))*timeBool
             
@@ -653,14 +653,14 @@ def xHatPartialAtEpoch( param, tsObs, component, mdlFile, brkFile):
                             *(1./exp1[0]**2)
                             *timeBool)
                 
-            if component == X2:
+            elif component == X2:
 
                 partial = -(exp2[2]*(time - brkYr)
                             *np.exp(-(time-brkYr)/exp1[0])
                             *(1./exp1[0]**2)
                             *timeBool)
                 
-            if component == X3:
+            elif component == X3:
 
                 partial = -(exp2[3]*(time - brkYr)
                             *np.exp(-(time-brkYr)/exp1[0])
@@ -673,11 +673,11 @@ def xHatPartialAtEpoch( param, tsObs, component, mdlFile, brkFile):
 
                 partial = (1. - np.exp(-(time - brkYr)/exp2[0]))*timeBool
                
-            if component == X2:
+            elif component == X2:
 
                 partial = 0.*timeBool
 
-            if component == X3:
+            elif component == X3:
 
                 partial = 0.*timeBool
 
@@ -687,11 +687,11 @@ def xHatPartialAtEpoch( param, tsObs, component, mdlFile, brkFile):
 
                 partial = 0.*timeBool
                
-            if component == X2:
+            elif component == X2:
 
                 partial = (1. - np.exp(-(time - brkYr)/exp2[0]))*timeBool
 
-            if component == X3:
+            elif component == X3:
 
                 partial = 0.*timeBool
 
@@ -701,11 +701,11 @@ def xHatPartialAtEpoch( param, tsObs, component, mdlFile, brkFile):
 
                 partial = 0.*timeBool
                
-            if component == X2:
+            elif component == X2:
 
                 partial = 0.*timeBool
 
-            if component == X3:
+            elif component == X3:
 
                 partial = (1. - np.exp(-(time - brkYr)/exp2[0]))*timeBool
             
@@ -718,14 +718,14 @@ def xHatPartialAtEpoch( param, tsObs, component, mdlFile, brkFile):
                             *(1./exp1[0]**2)
                             *timeBool)
                 
-            if component == X2:
+            elif component == X2:
 
                 partial = -(exp3[2]*(time - brkYr)
                             *np.exp(-(time-brkYr)/exp1[0])
                             *(1./exp1[0]**2)
                             *timeBool)
                 
-            if component == X3:
+            elif component == X3:
 
                 partial = -(exp3[3]*(time - brkYr)
                             *np.exp(-(time-brkYr)/exp1[0])
@@ -738,11 +738,11 @@ def xHatPartialAtEpoch( param, tsObs, component, mdlFile, brkFile):
 
                 partial = (1. - np.exp(-(time - brkYr)/exp3[0]))*timeBool
                
-            if component == X2:
+            elif component == X2:
 
                 partial = 0.*timeBool
 
-            if component == X3:
+            elif component == X3:
 
                 partial = 0.*timeBool
 
@@ -752,11 +752,11 @@ def xHatPartialAtEpoch( param, tsObs, component, mdlFile, brkFile):
 
                 partial = 0.*timeBool
               
-            if component == X2:
+            elif component == X2:
 
                 partial = (1. - np.exp(-(time - brkYr)/exp3[0]))*timeBool
 
-            if component == X3:
+            elif component == X3:
 
                 partial = 0.*timeBool
 
@@ -766,11 +766,11 @@ def xHatPartialAtEpoch( param, tsObs, component, mdlFile, brkFile):
 
                 partial = 0.*timeBool
               
-            if component == X2:
+            elif component == X2:
 
                 partial = 0.*timeBool
 
-            if component == X3:
+            elif component == X3:
 
                 partial = (1. - np.exp(-(time - brkYr)/exp3[0]))*timeBool
             
@@ -781,12 +781,12 @@ def xHatPartialAtEpoch( param, tsObs, component, mdlFile, brkFile):
                 partial = (-1.)*timeBool*(log[1]*(time - brkYr)
                           *(1./(log[0]*(log[0] + time - brkYr))))
                 
-            if component == X2:
+            elif component == X2:
 
                 partial = (-1.)*timeBool*(log[2]*(time - brkYr)
                           *(1./(log[0]*(log[0] + time - brkYr))))
                 
-            if component == X3:
+            elif component == X3:
 
                 partial = (-1.)*timeBool*(log[3]*(time - brkYr)
                           *(1./(log[0]*(log[0] + time - brkYr))))
@@ -797,11 +797,11 @@ def xHatPartialAtEpoch( param, tsObs, component, mdlFile, brkFile):
 
                 partial = np.log(1. + (time-brkYr)/log[0])*timeBool
                
-            if component == X2:
+            elif component == X2:
 
                 partial = 0.*timeBool
 
-            if component == X3:
+            elif component == X3:
 
                 partial = 0.*timeBool
 
@@ -811,11 +811,11 @@ def xHatPartialAtEpoch( param, tsObs, component, mdlFile, brkFile):
 
                 partial = 0.*timeBool
                
-            if component == X2:
+            elif component == X2:
 
                 partial = np.log(1. + (time-brkYr)/log[0])*timeBool
 
-            if component == X3:
+            elif component == X3:
 
                 partial = 0.*timeBool
 
@@ -825,11 +825,11 @@ def xHatPartialAtEpoch( param, tsObs, component, mdlFile, brkFile):
 
                 partial = 0.*timeBool
                
-            if component == X2:
+            elif component == X2:
 
                 partial = 0.*timeBool
 
-            if component == X3:
+            elif component == X3:
 
                 partial = np.log(1. + (time-brkYr)/log[0])*timeBool
 
