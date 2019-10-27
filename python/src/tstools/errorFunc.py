@@ -35,7 +35,7 @@ def chiSquare( tsObs, tsHat, mode):
         obs_sig = tsObs.sig[0]
         mdl_pos = tsHat.pos[0]
         
-    if mode == ifio.TWO_DIM:
+    elif mode == ifio.TWO_DIM:
 
         obs_pos = np.concatenate( tsObs.pos[0],
                                   tsObs.pos[1])
@@ -44,7 +44,7 @@ def chiSquare( tsObs, tsHat, mode):
         mdl_pos = np.concatenate( tsHat.pos[0],
                                   tsHat.pos[1])
 
-    if mode == ifio.THREE_DIM
+    elif mode == ifio.THREE_DIM:
 
         obs_pos = np.concatenate( tsObs.pos[0],
                                   tsObs.pos[1],
@@ -61,7 +61,92 @@ def chiSquare( tsObs, tsHat, mode):
     return chi2
 
 ########################################################################
-def gradChiSquare( tsObs, tsHat, mdlFileHat, brkFileHat, paramMap):
+def gradChiSquare( tsObs, tsHat, mdlFileHat, brkFileHat, 
+                   paramMap, mode):
+
+    """
+    Compute the gradient of the chi-squared function w.r.t. the model
+    parameters being estimated.
+
+    Input(s):
+    tsObs       - TimeSeries object of obervations
+    tsHat       - TimeSeries object constructed using current values
+                  for values of parameters being estimated.
+    mdlFileHat  - MdlFile object containing current values for non-break 
+                  related parameters being estimated.
+    brkFileHat  - BreakFile object containing current values for 
+                  break-related parameters being estimated.
+    paramMap    - parameter map created from MdlFile and BreakFile 
+                  objects with parameters.genParamVecAndMap()
+    
+    Output(s):
+    gradVec     - 1D numpy array the same length as paramMap[0] with 
+                  partial derivatives of chi-squared w.r.t. the 
+                  parameters being estimated. 
+                  gradVec[i] is the partial derivative of chi-squared 
+                  with respect to the parameter described by 
+                  [paramMap[0][i],paramMap[1][i]]
+    """
+
+    gradVec = np.zeros([len(paramMap[0]),])
+
+    if mode == ifio.ONE_DIM:
+
+        for i, param in enumerate(paramMap[0]):
+
+            paramMap_i = [paramMap[0][i],paramMap[1][i]]
+
+            x1_partial = xHatPartial( paramMap_i, tsObs, X1, 
+                                      mdlFileHat, brkFileHat)
+
+            deltaX1 = tsObs.pos[0] - tsHat.pos[0]
+
+            gradVec[i] = 2*np.sum((deltaX1*x1_partial)/(tsObs.sig[0]**2))
+
+    elif mode == ifio.TWO_DIM:
+            
+            paramMap_i = [paramMap[0][i],paramMap[1][i]]
+
+            x1_partial = xHatPartial( paramMap_i, tsObs, X1, 
+                                      mdlFileHat, brkFileHat)
+            
+            x2_partial = xHatPartial( paramMap_i, tsObs, X2, 
+                                      mdlFileHat, brkFileHat)
+
+            deltaX1 = tsObs.pos[0] - tsHat.pos[0]
+            
+            deltaX2 = tsObs.pos[1] - tsHat.pos[1]
+
+            gradVec[i] = 2*np.sum(
+                           (deltaX1*x1_partial)/(tsObs.sig[0]**2)
+                          +(deltaX2*x2_partial)/(tsObs.sig[1]**2))
+
+    elif mode == ifio.THREE_DIM:
+            
+            paramMap_i = [paramMap[0][i],paramMap[1][i]]
+
+            x1_partial = xHatPartial( paramMap_i, tsObs, X1, 
+                                      mdlFileHat, brkFileHat)
+            
+            x2_partial = xHatPartial( paramMap_i, tsObs, X2, 
+                                      mdlFileHat, brkFileHat)
+            
+            x3_partial = xHatPartial( paramMap_i, tsObs, X3, 
+                                      mdlFileHat, brkFileHat)
+
+            deltaX1 = tsObs.pos[0] - tsHat.pos[0]
+            
+            deltaX2 = tsObs.pos[1] - tsHat.pos[1]
+            
+            deltaX3 = tsObs.pos[2] - tsHat.pos[2]
+
+            gradVec[i] = 2*np.sum(
+                           (deltaX1*x1_partial)/(tsObs.sig[0]**2)
+                          +(deltaX2*x2_partial)/(tsObs.sig[1]**2)
+                          +(deltaX3*x3_partial)/(tsObs.sig[2]**2))
+
+    return gradVec
+
 ########################################################################
 def xHatPartial( param, tsObs, component, mdlFile, brkFile):
 

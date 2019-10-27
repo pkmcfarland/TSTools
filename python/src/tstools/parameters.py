@@ -353,6 +353,8 @@ def genParamVecAndMap( mdlFileIn, brkFileIn):
             paramMap[1].append(LOG_X3)
             paramVec.append(float(0.1))
         
+    paramVec = np.array(paramVec)
+
     return [paramVec, paramMap]
 
 ########################################################################
