@@ -14,15 +14,10 @@ from scipy.optimize import fmin_l_bfgs_b as bfgs
 import timeSeries as ts    
 import inputFileIO as ifio
 import parameters as params
+import errorFunc as ef
 
 ########################################################################
-"""
-Define constants.
-"""
-
-
-########################################################################
-class Tsfit:
+class Fit:
 
     """
     Class for storing input/output time series and model parameters 
@@ -63,6 +58,7 @@ class Tsfit:
         self.paramVec = []
         self.paramMap = []
         self.bounds = ()
+        self.result = []
 
     ####################################################################
     def fit(self):
@@ -85,11 +81,7 @@ class Tsfit:
         # generate boundaries for non-linear solver
         self.bounds = params.genBounds( self.paramMap)
 
-        # generate MdlFile and BrkFile based on initial guess
-        self.mdlFile_out, self.brkFile_out = params.genMdlFiles( 
-                                                        self.paramVec,
-                                                        self.paramMap,
-                                                        self.mdlFile_in,
-                                                        self.brkFile_in)
+        # call fit method
+        if self.mdlFile_in.im == ifio.L_BFGS_B:
 
-
+            self.result = # insert call to internal l_bfgs_b

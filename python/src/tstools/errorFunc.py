@@ -9,6 +9,7 @@ import numpy as np         # then 3rd party libs
 from tstools.util.convtime import convtime
 import parameters as params
 import inputFileIO as ifio
+import timeSeries as ts
 
 ########################################################################
 """
@@ -18,6 +19,35 @@ Constants
 X1 = 1
 X2 = 2
 X3 = 3
+
+########################################################################
+def chiSqrAndGrad( paramVec, paramMap, tsObs, mdlFileIn, 
+                       brkFileIn, mode):
+
+    """
+    Return the chi squared statistic for the current inversion iteration
+    with the gradient.
+    """
+
+    # generate mdlFile_hat and brkFile_hat current inversion 
+    # iteration of paramVec
+    mdlFile_hat, brkFile_hat = params.genMdlFile( paramVec, paramMap,
+                                                  mdlFileIn, brkFileIn)
+
+    # generate tsHat for current inversion iteration
+
+    # !!! Need to update compPos and create new method for generating
+    # !!! time series that uses explicit list of epochs to ensure 
+    # !!! data and best fit are compatible
+    tsHat = ts.TimeSeries()
+    tsHat.genSynthetic(
+
+    chi_sqr = chiSquare( tsObs, tsHat, mode)
+
+    chi_sqr_grad = gradChiSquare( tsObs, tsHat, mdlFileHat, brkFileHat, 
+                                  paramMap, mode)
+
+    return chi_sqr, chi_sqr_grad
 
 ########################################################################
 def chiSquare( tsObs, tsHat, mode):
