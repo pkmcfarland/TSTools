@@ -65,7 +65,7 @@ class Tsfit:
         self.bounds = ()
 
     ####################################################################
-    def performFit(self):
+    def fit(self):
 
         """
         Fit model parameters in mdlFileIn and brkFileIn to the data in 

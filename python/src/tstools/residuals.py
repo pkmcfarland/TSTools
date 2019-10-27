@@ -24,6 +24,9 @@ def chiSquare( tsObs, tsHat, mode):
 
     """
     Compute chi squared for the current model predicted time series.
+    
+    Input(s):
+    tsObs       - 
     """
 
     if mode == ifio.ONE_DIM:
@@ -58,10 +61,9 @@ def chiSquare( tsObs, tsHat, mode):
     return chi2
 
 ########################################################################
-def gradChiSquareAtEpoch( tsObs, tsHat, mdlFileHat, brkFileHat, 
-                          paramMap
+def gradChiSquare( tsObs, tsHat, mdlFileHat, brkFileHat, paramMap):
 ########################################################################
-def xHatPartialAtEpoch( param, time, component, mdlFile, brkFile):
+def xHatPartialAtEpoch( param, tsObs, component, mdlFile, brkFile):
 
     """
     Compute the partial derivative of x-hat w.r.t. the given parameter 
@@ -73,7 +75,7 @@ def xHatPartialAtEpoch( param, time, component, mdlFile, brkFile):
                   first item in list is the value from the 1st column of 
                   paramMap for the parameter of interest, the 2nd item is 
                   the value from the 2nd column of paramMap.
-    time        - the epoch of interest in decimal year
+    tsObs       - TimeSeries object with observation data    
     component   - use constants X1, X2, or X3 to pass function which 
                   component the parital is being computed for
     mdlFile     - MdlFile object containing the current value of the 
@@ -88,50 +90,54 @@ def xHatPartialAtEpoch( param, time, component, mdlFile, brkFile):
                   interest.
     """
     
+    # get 1D numpy time array from tsObs and reference to the 
+    # reference epoch in mdlFile object
+    time = tsObs.time - mdlFile.re    
+
     # parameters from the mdlFile will have a zero-th index of 0
-    if param[0] == 0:
+    if param[0] == params.NON_BRK:
 
         if param[1] == params.DC_X1:
 
             if component == X1:
             
-                partial = 1.
+                partial = np.array([1.]*time.shape[0])
 
             elif component == X2:
 
-                partial = 0.
+                partial = np.array([0.]*time.shape[0])
 
             elif component == X3:
 
-                partial = 0.
+                partial = np.array([0.]*time.shape[0])
 
         elif param[1] == params.DC_X2:
 
             if component == X1:
             
-                partial = 0.
+                partial = np.array([0.]*time.shape[0])
 
             elif component == X2:
 
-                partial = 1.
+                partial = np.array([1.]*time.shape[0])
 
             elif component == X3:
 
-                partial = 0.
+                partial = np.array([0.]*time.shape[0])
         
         elif param[1] == params.DC_X3:
 
             if component == X1:
             
-                partial = 0.
+                partial = np.array([0.]*time.shape[0])
 
             elif component == X2:
 
-                partial = 0.
+                partial = np.array([0.]*time.shape[0])
 
             elif component == X3:
 
-                partial = 1.
+                partial = np.array([1.]*time.shape[0])
 
         if param[1] == params.VE_X1:
 
@@ -141,17 +147,17 @@ def xHatPartialAtEpoch( param, time, component, mdlFile, brkFile):
 
             elif component == X2:
 
-                partial = 0.
+                partial = np.array([0.]*time.shape[0])
 
             elif component == X3:
 
-                partial = 0.
+                partial = np.array([0.]*time.shape[0])
 
         elif param[1] == params.VE_X2:
 
             if component == X1:
             
-                partial = 0.
+                partial = np.array([0.]*time.shape[0])
 
             elif component == X2:
 
@@ -159,276 +165,672 @@ def xHatPartialAtEpoch( param, time, component, mdlFile, brkFile):
 
             elif component == X3:
 
-                partial = 0.
+                partial = np.array([0.]*time.shape[0])
         
         elif param[1] == params.VE_X3:
 
             if component == X1:
             
-                partial = 0.
+                partial = np.array([0.]*time.shape[0])
 
             elif component == X2:
 
-                partial = 0.
+                partial = np.array([0.]*time.shape[0])
 
             elif component == X3:
 
                 partial = time
         
-        # continue putting in zeros for cases when the component does
-        # not match the parameter of interest
         elif param[1] == params.SA_X1:
+            
+            if component == X1:
+            
+                partial = np.sin(2*np.pi*time)
 
-            partial = np.sin(2*np.pi*time) 
+            elif component == X2:
+
+                partial = np.array([0.]*time.shape[0])
+
+            elif component == X3:
+
+                partial = np.array([0.]*time.shape[0])
 
         elif param[1] == params.SA_X2:
 
-            partial = np.sin(2*np.pi*time)
+            if component == X1:
+            
+                partial = np.array([0.]*time.shape[0])
+            
+            elif component == X2:
+
+                partial = np.sin(2*np.pi*time)
+
+            elif component == X3:
+
+                partial = np.array([0.]*time.shape[0])
 
         elif param[1] == params.SA_X3:
 
-            partial = np.sin(2*np.pi*time)
+            if component == X1:
+            
+                partial = np.array([0.]*time.shape[0])
+            
+            elif component == X2:
+
+                partial = np.array([0.]*time.shape[0])
+
+            elif component == X3:
+
+                partial = np.sin(2*np.pi*time)
         
         elif param[1] == params.CA_X1:
+            
+            if component == X1:
+            
+                partial = np.cos(2*np.pi*time)
+            
+            elif component == X2:
 
-            partial = np.cos(2*np.pi*time) 
+                partial = np.array([0.]*time.shape[0])
+
+            elif component == X3:
+
+                partial = np.array([0.]*time.shape[0]) 
 
         elif param[1] == params.CA_X2:
 
-            partial = np.cos(2*np.pi*time)
+            if component == X1:
+            
+                partial = np.array([0.]*time.shape[0])
+           
+            elif component == X2:
+
+                partial = np.cos(2*np.pi*time)
+
+            elif component == X3:
+
+                partial = np.array([0.]*time.shape[0]) 
 
         elif param[1] == params.CA_X3:
 
-            partial = np.cos(2*np.pi*time)
+            if component == X1:
+            
+                partial = np.array([0.]*time.shape[0])
+           
+            elif component == X2:
+
+                partial = np.array([0.]*time.shape[0]) 
+
+            elif component == X3:
+
+                partial = np.cos(2*np.pi*time)
         
         elif param[1] == params.SS_X1:
 
-            partial = np.sin(4*np.pi*time) 
+            if component == X1:
+            
+                partial = np.sin(4*np.pi*time)
+           
+            elif component == X2:
+
+                partial = np.array([0.]*time.shape[0]) 
+
+            elif component == X3:
+
+                partial = np.array([0.]*time.shape[0])
 
         elif param[1] == params.SS_X2:
 
-            partial = np.sin(4*np.pi*time)
+            if component == X1:
+            
+                partial = np.array([0.]*time.shape[0]) 
+          
+            elif component == X2:
+
+                partial = np.sin(4*np.pi*time)
+
+            elif component == X3:
+
+                partial = np.array([0.]*time.shape[0])
 
         elif param[1] == params.SS_X3:
 
-            partial = np.sin(4*np.pi*time)
+            if component == X1:
+            
+                partial = np.array([0.]*time.shape[0]) 
+          
+            elif component == X2:
+
+                partial = np.array([0.]*time.shape[0])
+
+            elif component == X3:
+
+                partial = np.sin(4*np.pi*time)
         
         elif param[1] == params.CS_X1:
 
-            partial = np.cos(4*np.pi*time) 
+            if component == X1:
+            
+                partial = np.cos(4*np.pi*time)
+          
+            elif component == X2:
+
+                partial = np.array([0.]*time.shape[0])
+
+            elif component == X3:
+
+                partial =  0. 
 
         elif param[1] == params.CS_X2:
 
-            partial = np.cos(4*np.pi*time)
+            if component == X1:
+            
+                partial = np.array([0.]*time.shape[0])
+         
+            elif component == X2:
+
+                partial = np.cos(4*np.pi*time)
+
+            elif component == X3:
+
+                partial = np.array([0.]*time.shape[0]) 
 
         elif param[1] == params.CS_X3:
 
-            partial = np.cos(4*np.pi*time)
+            if component == X1:
+            
+                partial = np.array([0.]*time.shape[0])
+         
+            elif component == X2:
+
+                partial = np.array([0.]*time.shape[0]) 
+
+            elif component == X3:
+
+                partial = np.cos(4*np.pi*time)
         
         elif param[1] == params.O2_X1:
 
-            partial = time**2 
+            if component == X1:
+            
+                partial = time**2
+         
+            elif component == X2:
+
+                partial = np.array([0.]*time.shape[0]) 
+
+            elif component == X3:
+
+                partial = np.array([0.]*time.shape[0])
 
         elif param[1] == params.O2_X2:
 
-            partial = time**2 
+            if component == X1:
+            
+                partial = np.array([0.]*time.shape[0]) 
+        
+            elif component == X2:
+
+                partial = time**2
+
+            elif component == X3:
+
+                partial = np.array([0.]*time.shape[0])
 
         elif param[1] == params.O2_X3:
 
-            partial = time**2 
+            if component == X1:
+            
+                partial = np.array([0.]*time.shape[0]) 
+        
+            elif component == X2:
+
+                partial = np.array([0.]*time.shape[0])
+
+            elif component == X3:
+
+                partial = time**2
         
         elif param[1] == params.O3_X1:
 
-            partial = time**3 
+            if component == X1:
+            
+                partial = time**3
+        
+            elif component == X2:
+
+                partial = np.array([0.]*time.shape[0])
+
+            elif component == X3:
+
+                partial = np.array([0.]*time.shape[0]) 
 
         elif param[1] == params.O3_X2:
 
-            partial = time**3 
+            if component == X1:
+            
+                partial = np.array([0.]*time.shape[0])
+       
+            elif component == X2:
+
+                partial = time**3
+
+            elif component == X3:
+
+                partial = np.array([0.]*time.shape[0]) 
 
         elif param[1] == params.O3_X3:
 
-            partial = time**3 
+            if component == X1:
+            
+                partial = np.array([0.]*time.shape[0])
+       
+            elif component == X2:
+
+                partial = np.array([0.]*time.shape[0]) 
+
+            elif component == X3:
+
+                partial = time**3
         
         elif param[1] == params.O4_X1:
 
-            partial = time**4 
+            if component == X1:
+            
+                partial = time**4
+       
+            elif component == X2:
+
+                partial = np.array([0.]*time.shape[0]) 
+
+            elif component == X3:
+
+                partial = np.array([0.]*time.shape[0]) 
 
         elif param[1] == params.O4_X2:
 
-            partial = time**4 
+            if component == X1:
+            
+                partial = np.array([0.]*time.shape[0]) 
+      
+            elif component == X2:
+
+                partial = time**4
+
+            elif component == X3:
+
+                partial = np.array([0.]*time.shape[0]) 
 
         elif param[1] == params.O4_X3:
 
-            partial = time**4 
+            if component == X1:
+            
+                partial = np.array([0.]*time.shape[0]) 
+      
+            elif component == X2:
+
+                partial = np.array([0.]*time.shape[0]) 
+
+            elif component == X3:
+
+                partial = time**4
 
     # parameters associated with the brkFile will have param  zero-th index
     # greater than 0. Zero-th index of param will be Tsbreak+1 from
     # brkFile.breaks
     else:
         
+        # get the decimal year for the break associated with this mdl
+        # parameter and reference it to the model reference year
         brkYr = brkFile.breaks[param[0]-1].decYear
-        shiftBrkYr = brkYr - mdlFile.re
+        brkYr = brkYr - mdlFile.re
+
+        # create boolean array same length as time with True (1) where
+        # time is greater than the time of the break and False (0) where
+        # time is less than the time of the break
+        timeBool = time > brkYr
 
         exp1 = brkFile.breaks[param[0]-1].exp1
         exp2 = brkFile.breaks[param[0]-1].exp2
         exp3 = brkFile.breaks[param[0]-1].exp3
         log = brkFile.breaks[param[0]-1].log
 
-        if shiftBrkYr > time:
+        if param[1] == params.OFF_X1:
 
-            partial = 0.
-
-        else:
-
-            if param[1] == params.OFF_X1:
-
-                partial = 1.
-
-            elif param[1] == params.OFF_X2:
-
-                partial = 1.
-
-            elif param[1] == params.OFF_X3:
-
-                partial = 1.
+            if component == X1:
             
-            elif param[1] == params.DV_X1:
+                partial = 1.*timeBool 
 
-                partial = time 
+            elif component == X2:
 
-            elif param[1] == params.DV_X2:
+                partial = 0.*timeBool
 
-                partial = time
+            elif component == X3:
 
-            elif param[1] == params.DV_X3:
+                partial = 0.*timeBool
 
-                partial = time
+        elif param[1] == params.OFF_X2:
+
+            if component == X1:
             
-            elif param[1] == params.EXP1_TAU:
+                partial = 0.*timeBool
 
-                if component == X1:
+            elif component == X2:
 
-                    partial = -(exp1[1]*(time - shiftBrkYr)
-                                *np.exp(-(time-shiftBrkYr)/exp1[0])
-                                *(1./exp1[0]**2))
-                
-                if component == X2:
+                partial = 1.*timeBool 
 
-                    partial = -(exp1[2]*(time - shiftBrkYr)
-                                *np.exp(-(time-shiftBrkYr)/exp1[0])
-                                *(1./exp1[0]**2))
-                
-                if component == X3:
+            elif component == X3:
 
-                    partial = -(exp1[3]*(time - shiftBrkYr)
-                                *np.exp(-(time-shiftBrkYr)/exp1[0])
-                                *(1./exp1[0]**2))
+                partial = 0.*timeBool
 
-            elif param[1] == params.EXP1_X1:
+        elif param[1] == params.OFF_X3:
 
-                partial = 1. - np.exp(-(time - shiftBrkYr)/exp1[0])
-
-            elif param[1] == params.EXP1_X2:
-
-                partial = 1. - np.exp(-(time - shiftBrkYr)/exp1[0])
-
-            elif param[1] == params.EXP1_X3:
-
-                partial = 1. - np.exp(-(time - shiftBrkYr)/exp1[0])
+            if component == X1:
             
-            elif param[1] == params.EXP2_TAU:
+                partial = 0.*timeBool
 
-                if component == X1:
+            elif component == X2:
 
-                    partial = -(exp2[1]*(time - shiftBrkYr)
-                                *np.exp(-(time-shiftBrkYr)/exp1[0])
-                                *(1./exp1[0]**2))
-                
-                if component == X2:
+                partial = 0.*timeBool
 
-                    partial = -(exp2[2]*(time - shiftBrkYr)
-                                *np.exp(-(time-shiftBrkYr)/exp1[0])
-                                *(1./exp1[0]**2))
-                
-                if component == X3:
+            elif component == X3:
 
-                    partial = -(exp2[3]*(time - shiftBrkYr)
-                                *np.exp(-(time-shiftBrkYr)/exp1[0])
-                                *(1./exp1[0]**2))
-
-            elif param[1] == params.EXP2_X1:
-
-                partial = 1. - np.exp(-(time - shiftBrkYr)/exp2[0])
-
-            elif param[1] == params.EXP2_X2:
-
-                partial = 1. - np.exp(-(time - shiftBrkYr)/exp2[0])
-
-            elif param[1] == params.EXP2_X3:
-
-                partial = 1. - np.exp(-(time - shiftBrkYr)/exp2[0])
+                partial = 1.*timeBool 
             
-            elif param[1] == params.EXP3_TAU:
+        elif param[1] == params.DV_X1:
 
-                if component == X1:
-
-                    partial = -(exp3[1]*(time - shiftBrkYr)
-                                *np.exp(-(time-shiftBrkYr)/exp1[0])
-                                *(1./exp1[0]**2))
-                
-                if component == X2:
-
-                    partial = -(exp3[2]*(time - shiftBrkYr)
-                                *np.exp(-(time-shiftBrkYr)/exp1[0])
-                                *(1./exp1[0]**2))
-                
-                if component == X3:
-
-                    partial = -(exp3[3]*(time - shiftBrkYr)
-                                *np.exp(-(time-shiftBrkYr)/exp1[0])
-                                *(1./exp1[0]**2))
-
-            elif param[1] == params.EXP3_X1:
-
-                partial = 1. - np.exp(-(time - shiftBrkYr)/exp3[0])
-
-            elif param[1] == params.EXP3_X2:
-
-                partial = 1. - np.exp(-(time - shiftBrkYr)/exp3[0])
-
-            elif param[1] == params.EXP3_X3:
-
-                partial = 1. - np.exp(-(time - shiftBrkYr)/exp3[0])
+            if component == X1:
             
-            elif param[1] == params.LOG_TAU:
+                partial = time*timeBool
 
-                if component == X1:
+            elif component == X2:
 
-                    partial = -(log[1]*(time - shiftBrkYr)
-                              *(1./(log[0]*(log[0] + time - shiftBrkYr))))
-                
-                if component == X2:
+                partial = 0.*timeBool
 
-                    partial = -(log[2]*(time - shiftBrkYr)
-                              *(1./(log[0]*(log[0] + time - shiftBrkYr))))
-                
-                if component == X3:
+            elif component == X3:
 
-                    partial = -(log[3]*(time - shiftBrkYr)
-                              *(1./(log[0]*(log[0] + time - shiftBrkYr))))
+                partial = 0.*timeBool
+
+        elif param[1] == params.DV_X2:
+
+            if component == X1:
             
-            elif param[1] == params.LOG_X1:
+                partial = 0.*timeBool
 
-                partial = np.log(1. + (time-shiftBrkYr)/log[0])
+            elif component == X2:
 
-            elif param[1] == params.LOG_X2:
+                partial = time*timeBool
 
-                partial = np.log(1. + (time-shiftBrkYr)/log[0])
+            elif component == X3:
 
-            elif param[1] == params.LOG_X3:
+                partial = 0.*timeBool
 
-                partial = np.log(1. + (time-shiftBrkYr)/log[0])
+        elif param[1] == params.DV_X3:
+
+            if component == X1:
+            
+                partial = 0.*timeBool
+
+            elif component == X2:
+
+                partial = 0.*timeBool
+
+            elif component == X3:
+
+                partial = time*timeBool
+            
+        elif param[1] == params.EXP1_TAU:
+
+            if component == X1:
+
+                partial = -(exp1[1]*(time - brkYr)
+                            *np.exp(-(time-brkYr)/exp1[0])
+                            *(1./exp1[0]**2)
+                            *timeBool)
+                
+            if component == X2:
+
+                partial = -(exp1[2]*(time - brkYr)
+                            *np.exp(-(time-brkYr)/exp1[0])
+                            *(1./exp1[0]**2)
+                            *timeBool)
+                
+            if component == X3:
+
+                partial = -(exp1[3]*(time - brkYr)
+                            *np.exp(-(time-brkYr)/exp1[0])
+                            *(1./exp1[0]**2)
+                            *timeBool)
+
+        elif param[1] == params.EXP1_X1:
+                
+            if component == X1:
+
+                partial = (1. - np.exp(-(time - brkYr)/exp1[0]))*timeBool
+                
+            if component == X2:
+
+                partial = 0.*timeBool
+
+            if component == X3:
+
+                partial = 0.*timeBool
+
+        elif param[1] == params.EXP1_X2:
+
+            if component == X1:
+
+                partial = 0.*timeBool
+               
+            if component == X2:
+
+                partial = (1. - np.exp(-(time - brkYr)/exp1[0]))*timeBool
+
+            if component == X3:
+
+                partial = 0.*timeBool
+
+        elif param[1] == params.EXP1_X3:
+
+            if component == X1:
+
+                partial = 0.*timeBool
+               
+            if component == X2:
+
+                partial = 0.*timeBool
+
+            if component == X3:
+
+                partial = (1. - np.exp(-(time - brkYr)/exp1[0]))*timeBool
+            
+        elif param[1] == params.EXP2_TAU:
+
+            if component == X1:
+
+                partial = -(exp2[1]*(time - brkYr)
+                            *np.exp(-(time-brkYr)/exp1[0])
+                            *(1./exp1[0]**2)
+                            *timeBool)
+                
+            if component == X2:
+
+                partial = -(exp2[2]*(time - brkYr)
+                            *np.exp(-(time-brkYr)/exp1[0])
+                            *(1./exp1[0]**2)
+                            *timeBool)
+                
+            if component == X3:
+
+                partial = -(exp2[3]*(time - brkYr)
+                            *np.exp(-(time-brkYr)/exp1[0])
+                            *(1./exp1[0]**2)
+                            *timeBool)
+
+        elif param[1] == params.EXP2_X1:
+
+            if component == X1:
+
+                partial = (1. - np.exp(-(time - brkYr)/exp2[0]))*timeBool
+               
+            if component == X2:
+
+                partial = 0.*timeBool
+
+            if component == X3:
+
+                partial = 0.*timeBool
+
+        elif param[1] == params.EXP2_X2:
+
+            if component == X1:
+
+                partial = 0.*timeBool
+               
+            if component == X2:
+
+                partial = (1. - np.exp(-(time - brkYr)/exp2[0]))*timeBool
+
+            if component == X3:
+
+                partial = 0.*timeBool
+
+        elif param[1] == params.EXP2_X3:
+
+            if component == X1:
+
+                partial = 0.*timeBool
+               
+            if component == X2:
+
+                partial = 0.*timeBool
+
+            if component == X3:
+
+                partial = (1. - np.exp(-(time - brkYr)/exp2[0]))*timeBool
+            
+        elif param[1] == params.EXP3_TAU:
+
+            if component == X1:
+
+                partial = -(exp3[1]*(time - brkYr)
+                            *np.exp(-(time-brkYr)/exp1[0])
+                            *(1./exp1[0]**2)
+                            *timeBool)
+                
+            if component == X2:
+
+                partial = -(exp3[2]*(time - brkYr)
+                            *np.exp(-(time-brkYr)/exp1[0])
+                            *(1./exp1[0]**2)
+                            *timeBool)
+                
+            if component == X3:
+
+                partial = -(exp3[3]*(time - brkYr)
+                            *np.exp(-(time-brkYr)/exp1[0])
+                            *(1./exp1[0]**2)
+                            *timeBool)
+
+        elif param[1] == params.EXP3_X1:
+
+            if component == X1:
+
+                partial = (1. - np.exp(-(time - brkYr)/exp3[0]))*timeBool
+               
+            if component == X2:
+
+                partial = 0.*timeBool
+
+            if component == X3:
+
+                partial = 0.*timeBool
+
+        elif param[1] == params.EXP3_X2:
+
+            if component == X1:
+
+                partial = 0.*timeBool
+              
+            if component == X2:
+
+                partial = (1. - np.exp(-(time - brkYr)/exp3[0]))*timeBool
+
+            if component == X3:
+
+                partial = 0.*timeBool
+
+        elif param[1] == params.EXP3_X3:
+
+            if component == X1:
+
+                partial = 0.*timeBool
+              
+            if component == X2:
+
+                partial = 0.*timeBool
+
+            if component == X3:
+
+                partial = (1. - np.exp(-(time - brkYr)/exp3[0]))*timeBool
+            
+        elif param[1] == params.LOG_TAU:
+
+            if component == X1:
+
+                partial = (-1.)*timeBool*(log[1]*(time - brkYr)
+                          *(1./(log[0]*(log[0] + time - brkYr))))
+                
+            if component == X2:
+
+                partial = (-1.)*timeBool*(log[2]*(time - brkYr)
+                          *(1./(log[0]*(log[0] + time - brkYr))))
+                
+            if component == X3:
+
+                partial = (-1.)*timeBool*(log[3]*(time - brkYr)
+                          *(1./(log[0]*(log[0] + time - brkYr))))
+            
+        elif param[1] == params.LOG_X1:
+
+            if component == X1:
+
+                partial = np.log(1. + (time-brkYr)/log[0])*timeBool
+               
+            if component == X2:
+
+                partial = 0.*timeBool
+
+            if component == X3:
+
+                partial = 0.*timeBool
+
+        elif param[1] == params.LOG_X2:
+
+            if component == X1:
+
+                partial = 0.*timeBool
+               
+            if component == X2:
+
+                partial = np.log(1. + (time-brkYr)/log[0])*timeBool
+
+            if component == X3:
+
+                partial = 0.*timeBool
+
+        elif param[1] == params.LOG_X3:
+
+            if component == X1:
+
+                partial = 0.*timeBool
+               
+            if component == X2:
+
+                partial = 0.*timeBool
+
+            if component == X3:
+
+                partial = np.log(1. + (time-brkYr)/log[0])*timeBool
 
     return partial
-
-
