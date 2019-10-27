@@ -19,6 +19,9 @@ Module for:
 EST = 999 
 INF = np.inf
 
+# integer for non-break-related model params
+NON_BRK = 0
+
 # integers for tracking non-break-related model params
 DC_X1, DC_X2, DC_X3 = [ 0, 1, 2]
 VE_X1, VE_X2, VE_X3 = [ 3, 4, 5]
@@ -56,163 +59,163 @@ def genParamVecAndMap( mdlFileIn, brkFileIn):
 
     if mdlFileIn.dc[0] == EST:
 
-        paramMap[0].append(int(0))
+        paramMap[0].append(NON_BRK)
         paramMap[1].append(DC_X1)
         paramVec.append(float(0.))
 
     if mdlFileIn.dc[1] == EST:
 
-        paramMap[0].append(int(0))
+        paramMap[0].append(NON_BRK)
         paramMap[1].append(DC_X2)
         paramVec.append(float(0.))
 
     if mdlFileIn.dc[2] == EST:
 
-        paramMap[0].append(int(0))
+        paramMap[0].append(NON_BRK)
         paramMap[1].append(DC_X3)
         paramVec.append(float(0.))
 
     if mdlFileIn.ve[0] == EST:
 
-        paramMap[0].append(int(0))
+        paramMap[0].append(NON_BRK)
         paramMap[1].append(VE_X1)
         paramVec.append(float(0.))
 
     if mdlFileIn.ve[1] == EST:
 
-        paramMap[0].append(int(0))
+        paramMap[0].append(NON_BRK)
         paramMap[1].append(VE_X2)
         paramVec.append(float(0.))
 
     if mdlFileIn.ve[2] == EST:
 
-        paramMap[0].append(int(0))
+        paramMap[0].append(NON_BRK)
         paramMap[1].append(VE_X3)
         paramVec.append(float(0.))
 
     if mdlFileIn.sa[0] == EST:
 
-        paramMap[0].append(int(0))
+        paramMap[0].append(NON_BRK)
         paramMap[1].append(SA_X1)
         paramVec.append(float(0.))
     
     if mdlFileIn.sa[1] == EST:
 
-        paramMap[0].append(int(0))
+        paramMap[0].append(NON_BRK)
         paramMap[1].append(SA_X2)
         paramVec.append(float(0.))
     
     if mdlFileIn.sa[2] == EST:
 
-        paramMap[0].append(int(0))
+        paramMap[0].append(NON_BRK)
         paramMap[1].append(SA_X3)
         paramVec.append(float(0.))
     
     if mdlFileIn.ca[0] == EST:
 
-        paramMap[0].append(int(0))
+        paramMap[0].append(NON_BRK)
         paramMap[1].append(CA_X1)
         paramVec.append(float(0.))
     
     if mdlFileIn.ca[1] == EST:
 
-        paramMap[0].append(int(0))
+        paramMap[0].append(NON_BRK)
         paramMap[1].append(CA_X2)
         paramVec.append(float(0.))
     
     if mdlFileIn.ca[2] == EST:
 
-        paramMap[0].append(int(0))
+        paramMap[0].append(NON_BRK)
         paramMap[1].append(CA_X3)
         paramVec.append(float(0.))
     
     if mdlFileIn.ss[0] == EST:
 
-        paramMap[0].append(int(0))
+        paramMap[0].append(NON_BRK)
         paramMap[1].append(SS_X1)
         paramVec.append(float(0.))
     
     if mdlFileIn.ss[1] == EST:
 
-        paramMap[0].append(int(0))
+        paramMap[0].append(NON_BRK)
         paramMap[1].append(SS_X2)
         paramVec.append(float(0.))
     
     if mdlFileIn.ss[2] == EST:
 
-        paramMap[0].append(int(0))
+        paramMap[0].append(NON_BRK)
         paramMap[1].append(SS_X3)
         paramVec.append(float(0.))
     
     if mdlFileIn.cs[0] == EST:
 
-        paramMap[0].append(int(0))
+        paramMap[0].append(NON_BRK)
         paramMap[1].append(CS_X1)
         paramVec.append(float(0.))
     
     if mdlFileIn.cs[1] == EST:
 
-        paramMap[0].append(int(0))
+        paramMap[0].append(NON_BRK)
         paramMap[1].append(CS_X2)
         paramVec.append(float(0.))
     
     if mdlFileIn.cs[2] == EST:
 
-        paramMap[0].append(int(0))
+        paramMap[0].append(NON_BRK)
         paramMap[1].append(CS_X3)
         paramVec.append(float(0.))
 
     if mdlFileIn.o2[0] == EST:
 
-        paramMap[0].append(int(0))
+        paramMap[0].append(NON_BRK)
         paramMap[1].append(O2_X1)
         paramVec.append(float(0.))
     
     if mdlFileIn.o2[1] == EST:
 
-        paramMap[0].append(int(0))
+        paramMap[0].append(NON_BRK)
         paramMap[1].append(O2_X2)
         paramVec.append(float(0.))
     
     if mdlFileIn.o2[2] == EST:
 
-        paramMap[0].append(int(0))
+        paramMap[0].append(NON_BRK)
         paramMap[1].append(O2_X3)
         paramVec.append(float(0.))
     
     if mdlFileIn.o3[0] == EST:
 
-        paramMap[0].append(int(0))
+        paramMap[0].append(NON_BRK)
         paramMap[1].append(O3_X1)
         paramVec.append(float(0.))
     
     if mdlFileIn.o3[1] == EST:
 
-        paramMap[0].append(int(0))
+        paramMap[0].append(NON_BRK)
         paramMap[1].append(O3_X2)
         paramVec.append(float(0.))
     
     if mdlFileIn.o3[2] == EST:
 
-        paramMap[0].append(int(0))
+        paramMap[0].append(NON_BRK)
         paramMap[1].append(O3_X3)
         paramVec.append(float(0.))
     
     if mdlFileIn.o4[0] == EST:
 
-        paramMap[0].append(int(0))
+        paramMap[0].append(NON_BRK)
         paramMap[1].append(O4_X1)
         paramVec.append(float(0.))
     
     if mdlFileIn.o4[1] == EST:
 
-        paramMap[0].append(int(0))
+        paramMap[0].append(NON_BRK)
         paramMap[1].append(O4_X2)
         paramVec.append(float(0.))
     
     if mdlFileIn.o4[2] == EST:
 
-        paramMap[0].append(int(0))
+        paramMap[0].append(NON_BRK)
         paramMap[1].append(O4_X3)
         paramVec.append(float(0.))
 
