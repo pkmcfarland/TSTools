@@ -129,17 +129,18 @@ class TimeSeries:
 
     ####################################################################
     def compTs(self, mdlFile, brkFile, useCal=False,
-                     time=[], 
                      startCal=[], 
                      endCal=[], 
                      posSdList=[0.0,0.0,0.0], 
                      uncRngList=[[0.0,0.0],[0.0,0.0],[0.0,0.0]]):
 
         """
-        Compute position time series for time period given using
-        equation parameters given in mdlFile and brkFile. If useCal is 
-        set to True, daily positions are given for noon of each day in 
-        time series. Computed time series will have Gaussian noise added 
+        Compute position time series for time period of TimeSeries 
+        object using equation parameters given in mdlFile and brkFile. 
+        If useCal is set to True, TimeSeries.time is overwritten by the 
+        time between startCal and endCal with daily positions given at 
+        noon of each day in time series. 
+        Computed time series will have Gaussian noise added 
         to daily positions with standard deviation for each component
         defined in posSdList and noise in position uncertainties
         drawn from a uniform distribution defined by the values given
@@ -155,8 +156,6 @@ class TimeSeries:
                       supply start and end times. False if user 
                       would like to use time array to supply times
                       at which positions are to be computed.
-        time        - 1D numpy array of times in decimal year for
-                      which positions are to be computed
         startCal    - convtime-style calendar list of day on which 
                       time series will begin
         endCal      - convtime-style calendar list of day on which 
@@ -211,9 +210,6 @@ class TimeSeries:
         
             self.time = np.asarray(decYearList)
 
-        else:
-            self.time = time
-
         # get model computed positions
         x1,x2,x3 = cp.compPos(self.time, mdlFile, brkFile)
 
@@ -228,13 +224,13 @@ class TimeSeries:
         # compute synthetic uncertainties for time series
         # within uniform distribution provided by uncRangeList
         x1unc = np.random.uniform(uncRngList[0][0],
-                                  uncRngList]0][1],
+                                  uncRngList[0][1],
                                   self.time.shape)
         x2unc = np.random.uniform(uncRngList[1][0],
-                                  uncRngList]1][1],
+                                  uncRngList[1][1],
                                   self.time.shape)
         x3unc = np.random.uniform(uncRngList[2][0],
-                                  uncRngList]2][1],
+                                  uncRngList[2][1],
                                   self.time.shape)
 
         self.sig = np.stack([x1unc, x2unc,x3unc])
