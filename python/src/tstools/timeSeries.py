@@ -128,19 +128,52 @@ class TimeSeries:
         self.refPos = np.asarray(self.refPos)
 
     ####################################################################
-    def genSynthetic(self, startCal, endCal, posSdList, uncRangeList,
-                     mdlFile, brkFile):
+    def compTs(self, mdlFile, brkFile, useCal=False,
+                     time=[], 
+                     startCal=[], 
+                     endCal=[], 
+                     posSdList=[0.0,0.0,0.0], 
+                     uncRngList=[[0.0,0.0],[0.0,0.0],[0.0,0.0]]):
 
         """
-        Generate synthetic time series from time defined by startList to 
-        time defined by endList. Daily positions are referenced to noon
-        of each day in time series. Synthetic time series will have Gaussian
-        noise in position with standard deviation for each component
-        defined in posSdList and Gaussian noise in position uncertainties
-        with standard deviation for each component defined in uncSdList.
-        The kinematics of the station, with the exception of breaks, 
-        are defined in mdlFile. All breaks are defined in brkFile.
+        Compute position time series for time period given using
+        equation parameters given in mdlFile and brkFile. If useCal is 
+        set to True, daily positions are given for noon of each day in 
+        time series. Computed time series will have Gaussian noise added 
+        to daily positions with standard deviation for each component
+        defined in posSdList and noise in position uncertainties
+        drawn from a uniform distribution defined by the values given
+        in uncRngList for each component.
         
+        Input(s):
+        mdlFile     - mdlFile object with parameters from which time 
+                      series will be computed
+        brkFile     - brkFile object with break-related parameters
+                      from which time series will be computed
+        useCal      - boolean (True/False) True if user would like
+                      to use the startCal and endCal lists to 
+                      supply start and end times. False if user 
+                      would like to use time array to supply times
+                      at which positions are to be computed.
+        time        - 1D numpy array of times in decimal year for
+                      which positions are to be computed
+        startCal    - convtime-style calendar list of day on which 
+                      time series will begin
+        endCal      - convtime-style calendar list of day on which 
+                      time series will end
+        posSdList   - list of standard deviations [sigX1,sigX2,sigX3] 
+                      for the Gaussian distribution from which noise 
+                      will be added to time series in each component.
+        uncRngList  - list of lower and upper limits for uniform 
+                      distribution from which random noise will be added
+                      to time series uncertainties 
+                      [[uncLowX1,uncHighX1],
+                       [uncLowX2,uncHighX2],
+                       [uncLowX3,uncHighX3]]
+
+        Output(s):
+        None
+
         Ex:
         >>> from tstools import timeSeries as ts
         >>> from tstools import inputFileIO as ifio
@@ -153,97 +186,57 @@ class TimeSeries:
         >>> brkFile = ifio.BreakFile()
         >>> brkFile.read('./brkFile.tsbrk')
         >>> synTseries = ts.TimeSeries()
-        >>> synTseries.genSynthetic( start, end, posSigmas, uncRanges,
-                                     mdlFile, brkFile)
+        >>> synTseries.compTs( mdlFile, brkFile, useCal=True, 
+                               start, end, posSigmas, uncRanges)
         """
 
         # set some internal values
-        self.name = 'SYNTHETIC'
+        self.name = 'computed'
         self.coordType = DXDYDZ # <- not convinced this should be here
-        self.frame = 'SYNTHETIC'
+        self.frame = 'none'
 
         # pull reference epoch out of mdlFile
         refYear = mdlFile.re
 
         # create list of epochs from user input starCal and endCal
         # assign list of decimal years to self.time
-        startMjd = convtime('cal','mjd2',startCal)
-        endMjd = convtime('cal','mjd2', endCal)
-
-        mjdList = list(range(startMjd[0], endMjd[0]+1))
+        if useCal:
+            startMjd = convtime('cal','mjd2',startCal)
+            endMjd = convtime('cal','mjd2', endCal)
+            mjdList = list(range(startMjd[0], endMjd[0]+1))
         
-        decYearList = [0.0]*len(mjdList)
-        for i, mjd in enumerate(mjdList):
-
-            decYearList[i] = convtime("mjd2","year",[mjd, 0.5])
+            decYearList = [0.0]*len(mjdList)
+            for i, mjd in enumerate(mjdList):
+                decYearList[i] = convtime("mjd2","year",[mjd, 0.5])
         
-        self.time = np.asarray(decYearList)
+            self.time = np.asarray(decYearList)
 
-        # get non-break parameters from mdlFile to pass to compPosAtEpoch()
-        dc = mdlFile.dc 
-        vel = mdlFile.ve        
-        sa = mdlFile.sa        
-        ca = mdlFile.ca        
-        ss = mdlFile.ss        
-        cs = mdlFile.cs
+        else:
+            self.time = time
 
-        ##############
-        # loop over epochs and compute position at each epoch
-        
-        # shift times so ref epoch is zero
-        shiftYear = np.array([0.0]*len(decYearList))
-        for i, decYear in enumerate(self.time):
+        # get model computed positions
+        x1,x2,x3 = cp.compPos(self.time, mdlFile, brkFile)
 
-            shiftYear[i] = decYear - refYear
-
-        # initialize position arrays  
-        x1posArray = np.array([0.0]*len(self.time))
-        x2posArray = np.array([0.0]*len(self.time))
-        x3posArray = np.array([0.0]*len(self.time))
-        
-        # loop over shifted years and compute position at each
-        for i, decYear in enumerate(shiftYear):
-            
-            # get parameters necessary for breaks that occur prior to
-            # current epoch
-            [brkEpochs, off_x1, off_x2, off_x3, 
-             dv_x1, dv_x2, dv_x3,
-             exp_tau, exp_x1, exp_x2, exp_x3, 
-             log_tau,log_x1, log_x2, log_x3] = cp.getBrkParams( decYear, 
-                                                           brkFile, mdlFile)
-                
-            # compute positions
-            x1pos, x2pos, x3pos = cp.compPosAtEpoch( decYear, dc, vel, sa, 
-                                      ca, ss, cs, brkEpochs, off_x1, 
-                                      off_x2, off_x3, dv_x1, dv_x2, dv_x3,
-                                      exp_tau, exp_x1, exp_x2, exp_x3, 
-                                      log_tau, log_x1, log_x2, log_x3) 
-            
-            # add computed positions to position component lists with 
-            # random Gaussian noise
-            x1posArray[i] = x1pos + np.random.normal( 0., posSdList[0]) 
-            x2posArray[i] = x2pos + np.random.normal( 0., posSdList[1])
-            x3posArray[i] = x3pos + np.random.normal( 0., posSdList[2])
+        # add gaussian noise
+        x1 = x1 + posSdList[0]*np.random.randn(self.time.shape[0],)
+        x2 = x2 + posSdList[1]*np.random.randn(self.time.shape[0],)
+        x3 = x3 + posSdList[2]*np.random.randn(self.time.shape[0],)
 
         # assign computed positions to self.pos
-        self.pos = np.stack([x1posArray,x2posArray,x3posArray])
+        self.pos = np.stack([x1,x2,x3])
 
         # compute synthetic uncertainties for time series
         # within uniform distribution provided by uncRangeList
-        x1unc = np.array([0.0]*len(self.time))
-        x2unc = np.array([0.0]*len(self.time))
-        x3unc = np.array([0.0]*len(self.time))
+        x1unc = np.random.uniform(uncRngList[0][0],
+                                  uncRngList]0][1],
+                                  self.time.shape)
+        x2unc = np.random.uniform(uncRngList[1][0],
+                                  uncRngList]1][1],
+                                  self.time.shape)
+        x3unc = np.random.uniform(uncRngList[2][0],
+                                  uncRngList]2][1],
+                                  self.time.shape)
 
-        for i, epoch in enumerate(self.time):
-
-            x1unc[i] = np.random.uniform( uncRangeList[0][0],
-                                          uncRangeList[0][1])
-            x2unc[i] = np.random.uniform( uncRangeList[1][0],
-                                          uncRangeList[1][1])
-            x3unc[i] = np.random.uniform( uncRangeList[2][0],
-                                          uncRangeList[2][1])
-
-        
         self.sig = np.stack([x1unc, x2unc,x3unc])
 
     ####################################################################
