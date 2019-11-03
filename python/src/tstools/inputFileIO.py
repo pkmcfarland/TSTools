@@ -275,7 +275,7 @@ class BrkFile:
     in break file are stored as Tsbrk objects.
 
     Ex:
-    >>> AREQ_breakFile = BreakFile()
+    >>> AREQ_breakFile = BrkFile()
     >>> AREQ_breakFile.read('./AREQ_brkFile.cmd')
     """
 
@@ -290,7 +290,7 @@ class BrkFile:
 
         """
         Read in all break records from fileName and store as Tsreak objects
-        within BreakFile object.
+        within BrkFile object.
         """
 
         self.name = fileName
@@ -373,7 +373,7 @@ class BrkFile:
                         newBreak.log[3] = float(splitLine[3])
 
     ####################################################################
-    def writeBreakFile(self, fileName):
+    def write(self, fileName):
 
         """
         Write break file object contents to formatted text .cmd file

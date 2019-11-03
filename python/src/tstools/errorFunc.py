@@ -7,9 +7,9 @@ Evaluate error functions and their gradients.
 import numpy as np         # then 3rd party libs
 
 from tstools.util.convtime import convtime
-import parameters as params
-import inputFileIO as ifio
-import timeSeries as ts
+from tstools import parameters as params
+from tstools import inputFileIO as ifio
+from tstools import timeSeries as ts
 
 ########################################################################
 """
@@ -21,29 +21,29 @@ X2 = 2
 X3 = 3
 
 ########################################################################
-def chiSqrAndGrad( paramVec, paramMap, tsObs, mdlFileIn, 
-                       brkFileIn, mode):
+def errorFunc( paramVec, paramMap, tsObs, mdlFileIn, brkFileIn, mode):
 
     """
     Return the chi squared statistic for the current inversion iteration
     with the gradient.
     """
 
-    # generate mdlFile_hat and brkFile_hat current inversion 
+    # generate mdlFileHat and brkFileHat current inversion 
     # iteration of paramVec
-    mdlFile_hat, brkFile_hat = params.genMdlFile( paramVec, paramMap,
+    mdlFileHat, brkFileHat = params.genMdlFiles(paramVec, paramMap,
                                                   mdlFileIn, brkFileIn)
 
     # generate tsHat for current inversion iteration
     tsHat = ts.TimeSeries()
-    tsHat.genSynthetic( # <- WORKING HERE
+    tsHat.time = tsObs.time
+    tsHat.compTs(mdlFileHat, brkFileHat)
 
-    chi_sqr = chiSquare( tsObs, tsHat, mode)
+    chi_sqr = chiSquare(tsObs, tsHat, mode)
 
-    chi_sqr_grad = gradChiSquare( tsObs, tsHat, mdlFileHat, brkFileHat, 
-                                  paramMap, mode)
+    #chi_sqr_grad = gradChiSquare(tsObs, tsHat, mdlFileHat, brkFileHat, 
+    #                              paramMap, mode)
 
-    return chi_sqr, chi_sqr_grad
+    return chi_sqr #, chi_sqr_grad
 
 ########################################################################
 def chiSquare( tsObs, tsHat, mode):
@@ -63,24 +63,24 @@ def chiSquare( tsObs, tsHat, mode):
         
     elif mode == ifio.TWO_DIM:
 
-        obs_pos = np.concatenate(tsObs.pos[0],
-                                 tsObs.pos[1])
-        obs_sig = np.concatenate(tsObs.sig[0],
-                                 tsObs.sig[1])
-        mdl_pos = np.concatenate(tsHat.pos[0],
-                                 tsHat.pos[1])
+        obs_pos = np.concatenate([tsObs.pos[0],
+                                 tsObs.pos[1]])
+        obs_sig = np.concatenate([tsObs.sig[0],
+                                 tsObs.sig[1]])
+        mdl_pos = np.concatenate([tsHat.pos[0],
+                                 tsHat.pos[1]])
 
     elif mode == ifio.THREE_DIM:
 
-        obs_pos = np.concatenate(tsObs.pos[0],
+        obs_pos = np.concatenate([tsObs.pos[0],
                                  tsObs.pos[1],
-                                 tsObs.pos[2])
-        obs_sig = np.concatenate(tsObs.sig[0],
+                                 tsObs.pos[2]])
+        obs_sig = np.concatenate([tsObs.sig[0],
                                  tsObs.sig[1],
-                                 tsObs.sig[2]))
-        mdl_pos = np.concatenate(tsHat.pos[0],
+                                 tsObs.sig[2]])
+        mdl_pos = np.concatenate([tsHat.pos[0],
                                  tsHat.pos[1],
-                                 tsHat.pos[2]))
+                                 tsHat.pos[2]])
 
     chi2 = np.sum(((obs_pos - mdl_pos)/obs_sig)**2)
 
@@ -100,9 +100,9 @@ def gradChiSquare( tsObs, tsHat, mdlFileHat, brkFileHat,
                   for values of parameters being estimated.
     mdlFileHat  - MdlFile object containing current values for non-break 
                   related parameters being estimated.
-    brkFileHat  - BreakFile object containing current values for 
+    brkFileHat  - BrkFile object containing current values for 
                   break-related parameters being estimated.
-    paramMap    - parameter map created from MdlFile and BreakFile 
+    paramMap    - parameter map created from MdlFile and BrkFile 
                   objects with parameters.genParamVecAndMap()
     
     Output(s):
@@ -130,6 +130,8 @@ def gradChiSquare( tsObs, tsHat, mdlFileHat, brkFileHat,
             gradVec[i] = 2*np.sum((deltaX1*x1_partial)/(tsObs.sig[0]**2))
 
     elif mode == ifio.TWO_DIM:
+        
+        for i, param in enumerate(paramMap[0]):
             
             paramMap_i = [paramMap[0][i],paramMap[1][i]]
 
@@ -148,6 +150,8 @@ def gradChiSquare( tsObs, tsHat, mdlFileHat, brkFileHat,
                           +(deltaX2*x2_partial)/(tsObs.sig[1]**2))
 
     elif mode == ifio.THREE_DIM:
+
+        for i, param in enumerate(paramMap[0]):
             
             paramMap_i = [paramMap[0][i],paramMap[1][i]]
 
@@ -191,7 +195,7 @@ def xHatPartial( param, tsObs, component, mdlFile, brkFile):
                   component the parital is being computed for
     mdlFile     - MdlFile object containing the current value of the 
                   non-break parameters being estimated.
-    brkFile     - BreakFile object containing the current values of the
+    brkFile     - BrkFile object containing the current values of the
                   Tsbreak model parameters being estimated.
 
     Output(s):

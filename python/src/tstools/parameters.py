@@ -6,9 +6,9 @@ from copy import deepcopy
 """
 Module for: 
  - creating parameter vector and parameter map vector 
-   from BreakFile and MdlFile objects, and
+   from BrkFile and MdlFile objects, and
  - using parameter vector and parameter map to create MdlFile
-   and BreakFile objects for each iteration of non-linear inversion
+   and BrkFile objects for each iteration of non-linear inversion
  - generating initial guess vector for non-linear solver
  - generating lower and upper bound tuples for non-linear solver
 """
@@ -362,7 +362,7 @@ def genMdlFiles( paramVec, paramMap, mdlFileIn, brkFileIn):
 
     """
     Generate MdlFile and BrkFile objects from parameter vector, 
-    parameter map vector, input MdlFile and input BreakFile objects.
+    parameter map vector, input MdlFile and input BrkFile objects.
 
     Input(s):
     paramVec   - vector of parameters being estimated
@@ -642,7 +642,7 @@ def genInitialGuess( paramMap, timeSeries, brkFile):
     """
     Return initial guess array (x_o) for the parameters being estimated
     using non-linear solver. x_o is constructed using information in 
-    the parameter map (paramMap) and BreakFile object (brkFile).
+    the parameter map (paramMap) and BrkFile object (brkFile).
     
     For most parameters, initialization to 0.0 is fine. However, for the 
     case where multiple taus are being estimated, it is best to form

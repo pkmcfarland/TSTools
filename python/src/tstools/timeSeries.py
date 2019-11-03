@@ -182,7 +182,7 @@ class TimeSeries:
         >>> uncRanges = [[0.001, 0.005], [0.001, 0.005], [0.0025, 0.01]]
         >>> mdlFile = ifio.MdlFile()
         >>> mdlFile.read('./mdlFile.tsmdl')
-        >>> brkFile = ifio.BreakFile()
+        >>> brkFile = ifio.BrkFile()
         >>> brkFile.read('./brkFile.tsbrk')
         >>> synTseries = ts.TimeSeries()
         >>> synTseries.compTs( mdlFile, brkFile, useCal=True, 
@@ -234,6 +234,10 @@ class TimeSeries:
                                   self.time.shape)
 
         self.sig = np.stack([x1unc, x2unc,x3unc])
+
+        # assign correlations as all zeros
+        self.corr = np.zeros([3,self.time.shape[0]])
+        
 
     ####################################################################
     def setRefPosToAvg(self):
@@ -554,6 +558,27 @@ class TimeSeries:
         endCal = convtime('year','cal', endDecYear)
 
         return endCal
+
+    ####################################################################
+    def zeroPosCopy(self):
+
+        """
+        Return a copy of the TimeSeries object with all zeros for position,
+        sigmas, and correlations.
+        """
+
+        tsOut = TimeSeries()
+        tsOut.time = self.time
+        tsOut.coordType = self.coordType
+        tsOut.frame = self.frame
+        tsOut.name = self.name
+        tsOut.refPos = self.refPos
+
+        tsOut.pos = np.zeros([3,self.time.shape[0]])
+        tsOut.sig = np.zeros([3,self.time.shape[0]])
+        tsOut.corr = np.zeros([3,self.time.shape[0]])
+
+        return tsOut
 
 ########################################################################
 # Define exceptions
