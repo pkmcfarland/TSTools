@@ -35,12 +35,8 @@ def chiSqrAndGrad( paramVec, paramMap, tsObs, mdlFileIn,
                                                   mdlFileIn, brkFileIn)
 
     # generate tsHat for current inversion iteration
-
-    # !!! Need to update compPos and create new method for generating
-    # !!! time series that uses explicit list of epochs to ensure 
-    # !!! data and best fit are compatible
     tsHat = ts.TimeSeries()
-    tsHat.genSynthetic(
+    tsHat.genSynthetic( # <- WORKING HERE
 
     chi_sqr = chiSquare( tsObs, tsHat, mode)
 
@@ -67,24 +63,24 @@ def chiSquare( tsObs, tsHat, mode):
         
     elif mode == ifio.TWO_DIM:
 
-        obs_pos = np.concatenate( tsObs.pos[0],
-                                  tsObs.pos[1])
-        obs_sig = np.concatenate( tsObs.sig[0],
-                                  tsObs.sig[1])
-        mdl_pos = np.concatenate( tsHat.pos[0],
-                                  tsHat.pos[1])
+        obs_pos = np.concatenate(tsObs.pos[0],
+                                 tsObs.pos[1])
+        obs_sig = np.concatenate(tsObs.sig[0],
+                                 tsObs.sig[1])
+        mdl_pos = np.concatenate(tsHat.pos[0],
+                                 tsHat.pos[1])
 
     elif mode == ifio.THREE_DIM:
 
-        obs_pos = np.concatenate( tsObs.pos[0],
-                                  tsObs.pos[1],
-                                  tsObs.pos[2])
-        obs_sig = np.concatenate( tsObs.sig[0],
-                                  tsObs.sig[1],
-                                  tsObs.sig[2]))
-        mdl_pos = np.concatenate( tsHat.pos[0],
-                                  tsHat.pos[1],
-                                  tsHat.pos[2]))
+        obs_pos = np.concatenate(tsObs.pos[0],
+                                 tsObs.pos[1],
+                                 tsObs.pos[2])
+        obs_sig = np.concatenate(tsObs.sig[0],
+                                 tsObs.sig[1],
+                                 tsObs.sig[2]))
+        mdl_pos = np.concatenate(tsHat.pos[0],
+                                 tsHat.pos[1],
+                                 tsHat.pos[2]))
 
     chi2 = np.sum(((obs_pos - mdl_pos)/obs_sig)**2)
 
@@ -656,7 +652,7 @@ def xHatPartial( param, tsObs, component, mdlFile, brkFile):
 
             if component == X1:
             
-                partial = time*timeBool
+                partial = (time-brkYr)*timeBool
 
             elif component == X2:
 
@@ -674,7 +670,7 @@ def xHatPartial( param, tsObs, component, mdlFile, brkFile):
 
             elif component == X2:
 
-                partial = time*timeBool
+                partial = (time-brkYr)*timeBool
 
             elif component == X3:
 
@@ -692,7 +688,7 @@ def xHatPartial( param, tsObs, component, mdlFile, brkFile):
 
             elif component == X3:
 
-                partial = time*timeBool
+                partial = (time-brkYr)*timeBool
             
         elif param[1] == params.EXP1_TAU:
 
@@ -910,7 +906,7 @@ def xHatPartial( param, tsObs, component, mdlFile, brkFile):
 
             if component == X1:
 
-                partial = np.log(1. + (time-brkYr)/log[0])*timeBool
+                partial = np.log(1. + np.abs(time-brkYr)/log[0])*timeBool
                
             elif component == X2:
 
@@ -928,7 +924,7 @@ def xHatPartial( param, tsObs, component, mdlFile, brkFile):
                
             elif component == X2:
 
-                partial = np.log(1. + (time-brkYr)/log[0])*timeBool
+                partial = np.log(1. + np.abs(time-brkYr)/log[0])*timeBool
 
             elif component == X3:
 
@@ -946,6 +942,6 @@ def xHatPartial( param, tsObs, component, mdlFile, brkFile):
 
             elif component == X3:
 
-                partial = np.log(1. + (time-brkYr)/log[0])*timeBool
+                partial = np.log(1. + np.abs(time-brkYr)/log[0])*timeBool
 
     return partial

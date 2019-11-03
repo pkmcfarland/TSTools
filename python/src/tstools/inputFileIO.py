@@ -52,7 +52,7 @@ class MdlFile:
         self.o4 = np.array([0.,0.,0.])
 
     ####################################################################
-    def readMdlFile(self, fileName):
+    def read(self, fileName):
 
         """
         Read in mdl file and assign values to parameter object.
@@ -61,7 +61,7 @@ class MdlFile:
         
         Ex:
         >>> areq_fitFile = FitFile()
-        >>> areq_fitFile.readFitfile('./AREQ_mdlFile.tsmdl')
+        >>> areq_fitFile.read('./AREQ_mdlFile.tsmdl')
         """
 
         self.name = fileName
@@ -248,7 +248,7 @@ class MdlFile:
         wf.close()
         
 ########################################################################
-class Tsbreak:
+class Tsbrk:
 
     """
     Holds information about breaks for parameter estimation or synthetic
@@ -268,15 +268,15 @@ class Tsbreak:
         self.log = np.array([1e9,0.,0.,0.])
 
 ########################################################################
-class BreakFile:
+class BrkFile:
 
     """
     Holds all the information from a single break file. Individual breaks
-    in break file are stored as Tsbreak objects.
+    in break file are stored as Tsbrk objects.
 
     Ex:
     >>> AREQ_breakFile = BreakFile()
-    >>> AREQ_breakFile.readBreakFile('./AREQ_brkFile.cmd')
+    >>> AREQ_breakFile.read('./AREQ_brkFile.cmd')
     """
 
     ####################################################################
@@ -286,7 +286,7 @@ class BreakFile:
         self.breaks = []
 
     ####################################################################
-    def readBreakFile(self, fileName):
+    def read(self, fileName):
 
         """
         Read in all break records from fileName and store as Tsreak objects
@@ -310,7 +310,7 @@ class BreakFile:
                 # new break record starts with +
                 if splitLine[0] == '+':
 
-                    newBreak = Tsbreak()
+                    newBreak = Tsbrk()
                     lineCount = 0
 
                     year = int(splitLine[1])
