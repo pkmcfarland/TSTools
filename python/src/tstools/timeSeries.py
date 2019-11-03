@@ -23,7 +23,7 @@ from plotly.subplots import make_subplots
 from tstools import inputFileIO as ifio
 from tstools import compPos as cp
 from tstools.util import transform
-from tstools.util import convtime
+from tstools.util.convtime import convtime
 
 ########################################################################
 # set constants
@@ -128,163 +128,116 @@ class TimeSeries:
         self.refPos = np.asarray(self.refPos)
 
     ####################################################################
-    def genSynthetic(self, startCal, endCal, posSdList, uncRangeList,
-                     mdlFilePath, brkFilePath):
+    def compTs(self, mdlFile, brkFile, useCal=False,
+                     startCal=[], 
+                     endCal=[], 
+                     posSdList=[0.0,0.0,0.0], 
+                     uncRngList=[[0.0,0.0],[0.0,0.0],[0.0,0.0]]):
 
         """
-        Generate synthetic time series from time defined by startList to 
-        time defined by endList. Daily positions are referenced to noon
-        of each day in time series. Synthetic time series will have Gaussian
-        noise in position with standard deviation for each component
-        defined in posSdList and Gaussian noise in position uncertainties
-        with standard deviation for each component defined in uncSdList.
-        The kinematics of the station, with the exception of breaks, 
-        are defined in mdlFile. All breaks are defined in brkFile.
+        Compute position time series for time period of TimeSeries 
+        object using equation parameters given in mdlFile and brkFile. 
+        If useCal is set to True, TimeSeries.time is overwritten by the 
+        time between startCal and endCal with daily positions given at 
+        noon of each day in time series. 
+        Computed time series will have Gaussian noise added 
+        to daily positions with standard deviation for each component
+        defined in posSdList and noise in position uncertainties
+        drawn from a uniform distribution defined by the values given
+        in uncRngList for each component.
         
+        Input(s):
+        mdlFile     - mdlFile object with parameters from which time 
+                      series will be computed
+        brkFile     - brkFile object with break-related parameters
+                      from which time series will be computed
+        useCal      - boolean (True/False) True if user would like
+                      to use the startCal and endCal lists to 
+                      supply start and end times. False if user 
+                      would like to use time array to supply times
+                      at which positions are to be computed.
+        startCal    - convtime-style calendar list of day on which 
+                      time series will begin
+        endCal      - convtime-style calendar list of day on which 
+                      time series will end
+        posSdList   - list of standard deviations [sigX1,sigX2,sigX3] 
+                      for the Gaussian distribution from which noise 
+                      will be added to time series in each component.
+        uncRngList  - list of lower and upper limits for uniform 
+                      distribution from which random noise will be added
+                      to time series uncertainties 
+                      [[uncLowX1,uncHighX1],
+                       [uncLowX2,uncHighX2],
+                       [uncLowX3,uncHighX3]]
+
+        Output(s):
+        None
+
         Ex:
         >>> from tstools import timeSeries as ts
+        >>> from tstools import inputFileIO as ifio
         >>> start = [2004, 2, 12, 0, 0, 0]
         >>> end = [2019, 8, 27, 12, 0, 0]
         >>> posSigmas = [ 0.005, 0.005, 0.01]
         >>> uncRanges = [[0.001, 0.005], [0.001, 0.005], [0.0025, 0.01]]
-        >>>
+        >>> mdlFile = ifio.MdlFile()
+        >>> mdlFile.read('./mdlFile.tsmdl')
+        >>> brkFile = ifio.BrkFile()
+        >>> brkFile.read('./brkFile.tsbrk')
         >>> synTseries = ts.TimeSeries()
-        >>> synTseries.genSynthetic( start, end, posSigmas, uncRanges,
-                                     './mdlFile.cmd', './brkFile.cmd')
+        >>> synTseries.compTs( mdlFile, brkFile, useCal=True, 
+                               start, end, posSigmas, uncRanges)
         """
 
         # set some internal values
-        self.name = 'SYNTHETIC'
-        self.coordType = DXDYDZ
-        self.frame = 'SYNTHETIC'
-
-        # read mdlFile into FitFile object
-        mdlFile = ifio.FitFile()
-        mdlFile.readFitFile(mdlFilePath)
-
-        # check that IM flag set to 'gensyn' in input fit file
-        if mdlFile.im != 'gensyn':
-
-            print(f"ERROR: IM flag in {mdlFilePath} not set to 'gensyn'"
-                 +f" modify file and try again")
-            return -1
-
-        # read brkFile into BreakFile object
-        brkFile = ifio.BreakFile()
-        brkFile.readBreakFile(brkFilePath)
-
-        # check that none of the breakFile parameters set to '999'
-        for tsBreak in brkFile.breaks:
-
-            if (999 in tsBreak.offset or 999 in tsBreak.deltaV
-                or 999 in tsBreak.expMagX1 or 999 in tsBreak.expTauX1
-                or 999 in tsBreak.expMagX2 or 999 in tsBreak.expTauX2
-                or 999 in tsBreak.expMagX3 or 999 in tsBreak.expTauX3
-                or 999 in tsBreak.lnMag or 999 in tsBreak.lnTau):
-
-                print(f"ERROR: one or more parameters set to '999' in "
-                     +f"{brkFilePath}. Cannot estimate parameters in "
-                     +f" 'gensyn' mode.")
-                return -1
+        self.name = 'computed'
+        self.coordType = DXDYDZ # <- not convinced this should be here
+        self.frame = 'none'
 
         # pull reference epoch out of mdlFile
         refYear = mdlFile.re
 
         # create list of epochs from user input starCal and endCal
         # assign list of decimal years to self.time
-        startMjd = convtime('cal','mjd2',startCal)
-        endMjd = convtime('cal','mjd2', endCal)
-
-        mjdList = list(range(startMjd[0], endMjd[0]+1))
+        if useCal:
+            startMjd = convtime('cal','mjd2',startCal)
+            endMjd = convtime('cal','mjd2', endCal)
+            mjdList = list(range(startMjd[0], endMjd[0]+1))
         
-        decYearList = [0.0]*len(mjdList)
-        for i, mjd in enumerate(mjdList):
-
-            decYearList[i] = convtime("mjd2","year",[mjd, 0.5])
+            decYearList = [0.0]*len(mjdList)
+            for i, mjd in enumerate(mjdList):
+                decYearList[i] = convtime("mjd2","year",[mjd, 0.5])
         
-        self.time = np.asarray(decYearList)
+            self.time = np.asarray(decYearList)
 
-        # get non-break parameters from mdlFile to pass to compPosAtEpoch()
-        dc = mdlFile.dc 
-        vel = mdlFile.ve        
-        sa = mdlFile.sa        
-        ca = mdlFile.ca        
-        ss = mdlFile.ss        
-        cs = mdlFile.cs
+        # get model computed positions
+        x1,x2,x3 = cp.compPos(self.time, mdlFile, brkFile)
 
-        ##############
-        # loop over epochs and compute position at each epoch
-        
-        # shift times so ref epoch is zero
-        shiftYear = np.array([0.0]*len(decYearList))
-        for i, decYear in enumerate(self.time):
-
-            shiftYear[i] = decYear - refYear
-
-        # initialize position arrays  
-        x1posArray = np.array([0.0]*len(self.time))
-        x2posArray = np.array([0.0]*len(self.time))
-        x3posArray = np.array([0.0]*len(self.time))
-        
-        # loop over shifted years and compute position at each
-        for i, decYear in enumerate(shiftYear):
-            
-            # get parameters necessary for breaks that occur prior to
-            # current epoch
-            [brkEpochs, 
-             offsetX1, 
-             offsetX2, 
-             offsetX3, 
-             dVx1, 
-             dVx2, 
-             dVx3,
-             expMagX1, 
-             expMagX2, 
-             expMagX3, 
-             expTauX1, 
-             expTauX2, 
-             expTauX3,
-             lnMagX1, 
-             lnMagX2, 
-             lnMagX3, 
-             lnTauX1, 
-             lnTauX2, 
-             lnTauX3] = cp.getBrkParams( decYear, refYear, brkFile)
-                
-                
-            # compute positions
-            x1pos, x2pos, x3pos = cp.compPosAtEpoch( decYear, dc, vel, sa, ca, ss, cs,
-                                      brkEpochs, offsetX1, offsetX2, offsetX3,
-                                      dVx1, dVx2, dVx3, expMagX1, expMagX2,
-                                      expMagX3, expTauX1, expTauX2, expTauX3,
-                                      lnMagX1, lnMagX2, lnMagX3, lnTauX1, lnTauX2, lnTauX3)
-            
-            # add computed positions to position component lists with random Gaussian
-            # noise
-            x1posArray[i] = x1pos + np.random.normal( 0., posSdList[0]) 
-            x2posArray[i] = x2pos + np.random.normal( 0., posSdList[1])
-            x3posArray[i] = x3pos + np.random.normal( 0., posSdList[2])
+        # add gaussian noise
+        x1 = x1 + posSdList[0]*np.random.randn(self.time.shape[0],)
+        x2 = x2 + posSdList[1]*np.random.randn(self.time.shape[0],)
+        x3 = x3 + posSdList[2]*np.random.randn(self.time.shape[0],)
 
         # assign computed positions to self.pos
-        self.pos = np.stack([x1posArray,x2posArray,x3posArray])
+        self.pos = np.stack([x1,x2,x3])
 
         # compute synthetic uncertainties for time series
         # within uniform distribution provided by uncRangeList
-        x1unc = np.array([0.0]*len(self.time))
-        x2unc = np.array([0.0]*len(self.time))
-        x3unc = np.array([0.0]*len(self.time))
+        x1unc = np.random.uniform(uncRngList[0][0],
+                                  uncRngList[0][1],
+                                  self.time.shape)
+        x2unc = np.random.uniform(uncRngList[1][0],
+                                  uncRngList[1][1],
+                                  self.time.shape)
+        x3unc = np.random.uniform(uncRngList[2][0],
+                                  uncRngList[2][1],
+                                  self.time.shape)
 
-        for i, epoch in enumerate(self.time):
-
-            x1unc[i] = np.random.uniform( uncRangeList[0][0],
-                                          uncRangeList[0][1])
-            x2unc[i] = np.random.uniform( uncRangeList[1][0],
-                                          uncRangeList[1][1])
-            x3unc[i] = np.random.uniform( uncRangeList[2][0],
-                                          uncRangeList[2][1])
-
-        
         self.sig = np.stack([x1unc, x2unc,x3unc])
+
+        # assign correlations as all zeros
+        self.corr = np.zeros([3,self.time.shape[0]])
+        
 
     ####################################################################
     def setRefPosToAvg(self):
@@ -526,7 +479,7 @@ class TimeSeries:
                            )
 
         # add the traces
-        fig.add_trace(go.Scatter(x=self.time, y=plot1,
+        fig.add_trace(go.Scattergl(x=self.time, y=plot1,
                                  mode='markers',
                                  name=trace1,
                                  marker_color='rgba(15,159,212,.8)',
@@ -534,10 +487,10 @@ class TimeSeries:
                                      type='data',
                                       array=sig1,
                                              )
-                                ),
+                                  ),
                       row=1, col=1
                       )
-        fig.add_trace(go.Scatter(x=self.time, y=plot2,
+        fig.add_trace(go.Scattergl(x=self.time, y=plot2,
                                  mode='markers',
                                  name=trace2,
                                  marker_color='rgba(15,159,212,.8)',
@@ -545,10 +498,10 @@ class TimeSeries:
                                      type='data',
                                       array=sig2,
                                              )
-                                ),
+                                  ),
                       row=2, col=1
                       )
-        fig.add_trace(go.Scatter(x=self.time, y=plot3,
+        fig.add_trace(go.Scattergl(x=self.time, y=plot3,
                                  mode='markers',
                                  name=trace3,
                                  marker_color='rgba(15,159,212,.8)',
@@ -556,7 +509,7 @@ class TimeSeries:
                                      type='data',
                                       array=sig3,
                                              )
-                                ),
+                                  ),
                       row=3, col=1
                       )
 
@@ -576,8 +529,56 @@ class TimeSeries:
         fig.update_layout(title=plotTitle, showlegend=False)
         
         # save as html file
-        fileName = f"{htmlDir}/{self.name}.{self.frame}.{self.coordType}.html"
+        fileName = (f"{htmlDir}/{self.name}.{self.frame}."
+                   +f"{self.coordType}.html")
         fig.write_html(fileName, auto_open=False)
+
+    ####################################################################
+    def getStartCal( self):
+
+        """
+        Return start date of time series in convtime calendar format.
+        """
+
+        startDecYear = self.time[0]
+
+        startCal = convtime('year','cal', startDecYear)
+
+        return startCal
+
+    ####################################################################
+    def getEndCal( self):
+
+        """
+        Return end date of time series in convtime calendar format.
+        """
+
+        endDecYear = self.time[-1]
+
+        endCal = convtime('year','cal', endDecYear)
+
+        return endCal
+
+    ####################################################################
+    def zeroPosCopy(self):
+
+        """
+        Return a copy of the TimeSeries object with all zeros for position,
+        sigmas, and correlations.
+        """
+
+        tsOut = TimeSeries()
+        tsOut.time = self.time
+        tsOut.coordType = self.coordType
+        tsOut.frame = self.frame
+        tsOut.name = self.name
+        tsOut.refPos = self.refPos
+
+        tsOut.pos = np.zeros([3,self.time.shape[0]])
+        tsOut.sig = np.zeros([3,self.time.shape[0]])
+        tsOut.corr = np.zeros([3,self.time.shape[0]])
+
+        return tsOut
 
 ########################################################################
 # Define exceptions

@@ -6,10 +6,26 @@ Module to read/write TSTools .tsfit and .tsbrk files
 
 import numpy as np
 
-from tstools.util import convtime
+from tstools.util.convtime import convtime
 
 ########################################################################
-class FitFile:
+"""
+Define constants.
+"""
+
+EST = 999
+
+BASIN = 'basin'
+L_BFGS_B = 'l_bfgs_b'
+LINEAR = 'linear'
+GENSYN = 'gensyn'
+
+ONE_DIM = '1D'
+TWO_DIM = '2D'
+THREE_DIM = '3D'
+
+########################################################################
+class MdlFile:
 
     """
     Holds information about parameters to be estimated, or fixed during 
@@ -23,6 +39,7 @@ class FitFile:
         self.name = 'NULL'
         self.im = ''
         self.lm = ''
+        self.di = ''
         self.re = float(0.0)
         self.dc = np.array([0.,0.,0.])
         self.ve = np.array([0.,0.,0.])
@@ -35,16 +52,16 @@ class FitFile:
         self.o4 = np.array([0.,0.,0.])
 
     ####################################################################
-    def readFitFile(self, fileName):
+    def read(self, fileName):
 
         """
-        Read in fit file and assign values to parameter object.
+        Read in mdl file and assign values to parameter object.
 
-        NOTE: read instructions for constructing fit file
+        NOTE: read instructions for constructing mdl file
         
         Ex:
         >>> areq_fitFile = FitFile()
-        >>> areq_fitFile.readFitfile('./AREQ_fitFile.tsfit')
+        >>> areq_fitFile.read('./AREQ_mdlFile.tsmdl')
         """
 
         self.name = fileName
@@ -65,6 +82,10 @@ class FitFile:
                 if flag == 'IM:':
 
                     self.im = splitLine[1]
+
+                elif flag == 'DI:':
+
+                    self.di = splitLine[1].upper()
 
                 elif flag == 'LM:':
 
@@ -132,28 +153,50 @@ class FitFile:
         # make some checks on the file that was just read in
         
         # check that a recognized inversion method was given
-        # additional minimization methods can be added below as they are incorporated
-        # into the other modules
-        if self.im != 'linear' and self.im != 'basin' and  self.im != 'gensyn':
+        # additional minimization methods can be added below 
+        # as they are incorporated into the other modules
+        if (self.im != LINEAR and self.im != BASIN and  
+            self.im != GENSYN and self.im != L_BFGS_B):
             print(f"ERROR reading in {fileName}, IM flag either not set"
                  +f" or not set to recognized value")
             return -1
         
-        # check that if a non-linear method is chosen that a
-        # local minimum finder is also chosen
-        if (self.im != 'linear' and self.im != 'gensyn') and self.lm == '':
-            print(f"ERROR reading in {fileName}, inversion method set to" 
-                 +f" {self.im} but no local minimum finder selected. Use"
-                 +f" LM flag to set.")
-            return -1
+        # check that if the dimension for inversion (DI) is set to 1d
+        # or 2d that no values are set to 999 for components that are
+        # not involved in the inversion.
+        if (self.di == ONE_DIM and 
+           ((self.dc[1] == EST or self.dc[2] == EST) or
+            (self.ve[1] == EST or self.ve[2] == EST) or
+            (self.sa[1] == EST or self.sa[2] == EST) or
+            (self.ca[1] == EST or self.ca[2] == EST) or
+            (self.ss[1] == EST or self.ss[2] == EST) or
+            (self.cs[1] == EST or self.cs[2] == EST) or
+            (self.o2[1] == EST or self.o2[2] == EST) or
+            (self.o3[1] == EST or self.o3[2] == EST) or
+            (self.o4[1] == EST or self.o4[2] == EST) )):
+
+            print(f"ERROR reading in {fileName}, DI flag set to 1d "
+                 +f"but one or more parameters has x2 or x3 "
+                 +f"component set to 999")
+
+        elif (self.di == TWO_DIM and
+            (self.dc[2] == EST or self.ve[2] == EST or
+             self.sa[2] == EST or self.ca[2] == EST or
+             self.ss[2] == EST or self.cs[2] == EST or
+             self.o2[2] == EST or self.o3[2] == EST or
+             self.o4[2] == EST)):
+            
+            print(f"ERROR reading in {fileName}, DI flag set to 2d "
+                 +f"but one or more parameters has x3 component "
+                 +f"set to 999")
 
         # check that if gensyn is chosen, no parameters are set to be 
         # estimated (i.e. are set to 999)
-        if (self.im == 'gensyn' and
-            (999 in self.dc or 999 in self.ve or 999 in self.sa
-             or 999 in self.ca or 999 in self.ss
-             or 999 in self.cs or 999 in self.o2 
-             or 999 in self.o3 or 999 in self.o4
+        if (self.im == GENSYN and
+            (EST in self.dc or EST in self.ve or EST in self.sa
+             or EST in self.ca or EST in self.ss
+             or EST in self.cs or EST in self.o2 
+             or EST in self.o3 or EST in self.o4
             )
            ):
             print(f"ERROR reading in {fileName}, IM flag set to gensyn but"
@@ -161,12 +204,27 @@ class FitFile:
                  +f" be estimated in synthetic time series generation.")
             return -1
 
+        # check that the O2, O3, and O4 terms are set to 0. for all 
+        # components
+
+        # **NOTE** this check must be deleted once 02, 03, 04 
+        #          functionality is added
+
+        if ((self.o2 != [0.,0.,0.]).all() and
+            (self.o3 != [0.,0.,0.]).all() and
+            (self.o4 != [0.,0.,0.]).all()):
+            print(f"ERROR reading in {fileName}, O2, O3, and O4 flags "
+                 +f"must either be ommitted or all values must be "
+                 +f"set to 0.0. Functionality for these terms is not "
+                 +f"yet supported.")
+            return -1
+
 
     ####################################################################
-    def writeFitFile(self, fileName):
+    def writeMdlFile(self, fileName):
 
         """
-        Write fit file based on values in FitFile object.
+        Write mdl file based on values in MdlFile object.
         """
 
         wf = open(fileName, "w")
@@ -190,7 +248,7 @@ class FitFile:
         wf.close()
         
 ########################################################################
-class Tsbreak:
+class Tsbrk:
 
     """
     Holds information about breaks for parameter estimation or synthetic
@@ -204,25 +262,21 @@ class Tsbreak:
         self.decYear = 0.0
         self.offset = np.array([0.,0.,0.])
         self.deltaV = np.array([0.,0.,0.])
-        self.expMagX1 = np.array([0.,0.,0.])
-        self.expTauX1 = np.array([1e9,1e9,1e9])
-        self.expMagX2 = np.array([0.,0.,0.])
-        self.expTauX2 = np.array([1e9,1e9,1e9])
-        self.expMagX3 = np.array([0.,0.,0.])
-        self.expTauX3 = np.array([1e9,1e9,1e9])
-        self.lnMag = np.array([0.,0.,0.])
-        self.lnTau = np.array([1e9,1e9,1e9])
+        self.exp1 = np.array([1e9,0.,0.,0.])
+        self.exp2 = np.array([1e9,0.,0.,0.])
+        self.exp3 = np.array([1e9,0.,0.,0.])
+        self.log = np.array([1e9,0.,0.,0.])
 
 ########################################################################
-class BreakFile:
+class BrkFile:
 
     """
     Holds all the information from a single break file. Individual breaks
-    in break file are stored as Tsbreak objects.
+    in break file are stored as Tsbrk objects.
 
     Ex:
-    >>> AREQ_breakFile = BreakFile()
-    >>> AREQ_breakFile.readBreakFile('./AREQ_brkFile.cmd')
+    >>> AREQ_breakFile = BrkFile()
+    >>> AREQ_breakFile.read('./AREQ_brkFile.cmd')
     """
 
     ####################################################################
@@ -232,11 +286,11 @@ class BreakFile:
         self.breaks = []
 
     ####################################################################
-    def readBreakFile(self, fileName):
+    def read(self, fileName):
 
         """
         Read in all break records from fileName and store as Tsreak objects
-        within BreakFile object.
+        within BrkFile object.
         """
 
         self.name = fileName
@@ -256,7 +310,7 @@ class BreakFile:
                 # new break record starts with +
                 if splitLine[0] == '+':
 
-                    newBreak = Tsbreak()
+                    newBreak = Tsbrk()
                     lineCount = 0
 
                     year = int(splitLine[1])
@@ -292,49 +346,34 @@ class BreakFile:
                     
                     elif lineCount == 2:
 
-                        newBreak.expMagX1 = np.array([float(splitLine[0]),
-                                                      float(splitLine[1]),
-                                                      float(splitLine[2])])
-                        newBreak.expTauX1 = np.array([float(splitLine[3]),
-                                                      float(splitLine[4]),
-                                                      float(splitLine[5])])
-
+                        newBreak.exp1[0] = float(splitLine[0])
+                        newBreak.exp1[1] = float(splitLine[1])
+                        newBreak.exp1[2] = float(splitLine[2])
+                        newBreak.exp1[3] = float(splitLine[3])
+                        
                     elif lineCount == 3:
 
-                        newBreak.expMagX2 = np.array([float(splitLine[0]),
-                                                      float(splitLine[1]),
-                                                      float(splitLine[2])])
-                        newBreak.expTauX2 = np.array([float(splitLine[3]),
-                                                      float(splitLine[4]),
-                                                      float(splitLine[5])])
+                        newBreak.exp2[0] = float(splitLine[0])
+                        newBreak.exp2[1] = float(splitLine[1])
+                        newBreak.exp2[2] = float(splitLine[2])
+                        newBreak.exp2[3] = float(splitLine[3])
 
                     elif lineCount == 4:
 
-                        newBreak.expMagX3 = np.array([float(splitLine[0]),
-                                                      float(splitLine[1]),
-                                                      float(splitLine[2])])
-                        newBreak.expTauX3 = np.array([float(splitLine[3]),
-                                                      float(splitLine[4]),
-                                                      float(splitLine[5])])
+                        newBreak.exp3[0] = float(splitLine[0])
+                        newBreak.exp3[1] = float(splitLine[1])
+                        newBreak.exp3[2] = float(splitLine[2])
+                        newBreak.exp3[3] = float(splitLine[3])
 
                     elif lineCount == 5:
 
-                        newBreak.lnMag[0] = float(splitLine[0])
-                        newBreak.lnTau[0] = float(splitLine[1])
+                        newBreak.log[0] = float(splitLine[0])
+                        newBreak.log[1] = float(splitLine[1])
+                        newBreak.log[2] = float(splitLine[2])
+                        newBreak.log[3] = float(splitLine[3])
 
-                    elif lineCount == 6:
-
-                        newBreak.lnMag[1] = float(splitLine[0])
-                        newBreak.lnTau[1] = float(splitLine[1])
-
-                    elif lineCount == 7:
-
-                        newBreak.lnMag[2] = float(splitLine[0])
-                        newBreak.lnTau[2] = float(splitLine[1])
-
-    
     ####################################################################
-    def writeBreakFile(self, fileName):
+    def write(self, fileName):
 
         """
         Write break file object contents to formatted text .cmd file
@@ -351,61 +390,48 @@ class BreakFile:
             minute = brkRec.cal[4]
             second = brkRec.cal[5]
 
-            x1offset = brkRec.offset[0]
-            x2offset = brkRec.offset[1]
-            x3offset = brkRec.offset[2]
+            offsetX1 = brkRec.offset[0]
+            offsetX2 = brkRec.offset[1]
+            offsetX3 = brkRec.offset[2]
 
             deltaV1 = brkRec.deltaV[0]
             deltaV2 = brkRec.deltaV[1]
             deltaV3 = brkRec.deltaV[2]
 
-            x1expMag1 = brkRec.expMagX1[0]
-            x1expMag2 = brkRec.expMagX1[1]
-            x1expMag3 = brkRec.expMagX1[2]
+            exp1_Tau = brkRec.exp1[0]
+            exp1_X1 = brkRec.exp1[1]
+            exp1_X2 = brkRec.exp1[2]
+            exp1_X3 = brkRec.exp1[3]
 
-            x2expMag1 = brkRec.expMagX2[0]
-            x2expMag2 = brkRec.expMagX2[1]
-            x2expMag3 = brkRec.expMagX2[2]
+            exp2_Tau = brkRec.exp2[0]
+            exp2_X1 = brkRec.exp2[1]
+            exp2_X2 = brkRec.exp2[2]
+            exp2_X3 = brkRec.exp2[3]
 
-            x3expMag1 = brkRec.expMagX3[0]
-            x3expMag2 = brkRec.expMagX3[1]
-            x3expMag3 = brkRec.expMagX3[2]
-
-            x1expTau1 = brkRec.expTauX1[0]
-            x1expTau2 = brkRec.expTauX1[1]
-            x1expTau3 = brkRec.expTauX1[2]
-
-            x2expTau1 = brkRec.expTauX2[0]
-            x2expTau2 = brkRec.expTauX2[1]
-            x2expTau3 = brkRec.expTauX2[2]
-
-            x3expTau1 = brkRec.expTauX3[0]
-            x3expTau2 = brkRec.expTauX3[1]
-            x3expTau3 = brkRec.expTauX3[2]
-
-            x1lnMag = brkRec.lnMag[0]
-            x2lnMag = brkRec.lnMag[1]
-            x3lnMag = brkRec.lnMag[2]
-
-            x1lnTau = brkRec.lnTau[0]
-            x2lnTau = brkRec.lnTau[1]
-            x3lnTau = brkRec.lnTau[2]
+            exp3_Tau = brkRec.exp3[0]
+            exp3_X1 = brkRec.exp3[1]
+            exp3_X2 = brkRec.exp3[2]
+            exp3_X3 = brkRec.exp3[3]
             
+            log_Tau = brkRec.log[0]
+            log_X1 = brkRec.log[1]
+            log_X2 = brkRec.log[2]
+            log_X3 = brkRec.log[3]
+
             bf.write("\n")
             bf.write(f"+ {year:4d} {month:2d} {day:2d} {hour:2d}"
-                    +f" {minute:2d} {second:5.2f} {x1offset}"
-                    +f" {x2offset} {x3offset}\n")
+                    +f" {minute:2d} {second:5.2f} {offsetX1}"
+                    +f" {offsetX2} {offsetX3}\n")
             bf.write(f"                           "
                     +f" {deltaV1} {deltaV2} {deltaV3}\n")
             bf.write(f"                           "
-                    +f" {x1expMag1} {x1expMag2} {x1expMag3} {x1expTau1} {x1expTau2} {x1expTau3}\n")
+                    +f" {exp1_Tau} {exp1_X1} {exp1_X2} {exp1_X3}\n")
             bf.write(f"                           "
-                    +f" {x2expMag1} {x2expMag2} {x2expMag3} {x2expTau1} {x2expTau2} {x2expTau3}\n")
+                    +f" {exp2_Tau} {exp2_X1} {exp2_X2} {exp2_X3}\n")
             bf.write(f"                           "
-                    +f" {x3expMag1} {x3expMag2} {x3expMag3} {x3expTau1} {x3expTau2} {x3expTau3}\n")
-            bf.write(f"                            {x1lnMag} {x1lnTau}\n")
-            bf.write(f"                            {x2lnMag} {x2lnTau}\n")
-            bf.write(f"                            {x3lnMag} {x3lnTau}\n")
+                    +f" {exp3_Tau} {exp3_X1} {exp3_X2} {exp3_X3}\n")
+            bf.write(f"                           "
+                    +f" {log_Tau} {log_X1} {log_X2} {log_X3}\n")
             bf.write("-\n")
 
         bf.close()
