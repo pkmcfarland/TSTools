@@ -60,7 +60,7 @@ class Fit:
         self.result = []
 
     ####################################################################
-    def fit(self, iprint=-1):
+    def fit(self, iprint=-1, niter=20):
 
         """
         Fit model parameters in mdlFileIn and brkFileIn to the data in 
@@ -97,7 +97,7 @@ class Fit:
             argsIn = (self.paramMap, self.tsIn, self.mdlFileIn,
                       self.brkFileIn, self.mdlFileIn.di)
             self.result = opt.basinhopping(ef.errorFunc, self.paramVec,
-                                           niter=20,
+                                           niter=niter,
                                            minimizer_kwargs={
                                             'args':argsIn,
                                             'method':'L-BFGS-B',
