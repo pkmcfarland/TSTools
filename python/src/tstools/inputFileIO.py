@@ -15,7 +15,7 @@ Define constants.
 
 EST = 999
 
-BASIN = 'basin'
+BASINHOP = 'basinhop'
 L_BFGS_B = 'l_bfgs_b'
 LINEAR = 'linear'
 GENSYN = 'gensyn'
@@ -155,7 +155,7 @@ class MdlFile:
         # check that a recognized inversion method was given
         # additional minimization methods can be added below 
         # as they are incorporated into the other modules
-        if (self.im != LINEAR and self.im != BASIN and  
+        if (self.im != LINEAR and self.im != BASINHOP and  
             self.im != GENSYN and self.im != L_BFGS_B):
             print(f"ERROR reading in {fileName}, IM flag either not set"
                  +f" or not set to recognized value")
@@ -221,7 +221,7 @@ class MdlFile:
 
 
     ####################################################################
-    def writeMdlFile(self, fileName):
+    def write(self, fileName):
 
         """
         Write mdl file based on values in MdlFile object.

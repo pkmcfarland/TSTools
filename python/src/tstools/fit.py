@@ -79,18 +79,36 @@ class Fit:
 
         # generate boundaries for non-linear solver
         self.bounds = params.genBounds(self.paramMap)
-
+        
         # call fit method
         if self.mdlFileIn.im == ifio.L_BFGS_B:
             
             argsIn = (self.paramMap, self.tsIn, self.mdlFileIn,
                       self.brkFileIn, self.mdlFileIn.di)
             self.result = opt.minimize(ef.errorFunc, self.paramVec, 
-                                        args=argsIn, 
-                                        method='L-BFGS-B',
-                                        bounds=self.bounds,
-                                        jac='3-point',
-                                        options={'iprint':101})
+                                       args=argsIn, 
+                                       method='L-BFGS-B',
+                                       bounds=self.bounds,
+                                       jac='2-point',
+                                       options={'iprint':iprint})
+
+        elif self.mdlFileIn.im == ifio.BASINHOP:
+
+            argsIn = (self.paramMap, self.tsIn, self.mdlFileIn,
+                      self.brkFileIn, self.mdlFileIn.di)
+            self.result = opt.basinhopping(ef.errorFunc, self.paramVec,
+                                           niter=20,
+                                           minimizer_kwargs={
+                                            'args':argsIn,
+                                            'method':'L-BFGS-B',
+                                            'bounds':self.bounds,
+                                            'jac':'2-point',
+                                            'options':{'iprint':iprint}})
+        else:
+            print(f'ERROR: {self.mdlFileIn.im} is not a valid '
+                 +f'inversion method, plese update your mdlFile '
+                 +f'IM flag and try again.')
+            exit()
 
         self.mdlFileOut, self.brkFileOut = params.genMdlFiles(
                                             self.result.x, 

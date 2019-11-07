@@ -22,11 +22,11 @@
 
 # Flags for type of inversion to perform:
 
-IM: basin    # (I)nversion (M)ethod: 
+IM: basinhop # (I)nversion (M)ethod: 
              #      linear   = weighted least squares
              #      l_bfgs_b = quasi-Newton type non-linear solver; may
              #                 be sensitive to initial parameter guess
-             #      basin    = use basinhopping algorithm to perform 
+             #      basinhop = use basinhopping algorithm to perform 
              #                 multiple l_bfgs_b iterations; useful if you
              #                 suspect your results are sensitive to the
              #                 initial guess.
