@@ -3,9 +3,10 @@ Python tools for GPS position time series.
 
 ## 3rd Party Dependencies:
 * [Anaconda 3](https://www.anaconda.com/distribution/)
-   * NumPy
-   * SciPy
-   * plotly
+   * [NumPy](https://numpy.org)
+   * [SciPy](https://scipy.org)
+   * [plotly](https://https://plot.ly/python/)
+   * [requests](https://https://pypi.org/project/requests/2.7.0/)
 
 
 ## Development Dependencies:
