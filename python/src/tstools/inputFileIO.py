@@ -266,6 +266,7 @@ class Tsbrk:
         self.exp2 = np.array([1e9,0.,0.,0.])
         self.exp3 = np.array([1e9,0.,0.,0.])
         self.log = np.array([1e9,0.,0.,0.])
+        self.comment = ''
 
 ########################################################################
 class BrkFile:
@@ -383,6 +384,8 @@ class BrkFile:
 
         for brkRec in self.breaks:
 
+            comment = brkRec.comment
+
             year = brkRec.cal[0]
             month = brkRec.cal[1]
             day = brkRec.cal[2]
@@ -419,8 +422,9 @@ class BrkFile:
             log_X3 = brkRec.log[3]
 
             bf.write("\n")
+            bf.write(f"# {comment}\n")
             bf.write(f"+ {year:4d} {month:2d} {day:2d} {hour:2d}"
-                    +f" {minute:2d} {second:5.2f} {offsetX1}"
+                    +f" {minute:2d} {second:5.2f}    {offsetX1}"
                     +f" {offsetX2} {offsetX3}\n")
             bf.write(f"                           "
                     +f" {deltaV1} {deltaV2} {deltaV3}\n")
