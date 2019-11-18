@@ -5,7 +5,7 @@ Python tools for GPS position time series.
 * [Anaconda 3](https://www.anaconda.com/distribution/)
    * [NumPy](https://numpy.org)
    * [SciPy](https://scipy.org)
-   * [plotly](https://https://plot.ly/python/)
+   * [plotly](https://plot.ly/python/)
    * [requests](https://https://pypi.org/project/requests/2.7.0/)
 
 
