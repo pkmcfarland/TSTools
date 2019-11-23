@@ -23,10 +23,14 @@ from plotly.subplots import make_subplots
 from tstools import inputFileIO as ifio
 from tstools import compPos as cp
 from tstools.util import transform
-from tstools.util.convtime import convtime
+from tstools.util.convtime import convtime, PreciseTime
+from tstools.util.nutils import msg_err
 
 ########################################################################
-# set constants
+"""
+constants
+"""
+BLANK_STR = ''
 XYZ = 'XYZ'
 DXDYDZ = 'dXdYdZ'
 ENU = 'ENU'
@@ -50,6 +54,99 @@ class TimeSeries:
         self.coordType = 'NO TYPE SET'
         self.refPos = [0.0,0.0,0.0]
 
+    ####################################################################
+    def paste(self, tsObj):
+
+        """
+        Paste another timeSeries object's time, and position 
+        information to the end or beginning of existing timeSeries 
+        object. TimeSeries being pasted must not overlap in time with
+        existing TimeSeries. Time series being pasted must also have
+        the same reference position, frame, and coordinate type. 
+
+        Input(s):
+        tsObj   - timeSeries.TimeSeries object with the same:
+                    - self.refPos
+                    - self.frame
+                    - self.coordType
+        """
+        
+        # get start/end time of TS being pasted
+        pasteTsStart = PreciseTime('cal',tsObj.getStartCal())
+        pasteTsEnd = PreciseTime('cal',tsObj.getEndCal())
+        # get start/end time of existing time series
+        tsStart = PreciseTime('cal',self.getStartCal())
+        tsEnd = PreciseTime('cal',self.getEndCal())
+
+        if pasteTsStart > tsEnd:
+            
+            self.time = np.concatenate([self.time,tsObj.time])
+            self.pos = np.concatenate([self.pos,tsObj.pos],1)
+            self.sig = np.concatenate([self.sig,tsObj.sig],1)
+            self.corr = np.concatenate([self.corr,tsObj.corr],1)
+            
+        elif pasteTsEnd < tsStart:
+            
+            self.time = np.concatenate([tsObj.time,self.time])
+            self.pos = np.concatenate([tsObj.pos,self.pos],1)
+            self.sig = np.concatenate([tsObj.sig,self.sig],1)
+            self.corr = np.concatenate([tsObj.corr,self.corr],1)
+
+        elif pasteTsStart >= tsStart and pasteTsStart <= tsEnd:
+            
+            msg_err('TimeSeries being pasted must not overlap in time '
+                   +'with current TimeSeries object')
+
+        elif pasteTsEnd >= tsStart and pasteTsEnd <= tsEnd:
+
+            msg_err('TimeSeries being pasted must not overlap in time '
+                   +'with current TimeSeries object')
+
+    ####################################################################
+    def trim(self, startCal=[ 1, 1, 1, 0, 0, 0.0], 
+                   endCal=[ 9999, 12, 31, 0, 0, 0.0]):
+
+        """
+        Trim time series so that it only contains position information
+        for times (t) such that startCal <= t <= endCal
+        """
+        
+        # convert input start/end times to PreciseTime objects
+        startPt = PreciseTime('cal',startCal)
+        endPt = PreciseTime('cal',endCal)
+        # get as decimal year
+        startYr = startPt.get('year')
+        endYr = endPt.get('year')
+        
+        timeBool = self.time >= startYr
+        timeBool = timeBool*(self.time <= endYr)
+
+        self.time = self.time[timeBool]
+        
+        pos0_temp = self.pos[0][timeBool]
+        pos1_temp = self.pos[1][timeBool]
+        pos2_temp = self.pos[2][timeBool]
+
+        sig0_temp = self.sig[0][timeBool]
+        sig1_temp = self.sig[1][timeBool]
+        sig2_temp = self.sig[2][timeBool]
+        
+        corr0_temp = self.corr[0][timeBool]
+        corr1_temp = self.corr[1][timeBool]
+        corr2_temp = self.corr[2][timeBool]
+
+        self.pos = np.stack([pos0_temp,
+                             pos1_temp,
+                             pos2_temp])
+        
+        self.sig = np.stack([sig0_temp,
+                             sig1_temp,
+                             sig2_temp])
+        
+        self.corr = np.stack([corr0_temp,
+                              corr1_temp,
+                              corr2_temp])
+        
     ####################################################################
     def readUnrTxyz2(self, fileName):
 
@@ -416,12 +513,13 @@ class TimeSeries:
         
     
     ####################################################################
-    def plotHtml(self, htmlDir):
+    def plotHtml(self, plotDir, fileName=''):
 
         """
         Create an HTML file with time series plot that may be opened 
         in a web browser.
         """
+        
         # set plotting vars depending on coordType
         if self.coordType == XYZ:
             trace1 = 'X'
@@ -529,8 +627,11 @@ class TimeSeries:
         fig.update_layout(title=plotTitle, showlegend=False)
         
         # save as html file
-        fileName = (f"{htmlDir}/{self.name}.{self.frame}."
-                   +f"{self.coordType}.html")
+        if fileName == BLANK_STR:
+            fileName = (f"{plotDir}/{self.name}.{self.frame}."
+                       +f"{self.coordType}.html")
+        else:
+            fileName = (f"{plotDir}/{fileName}.html")
         fig.write_html(fileName, auto_open=False)
 
     ####################################################################
@@ -559,6 +660,25 @@ class TimeSeries:
 
         return endCal
 
+    ####################################################################
+    def copy(self):
+
+        """
+        Return an exact copy of the TimeSeries object 
+        """
+
+        tsOut = TimeSeries()
+        tsOut.time = self.time
+        tsOut.coordType = self.coordType
+        tsOut.frame = self.frame
+        tsOut.name = self.name
+        tsOut.refPos = self.refPos
+        tsOut.pos = self.pos
+        tsOut.sig = self.sig
+        tsOut.corr = self.corr
+
+        return tsOut
+    
     ####################################################################
     def zeroPosCopy(self):
 
