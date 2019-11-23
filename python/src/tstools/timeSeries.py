@@ -24,9 +24,13 @@ from tstools import inputFileIO as ifio
 from tstools import compPos as cp
 from tstools.util import transform
 from tstools.util.convtime import convtime, PreciseTime
+from tstools.util.nutils import msg_err
 
 ########################################################################
-# set constants
+"""
+constants
+"""
+BLANK_STR = ''
 XYZ = 'XYZ'
 DXDYDZ = 'dXdYdZ'
 ENU = 'ENU'
@@ -49,6 +53,54 @@ class TimeSeries:
         self.frame = 'NO FRAME SET'
         self.coordType = 'NO TYPE SET'
         self.refPos = [0.0,0.0,0.0]
+
+    ####################################################################
+    def paste(self, tsObj):
+
+        """
+        Paste another timeSeries object's time, and position 
+        information to the end or beginning of existing timeSeries 
+        object. TimeSeries being pasted must not overlap in time with
+        existing TimeSeries. Time series being pasted must also have
+        the same reference position, frame, and coordinate type. 
+
+        Input(s):
+        tsObj   - timeSeries.TimeSeries object with the same:
+                    - self.refPos
+                    - self.frame
+                    - self.coordType
+        """
+        
+        # get start/end time of TS being pasted
+        pasteTsStart = PreciseTime('cal',tsObj.getStartCal())
+        pasteTsEnd = PreciseTime('cal',tsObj.getEndCal())
+        # get start/end time of existing time series
+        tsStart = PreciseTime('cal',self.getStartCal())
+        tsEnd = PreciseTime('cal',self.getEndCal())
+
+        if pasteTsStart > tsEnd:
+            
+            self.time = np.concatenate([self.time,tsObj.time])
+            self.pos = np.concatenate([self.pos,tsObj.pos],1)
+            self.sig = np.concatenate([self.sig,tsObj.sig],1)
+            self.corr = np.concatenate([self.corr,tsObj.corr],1)
+            
+        elif pasteTsEnd < tsStart:
+            
+            self.time = np.concatenate([tsObj.time,self.time])
+            self.pos = np.concatenate([tsObj.pos,self.pos],1)
+            self.sig = np.concatenate([tsObj.sig,self.sig],1)
+            self.corr = np.concatenate([tsObj.corr,self.corr],1)
+
+        elif pasteTsStart >= tsStart and pasteTsStart <= tsEnd:
+            
+            msg_err('TimeSeries being pasted must not overlap in time '
+                   +'with current TimeSeries object')
+
+        elif pasteTsEnd >= tsStart and pasteTsEnd <= tsEnd:
+
+            msg_err('TimeSeries being pasted must not overlap in time '
+                   +'with current TimeSeries object')
 
     ####################################################################
     def trim(self, startCal=[ 1, 1, 1, 0, 0, 0.0], 
@@ -461,12 +513,13 @@ class TimeSeries:
         
     
     ####################################################################
-    def plotHtml(self, htmlDir):
+    def plotHtml(self, plotDir, fileName=''):
 
         """
         Create an HTML file with time series plot that may be opened 
         in a web browser.
         """
+        
         # set plotting vars depending on coordType
         if self.coordType == XYZ:
             trace1 = 'X'
@@ -574,8 +627,11 @@ class TimeSeries:
         fig.update_layout(title=plotTitle, showlegend=False)
         
         # save as html file
-        fileName = (f"{htmlDir}/{self.name}.{self.frame}."
-                   +f"{self.coordType}.html")
+        if fileName == BLANK_STR:
+            fileName = (f"{plotDir}/{self.name}.{self.frame}."
+                       +f"{self.coordType}.html")
+        else:
+            fileName = (f"{plotDir}/{fileName}.html")
         fig.write_html(fileName, auto_open=False)
 
     ####################################################################
@@ -617,6 +673,9 @@ class TimeSeries:
         tsOut.frame = self.frame
         tsOut.name = self.name
         tsOut.refPos = self.refPos
+        tsOut.pos = self.pos
+        tsOut.sig = self.sig
+        tsOut.corr = self.corr
 
         return tsOut
     
