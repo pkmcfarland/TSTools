@@ -40,8 +40,7 @@ class UnrTxyz2:
         self.baseUrl = ('http://geodesy.unr.edu/gps_timeseries/txyz/'
                        +'IGS08/')
         if site != BLANK_STR:
-            site = site.upper()
-            self.site = site
+            self.site = site.upper()
         else:
             self.site = BLANK_STR
         self.url = BLANK_STR
@@ -55,12 +54,13 @@ class UnrTxyz2:
         specified station.
         """
 
+        self.lineList = []
+
         if baseUrl != BLANK_STR:
             self.baseUrl = baseUrl
 
         if site != BLANK_STR:
-            site = site.upper()
-            self.site = site
+            self.site = site.upper()
         
         self.url = f'{self.baseUrl}{self.site}.IGS08.txyz2'
         
@@ -173,24 +173,21 @@ class UnrLatLonHtFile:
                         self.lineList.append(line.strip('\n'))
     
     ####################################################################
-    def write(self, fileName, site=''):
+    def write(self, fileName, site='all'):
     
         """
         Write contents of UnrLatLonHtFile object out to text file.
         """
         
-        if site != BLANK_STR:
-            self.site = site
-
         wf = open(fileName,'w')
-        if self.site == ALL:
+        if site == ALL:
             for line in self.lineList:
                 wf.write(line+'\n')
         else:
             for line in self.lineList:
                 if line == BLANK_STR:
                     continue
-                if line.split()[0] == self.site:
+                if line.split()[0] == site:
                     wf.write(line+'\n')
     ####################################################################
     def getLonLatHt(self, site):
@@ -293,24 +290,21 @@ class UnrBrkFile:
                         self.lineList.append(line.strip('\n'))
 
     ####################################################################
-    def write(self, fileName, site=''):
+    def write(self, fileName, site='all'):
     
         """
         Write contents of UnrBreakFile object out to text file.
         """
         
-        if site != BLANK_STR:
-            self.site = site
-
         wf = open(fileName,'w')
-        if self.site == ALL:
+        if site == ALL:
             for line in self.lineList:
                 wf.write(line+'\n')
         else:
             for line in self.lineList:
                 if line == BLANK_STR:
                     continue
-                if line.split()[0] == self.site:
+                if line.split()[0] == site:
                     wf.write(line+'\n')
 
     ####################################################################
