@@ -23,7 +23,7 @@ from plotly.subplots import make_subplots
 from tstools import inputFileIO as ifio
 from tstools import compPos as cp
 from tstools.util import transform
-from tstools.util.convtime import convtime
+from tstools.util.convtime import convtime, PreciseTime
 
 ########################################################################
 # set constants
@@ -50,6 +50,51 @@ class TimeSeries:
         self.coordType = 'NO TYPE SET'
         self.refPos = [0.0,0.0,0.0]
 
+    ####################################################################
+    def trim(self, startCal=[ 1, 1, 1, 0, 0, 0.0], 
+                   endCal=[ 9999, 12, 31, 0, 0, 0.0]):
+
+        """
+        Trim time series so that it only contains position information
+        for times (t) such that startCal <= t <= endCal
+        """
+        
+        # convert input start/end times to PreciseTime objects
+        startPt = PreciseTime('cal',startCal)
+        endPt = PreciseTime('cal',endCal)
+        # get as decimal year
+        startYr = startPt.get('year')
+        endYr = endPt.get('year')
+        
+        timeBool = self.time >= startYr
+        timeBool = timeBool*(self.time <= endYr)
+
+        self.time = self.time[timeBool]
+        
+        pos0_temp = self.pos[0][timeBool]
+        pos1_temp = self.pos[1][timeBool]
+        pos2_temp = self.pos[2][timeBool]
+
+        sig0_temp = self.sig[0][timeBool]
+        sig1_temp = self.sig[1][timeBool]
+        sig2_temp = self.sig[2][timeBool]
+        
+        corr0_temp = self.corr[0][timeBool]
+        corr1_temp = self.corr[1][timeBool]
+        corr2_temp = self.corr[2][timeBool]
+
+        self.pos = np.stack([pos0_temp,
+                             pos1_temp,
+                             pos2_temp])
+        
+        self.sig = np.stack([sig0_temp,
+                             sig1_temp,
+                             sig2_temp])
+        
+        self.corr = np.stack([corr0_temp,
+                              corr1_temp,
+                              corr2_temp])
+        
     ####################################################################
     def readUnrTxyz2(self, fileName):
 
@@ -559,6 +604,22 @@ class TimeSeries:
 
         return endCal
 
+    ####################################################################
+    def copy(self):
+
+        """
+        Return an exact copy of the TimeSeries object 
+        """
+
+        tsOut = TimeSeries()
+        tsOut.time = self.time
+        tsOut.coordType = self.coordType
+        tsOut.frame = self.frame
+        tsOut.name = self.name
+        tsOut.refPos = self.refPos
+
+        return tsOut
+    
     ####################################################################
     def zeroPosCopy(self):
 

@@ -93,8 +93,7 @@ class UnrTxyz2:
         for line in self.lineList:
             if line == BLANK_STR:
                 continue
-            if line.split()[0] == self.site:
-                wf.write(line+'\n')
+            wf.write(line+'\n')
 
 ########################################################################
 class UnrLatLonHtFile:
