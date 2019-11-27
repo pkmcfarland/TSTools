@@ -230,10 +230,9 @@ class MdlFile:
         wf = open(fileName, "w")
 
         wf.write(f"IM: {self.im}\n")
-        
+        wf.write(f"DI: {self.di}\n") 
         if self.lm != '':
             wf.write(f"LM: {self.lm}\n")
-
         wf.write(f"RE: {self.re:12.7f}\n")
         wf.write(f"DC: {self.dc[0]} {self.dc[1]} {self.dc[2]}\n")
         wf.write(f"VE: {self.ve[0]} {self.ve[1]} {self.ve[2]}\n")
