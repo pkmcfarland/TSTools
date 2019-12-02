@@ -37,8 +37,7 @@ class UnrTxyz2:
     ####################################################################
     def __init__(self, site=''):
 
-        self.baseUrl = ('http://geodesy.unr.edu/gps_timeseries/txyz/'
-                       +'IGS08/')
+        self.baseUrl = ('http://geodesy.unr.edu/gps_timeseries/txyz/IGS14/')
         if site != BLANK_STR:
             self.site = site.upper()
         else:
