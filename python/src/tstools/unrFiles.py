@@ -61,7 +61,7 @@ class UnrTxyz2:
         if site != BLANK_STR:
             self.site = site.upper()
         
-        self.url = f'{self.baseUrl}{self.site}.IGS08.txyz2'
+        self.url = f'{self.baseUrl}{self.site}.txyz2'
         
         # download file
         raw = req.get(self.url)
@@ -86,7 +86,7 @@ class UnrTxyz2:
         """
 
         if fileName == BLANK_STR:
-            fileName = f'./{self.site}.IGS08.txyz2'
+            fileName = f'./{self.site}.IGS14.txyz2'
             
         wf = open(fileName,'w')
         for line in self.lineList:
