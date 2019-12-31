@@ -35,6 +35,35 @@ XYZ = 'XYZ'
 DXDYDZ = 'dXdYdZ'
 ENU = 'ENU'
 
+IGS14_SOAM = 'IGS14_SOAM'
+
+# plate motion Euler poles from ITRF2014 [Altamimi, et al. 2017]
+# in cartesian coordinates w.r.t. ITRF2014 geocenter vectors are given
+# in milliarcseconds per year
+ITRF2014_PMM = {'Antarctic':{'pole':np.array([-.248,-.324,.675]),
+                             'name':'IGS14_ANTA'},
+                'Arabian':{'pole':np.array([1.154,-.136,1.444]),
+                           'name':'ARAB'},
+                'Australian':{'pole':np.array([1.510,1.182,1.215]),
+                              'name':'AUST'},
+                'Eurasian':{'pole':np.array([-.085,-.531,.770]),
+                            'name':'EURA'},
+                'Indian':{'pole':np.array([1.154,-.005,1.454]),
+                          'name':'INDI'},
+                'Nazca':{'pole':np.array([-.333,-1.544,1.623]),
+                         'name':'NAZC'},
+                'North American':{'pole':np.array([.024,-.694,-.063]),
+                                  'name':'NOAM'},
+                'Nubian':{'pole':np.array([.099,-.614,.733]),
+                          'name':'NUBI'},
+                'Pacific':{'pole':np.array([-.409,1.047,-2.169]),
+                           'name':'PCFC'},
+                'South American':{'pole':np.array([-.270,-.301,-.140]),
+                                  'name':'SOAM'},
+                'Somalian':{'pole':np.array([-.121,-.794,.884]),
+                            'name':'SOMA'}
+               }
+
 ########################################################################
 class TimeSeries:
 
@@ -512,6 +541,56 @@ class TimeSeries:
             print(cte)
         
     
+    ####################################################################
+    def removePlateMotion(self, plateName, refEpoch=0.0, mdlFile=None):
+
+        """
+        Remove plate motion from time series. TimeSeries object coordinates
+        must be in dXdYdZ. Reference epoch can be set
+        directly or by providing a .tsmdl file within which reference
+        epoch is indicated. Only one method need be provided. If both 
+        provided, contents of mdlFile override refEpoch. 
+        
+        Input(s):
+        plateName   name of plate to which station is fixed (string)
+                    options are:
+                    Antarctic, Arabian, Australian, Eurasian, Indian,
+                    Nazca, North American, Nubian, Pacific, 
+                    South American, Somali
+        refEpoch    reference time in years (float)
+        mdlFile     tstools .tsmdl file from which reference epoch may
+                    be taken (tstools.inputFileIO.MdlFile)
+        """
+
+        if self.coordType != DXDYDZ:
+            msg_err('TimeSeries object coordinates must be in dXdYdZ '
+                   +'use timeSeries.TimeSeries.setRefPosToAvg() to '
+                   +'convert.')
+
+        if mdlFile:
+            refEpoch = mdlFile.re
+
+        # get Euler pole from plate model and convert to milliarcseconds
+        # per year to radians per year
+        omega = ITRF2014_PMM[plateName]['pole']*np.pi/180/1000/3600
+
+        # take cross product of Euler pole with station reference position
+        plateVel = np.cross(omega, self.refPos)
+        
+        # compute plate motion contribution for each component
+        shiftTime = self.time - refEpoch
+        plateX = shiftTime*plateVel[0]
+        plateY = shiftTime*plateVel[1]
+        plateZ = shiftTime*plateVel[2]
+
+        # remove plate motion
+        self.pos[0] = self.pos[0] - plateX
+        self.pos[1] = self.pos[1] - plateY
+        self.pos[2] = self.pos[2] - plateZ
+
+        # re-label frame
+        self.frame = f"IGS14_{ITRF2014_PMM[plateName]['name']}" 
+
     ####################################################################
     def plotHtml(self, plotDir, fileName=''):
 
