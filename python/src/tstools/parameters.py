@@ -645,8 +645,11 @@ def genInitialGuess( paramMap, timeSeries, brkFile):
     the parameter map (paramMap) and BrkFile object (brkFile).
     
     For most parameters, initialization to 0.0 is fine. However, for the 
-    case where multiple taus are being estimated, it is best to form
-    initial guess with tau1 < tau2 < tau3 < ...
+    case where there are multiple exponential terms with taus being 
+    estimated, it is best to form initial guess with 
+    tau1 < tau2 < tau3 < ...
+
+    Initial guess for logarithm tau will be set to 30 days
 
     Input brkFile must be the brkFile used to generate paramMap.
     """
@@ -740,5 +743,9 @@ def genInitialGuess( paramMap, timeSeries, brkFile):
                 elif brkTracker[0][paramMap[0][i]-1] == 3:
 
                     x_o[i] = brkTracker[1][paramMap[0][i]-1]/4.
+
+            elif paramMap[1][i] == LOG_TAU:
+
+                x_o[i] = 0.08487
 
     return x_o 
