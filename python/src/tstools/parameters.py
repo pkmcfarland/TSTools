@@ -588,7 +588,7 @@ def genMdlFiles( paramVec, paramMap, mdlFileIn, brkFileIn):
 
             elif key1 == LOG_X3:
 
-                brkFileOut.breaks[paramMap[0][i]-1].logMag[3] = paramVec[i]
+                brkFileOut.breaks[paramMap[0][i]-1].log[3] = paramVec[i]
             
     return [mdlFileOut, brkFileOut]
 
